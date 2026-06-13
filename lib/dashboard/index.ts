@@ -39,14 +39,6 @@ export async function getDashboardData() {
       .order("created_at", { ascending: false }),
   ]);
 
-  if (sessionsResult.error) {
-    throw new Error(queryErrorMessage(sessionsResult.error));
-  }
-
-  if (goalsResult.error) {
-    throw new Error(queryErrorMessage(goalsResult.error));
-  }
-
   let matches: Match[] = [];
 
   if (matchesResult.error) {
@@ -58,8 +50,27 @@ export async function getDashboardData() {
     matches = (matchesResult.data ?? []) as Match[];
   }
 
-  const sessions = (sessionsResult.data ?? []) as TrainingSession[];
-  const goals = (goalsResult.data ?? []) as Goal[];
+  let sessions: TrainingSession[] = [];
+
+  if (sessionsResult.error) {
+    console.error(
+      "[dashboard] training sessions query failed:",
+      queryErrorMessage(sessionsResult.error),
+    );
+  } else {
+    sessions = (sessionsResult.data ?? []) as TrainingSession[];
+  }
+
+  let goals: Goal[] = [];
+
+  if (goalsResult.error) {
+    console.error(
+      "[dashboard] goals query failed:",
+      queryErrorMessage(goalsResult.error),
+    );
+  } else {
+    goals = (goalsResult.data ?? []) as Goal[];
+  }
 
   return {
     profile,

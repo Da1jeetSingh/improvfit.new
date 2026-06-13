@@ -9,6 +9,14 @@ export type AuthActionState = {
   message?: string;
 };
 
+function authFailureMessage(error: unknown, fallback: string) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return fallback;
+}
+
 export async function login(
   _prevState: AuthActionState,
   formData: FormData,
@@ -21,14 +29,19 @@ export async function login(
     return { error: "Email and password are required." };
   }
 
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
+  try {
+    const supabase = await createClient();
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-  if (error) {
-    return { error: error.message };
+    if (error) {
+      return { error: error.message };
+    }
+  } catch (error) {
+    console.error("[auth] login failed:", error);
+    return { error: authFailureMessage(error, "Sign in failed.") };
   }
 
   redirect(next.startsWith("/") ? next : "/dashboard");
@@ -49,14 +62,19 @@ export async function signup(
     return { error: "Password must be at least 8 characters." };
   }
 
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-  });
+  try {
+    const supabase = await createClient();
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
 
-  if (error) {
-    return { error: error.message };
+    if (error) {
+      return { error: error.message };
+    }
+  } catch (error) {
+    console.error("[auth] signup failed:", error);
+    return { error: authFailureMessage(error, "Account creation failed.") };
   }
 
   return {
@@ -66,7 +84,12 @@ export async function signup(
 }
 
 export async function logout() {
-  const supabase = await createClient();
-  await supabase.auth.signOut();
+  try {
+    const supabase = await createClient();
+    await supabase.auth.signOut();
+  } catch (error) {
+    console.error("[auth] logout failed:", error);
+  }
+
   redirect("/login");
 }

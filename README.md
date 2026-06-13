@@ -30,10 +30,13 @@ Run migrations in order:
 
 1. `supabase/migrations/20250613100000_initial_schema.sql`
 2. `supabase/migrations/20250613110000_add_profile_fields.sql`
-3. `supabase/migrations/20250613120000_add_match_batting_fields.sql` — **required for match batting fields including `balls_faced`**
+3. `supabase/migrations/20250613120000_add_match_batting_fields.sql`
 4. `supabase/migrations/20250613130000_add_training_session_fields.sql`
+5. `supabase/migrations/20250613140000_update_goals_schema.sql`
+6. `supabase/migrations/20250613145000_ensure_profile_columns.sql`
+7. `supabase/migrations/20250613150000_ensure_auth_profile_trigger.sql`
 
-Or run only step 3 if you already have the base schema but see `column matches.balls_faced does not exist`.
+**Production auth/dashboard errors** usually mean steps 2, 5, or 7 were not applied to the same Supabase project as your Vercel `NEXT_PUBLIC_SUPABASE_URL`.
 
 ### App env
 
