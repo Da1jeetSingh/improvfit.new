@@ -11,6 +11,7 @@ const navItems = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/weekly", label: "Weekly" },
   { href: "/stats", label: "Stats" },
+  { href: "/milestones", label: "Awards" },
   { href: "/profile", label: "Profile" },
   { href: "/training", label: "Training" },
   { href: "/matches", label: "Matches" },
