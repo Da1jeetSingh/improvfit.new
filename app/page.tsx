@@ -15,7 +15,7 @@ export default function Home() {
         <Link href="/login">
           <Button fullWidth>Log in</Button>
         </Link>
-        <Link href="/login?tab=signup">
+        <Link href="/signup">
           <Button fullWidth variant="secondary">
             Create account
           </Button>

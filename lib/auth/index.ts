@@ -8,7 +8,10 @@ export const protectedRoutes = [
   "/goals",
 ] as const;
 
-export const authRoutes = ["/login", "/signup"] as const;
+export const loginRoute = "/login" as const;
+export const signupRoute = "/signup" as const;
+
+export const authRoutes = [loginRoute, signupRoute] as const;
 
 export function isProtectedRoute(pathname: string) {
   return protectedRoutes.some(
@@ -16,10 +19,16 @@ export function isProtectedRoute(pathname: string) {
   );
 }
 
+export function isLoginRoute(pathname: string) {
+  return pathname === loginRoute || pathname.startsWith(`${loginRoute}/`);
+}
+
+export function isSignupRoute(pathname: string) {
+  return pathname === signupRoute || pathname.startsWith(`${signupRoute}/`);
+}
+
 export function isAuthRoute(pathname: string) {
-  return authRoutes.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`),
-  );
+  return isLoginRoute(pathname) || isSignupRoute(pathname);
 }
 
 export async function getSession() {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { inputClassName, labelClassName } from "@/components/ui/form-styles";
@@ -23,6 +23,10 @@ export function AuthTabs({
   const [tab, setTab] = useState<"login" | "signup">(defaultTab);
   const [loginState, loginAction, loginPending] = useActionState(login, initialState);
   const [signupState, signupAction, signupPending] = useActionState(signup, initialState);
+
+  useEffect(() => {
+    setTab(defaultTab);
+  }, [defaultTab]);
 
   return (
     <div>

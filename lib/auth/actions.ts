@@ -64,13 +64,17 @@ export async function signup(
 
   try {
     const supabase = await createClient();
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
     });
 
     if (error) {
       return { error: error.message };
+    }
+
+    if (data.session) {
+      redirect("/dashboard");
     }
   } catch (error) {
     console.error("[auth] signup failed:", error);
