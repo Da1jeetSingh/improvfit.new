@@ -49,6 +49,7 @@ Apply migrations in order:
 2. `supabase/migrations/20250613110000_add_profile_fields.sql`
 3. `supabase/migrations/20250613120000_add_match_batting_fields.sql`
 4. `supabase/migrations/20250613130000_add_training_session_fields.sql`
+5. `supabase/migrations/20250613140000_add_goal_progress_fields.sql`
 
 ## Project structure
 
