@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { PageHeader } from "@/components/layout/page-header";
+import { StreakCard } from "@/components/dashboard/streak-card";
 import { Card } from "@/components/ui/card";
 import { ChartBars } from "@/components/ui/chart-bars";
 import { formatDate, formatLabel } from "@/components/ui/form-styles";
@@ -33,7 +34,8 @@ export default async function DashboardPage() {
   const data = await getDashboardData();
   if (!data) redirect("/login");
 
-  const { profile, metrics, recentMatches, recentSessions, recentGoals } = data;
+  const { profile, metrics, streak, streakError, recentMatches, recentSessions, recentGoals } =
+    data;
 
   return (
     <section className="space-y-8">
@@ -42,6 +44,8 @@ export default async function DashboardPage() {
         title={`Hey${profile?.full_name ? `, ${profile.full_name.split(" ")[0]}` : ""}`}
         description="Your recent activity, stats, and progress at a glance."
       />
+
+      <StreakCard streak={streak} error={streakError} />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatTile label="Matches" value={String(metrics.matchesPlayed)} hint="Logged innings" />

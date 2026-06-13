@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { calculateDashboardMetrics } from "@/lib/dashboard/metrics";
+import { calculateActivityStreak } from "@/lib/dashboard/streak";
 import { getProfile } from "@/lib/profile";
 import { goalSelect } from "@/types/goal";
 import { matchSelect, type Match } from "@/types/match";
@@ -79,9 +80,17 @@ export async function getDashboardData() {
     goals = (goalsResult.data ?? []) as Goal[];
   }
 
+  const streak = calculateActivityStreak(sessions, matches);
+  const streakError =
+    matchesResult.error && sessionsResult.error
+      ? "Training and match logs could not be loaded."
+      : null;
+
   return {
     profile,
     metrics: calculateDashboardMetrics(matches, sessions, goals),
+    streak,
+    streakError,
     recentMatches: matches.slice(0, 3),
     recentSessions: sessions.slice(0, 3),
     recentGoals: goals.slice(0, 3),
