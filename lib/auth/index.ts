@@ -3,9 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 export const protectedRoutes = [
   "/dashboard",
   "/profile",
-  "/matches",
   "/training",
-  "/goals",
 ] as const;
 
 export const authRoutes = ["/login", "/signup"] as const;

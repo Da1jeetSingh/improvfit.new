@@ -5,9 +5,7 @@ const navLinks = [
   { href: "/signup", label: "Sign up" },
   { href: "/dashboard", label: "Dashboard" },
   { href: "/profile", label: "Profile" },
-  { href: "/matches", label: "Matches" },
   { href: "/training", label: "Training" },
-  { href: "/goals", label: "Goals" },
 ] as const;
 
 export default function Home() {
@@ -18,8 +16,8 @@ export default function Home() {
       </p>
       <h1 className="mt-2 text-4xl font-bold tracking-tight">IMPROV</h1>
       <p className="mt-4 text-lg text-zinc-600">
-        Track your cricket performance in one place. This is the starting point
-        for the IMPROV MVP.
+        Track your player profile and training sessions. Built for individual
+        players.
       </p>
 
       <nav className="mt-10">
