@@ -1,9 +1,16 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
-import { goalStatuses, type GoalStatus } from "@/types/goal";
+import {
+  goalCategories,
+  goalSelect,
+  goalStatuses,
+  type GoalCategory,
+  type GoalStatus,
+} from "@/types/goal";
 
 export type GoalActionState = {
   error?: string;
@@ -22,6 +29,18 @@ function parseRequiredText(value: FormDataEntryValue | null, fieldName: string) 
   }
 
   return { value: text };
+}
+
+function parseOptionalEnum<T extends string>(
+  value: FormDataEntryValue | null,
+  allowed: readonly T[],
+) {
+  const text = String(value ?? "").trim();
+  if (!text) {
+    return null;
+  }
+
+  return allowed.includes(text as T) ? (text as T) : undefined;
 }
 
 function parseOptionalPositiveNumber(value: FormDataEntryValue | null, fieldName: string) {
@@ -66,9 +85,17 @@ function parseStatus(value: FormDataEntryValue | null) {
 }
 
 function parseGoalForm(formData: FormData) {
-  const title = parseRequiredText(formData.get("title"), "Title");
+  const title = parseRequiredText(formData.get("title"), "Goal title");
   if ("error" in title) {
     return { error: title.error };
+  }
+
+  const category = parseOptionalEnum<GoalCategory>(
+    formData.get("category"),
+    goalCategories,
+  );
+  if (category === undefined) {
+    return { error: "Choose a valid category." as const };
   }
 
   const targetValue = parseOptionalPositiveNumber(
@@ -95,7 +122,10 @@ function parseGoalForm(formData: FormData) {
   return {
     data: {
       title: title.value,
+      description: parseOptionalText(formData.get("description")),
+      category,
       target_value: targetValue.value,
+      target_outcome: parseOptionalText(formData.get("target_outcome")),
       current_value: currentValue.value,
       due_date: parseOptionalText(formData.get("due_date")),
       status: status.value,
@@ -121,21 +151,30 @@ export async function createGoal(
     return { error: parsed.error };
   }
 
-  const { error } = await supabase.from("goals").insert({
-    user_id: user.id,
-    ...parsed.data,
-  });
+  const { data, error } = await supabase
+    .from("goals")
+    .insert({
+      user_id: user.id,
+      ...parsed.data,
+    })
+    .select(goalSelect)
+    .single();
 
   if (error) {
     return { error: error.message };
   }
 
+  if (!data) {
+    return { error: "Goal could not be saved. Please try again." };
+  }
+
   revalidatePath("/goals");
+  revalidatePath("/dashboard");
 
   return { message: "Goal created." };
 }
 
-export async function updateGoalProgress(
+export async function updateGoal(
   _prevState: GoalActionState,
   formData: FormData,
 ): Promise<GoalActionState> {
@@ -153,25 +192,14 @@ export async function updateGoalProgress(
     return { error: "Goal not found." };
   }
 
-  const currentValue = parseNonNegativeNumber(
-    formData.get("current_value"),
-    "Current value",
-  );
-  if ("error" in currentValue) {
-    return { error: currentValue.error };
-  }
-
-  const status = parseStatus(formData.get("status"));
-  if ("error" in status) {
-    return { error: status.error };
+  const parsed = parseGoalForm(formData);
+  if ("error" in parsed) {
+    return { error: parsed.error };
   }
 
   const { error } = await supabase
     .from("goals")
-    .update({
-      current_value: currentValue.value,
-      status: status.value,
-    })
+    .update(parsed.data)
     .eq("id", goalId)
     .eq("user_id", user.id);
 
@@ -180,8 +208,9 @@ export async function updateGoalProgress(
   }
 
   revalidatePath("/goals");
-
-  return { message: "Goal updated." };
+  revalidatePath("/dashboard");
+  revalidatePath(`/goals/${goalId}/edit`);
+  redirect("/goals");
 }
 
 export async function deleteGoal(goalId: string): Promise<GoalActionState> {
@@ -205,6 +234,7 @@ export async function deleteGoal(goalId: string): Promise<GoalActionState> {
   }
 
   revalidatePath("/goals");
+  revalidatePath("/dashboard");
 
   return { message: "Goal deleted." };
 }

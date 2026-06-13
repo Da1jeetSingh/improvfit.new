@@ -1,34 +1,36 @@
 "use client";
 
-import { useActionState, useTransition } from "react";
+import Link from "next/link";
+import { useTransition } from "react";
 
 import { GoalProgress } from "@/components/goals/goal-progress";
 import { Card } from "@/components/ui/card";
-import {
-  formatDate,
-  formatLabel,
-  inputClassName,
-  labelClassName,
-} from "@/components/ui/form-styles";
-import {
-  deleteGoal,
-  updateGoalProgress,
-  type GoalActionState,
-} from "@/lib/goals/actions";
+import { formatDate, formatLabel } from "@/components/ui/form-styles";
+import { deleteGoal } from "@/lib/goals/actions";
 import { cn } from "@/lib/utils";
-import { goalStatuses, isGoalOverdue, type Goal } from "@/types/goal";
+import {
+  formatGoalCategory,
+  formatGoalTarget,
+  isGoalOverdue,
+  type Goal,
+} from "@/types/goal";
 
 type GoalListProps = {
   goals: Goal[];
 };
 
-const initialState: GoalActionState = {};
-
 export function GoalList({ goals }: GoalListProps) {
   if (goals.length === 0) {
     return (
-      <Card title="Your goals" description="Created goals will appear here.">
-        <p className="text-sm text-zinc-500">No goals yet.</p>
+      <Card
+        title="Your goals"
+        description="Created goals will appear here."
+        className="border-dashed"
+      >
+        <p className="text-sm text-muted">
+          No goals yet. Create your first target above — batting, bowling,
+          fitness, or anything you want to improve.
+        </p>
       </Card>
     );
   }
@@ -36,9 +38,9 @@ export function GoalList({ goals }: GoalListProps) {
   return (
     <section className="space-y-4">
       <div>
-        <h2 className="text-lg font-semibold text-zinc-900">Your goals</h2>
-        <p className="mt-1 text-sm text-zinc-500">
-          {goals.length} active {goals.length === 1 ? "goal" : "goals"}
+        <h2 className="text-lg font-semibold text-foreground">Your goals</h2>
+        <p className="mt-1 text-sm text-muted">
+          {goals.length} saved {goals.length === 1 ? "goal" : "goals"}
         </p>
       </div>
 
@@ -53,12 +55,8 @@ export function GoalList({ goals }: GoalListProps) {
 
 function GoalListItem({ goal }: { goal: Goal }) {
   const [isDeleting, startDeleteTransition] = useTransition();
-  const [state, formAction, isPending] = useActionState(
-    updateGoalProgress,
-    initialState,
-  );
-
   const overdue = isGoalOverdue(goal);
+  const target = formatGoalTarget(goal);
 
   function handleDelete() {
     if (!window.confirm("Delete this goal?")) {
@@ -72,24 +70,29 @@ function GoalListItem({ goal }: { goal: Goal }) {
 
   return (
     <li>
-      <Card className="p-4 sm:p-5">
+      <Card padding="sm">
         <div className="space-y-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2">
-                <h3 className="font-semibold text-zinc-900">{goal.title}</h3>
+                <h3 className="font-semibold text-foreground">{goal.title}</h3>
                 <span
                   className={cn(
                     "rounded-full px-2.5 py-0.5 text-xs font-medium",
                     goal.status === "completed"
                       ? "bg-green-muted text-green-deep"
                       : goal.status === "in_progress"
-                        ? "bg-sky-50 text-sky-800"
-                        : "bg-zinc-100 text-zinc-700",
+                        ? "bg-green-muted text-foreground"
+                        : "bg-green-muted/50 text-muted",
                   )}
                 >
                   {formatLabel(goal.status)}
                 </span>
+                {goal.category ? (
+                  <span className="rounded-full bg-green-muted px-2.5 py-0.5 text-xs font-medium text-green-deep">
+                    {formatGoalCategory(goal.category)}
+                  </span>
+                ) : null}
                 {overdue ? (
                   <span className="rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-medium text-red-700">
                     Overdue
@@ -97,90 +100,48 @@ function GoalListItem({ goal }: { goal: Goal }) {
                 ) : null}
               </div>
 
+              {goal.description ? (
+                <p className="text-sm text-muted">{goal.description}</p>
+              ) : null}
+
+              {target ? (
+                <p className="text-sm text-foreground">
+                  Target: {target}
+                </p>
+              ) : null}
+
               {goal.due_date ? (
-                <p className="text-sm text-zinc-500">
+                <p className="text-sm text-muted">
                   Deadline: {formatDate(goal.due_date)}
                 </p>
               ) : null}
             </div>
 
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={isDeleting}
-              className={cn(
-                "self-start rounded-md border border-red-200 px-3 py-1.5 text-sm font-medium text-red-700",
-                "hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60",
-              )}
-            >
-              {isDeleting ? "Deleting..." : "Delete"}
-            </button>
+            <div className="flex gap-2">
+              <Link
+                href={`/goals/${goal.id}/edit`}
+                className={cn(
+                  "rounded-xl border-2 border-border px-3 py-1.5 text-sm font-semibold text-foreground",
+                  "hover:bg-green-muted",
+                )}
+              >
+                Edit
+              </Link>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className={cn(
+                  "rounded-xl border border-red-200 px-3 py-1.5 text-sm font-semibold text-red-700",
+                  "hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60",
+                )}
+              >
+                {isDeleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
           </div>
 
           <GoalProgress goal={goal} />
-
-          <form action={formAction} className="grid gap-3 border-t border-zinc-100 pt-4 sm:grid-cols-3">
-            <input type="hidden" name="goal_id" value={goal.id} />
-
-            <div>
-              <label htmlFor={`current_value_${goal.id}`} className={labelClassName}>
-                Update current value
-              </label>
-              <input
-                id={`current_value_${goal.id}`}
-                name="current_value"
-                type="number"
-                min={0}
-                step="any"
-                inputMode="decimal"
-                defaultValue={goal.current_value}
-                className={inputClassName}
-              />
-            </div>
-
-            <div>
-              <label htmlFor={`status_${goal.id}`} className={labelClassName}>
-                Status
-              </label>
-              <select
-                id={`status_${goal.id}`}
-                name="status"
-                defaultValue={goal.status}
-                className={inputClassName}
-              >
-                {goalStatuses.map((status) => (
-                  <option key={status} value={status}>
-                    {formatLabel(status)}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex items-end">
-              <button
-                type="submit"
-                disabled={isPending}
-                className={cn(
-                  "w-full rounded-md border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700",
-                  "hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-60",
-                )}
-              >
-                {isPending ? "Updating..." : "Update progress"}
-              </button>
-            </div>
-          </form>
-
-          {state.message ? (
-            <p className="text-sm text-emerald-700" role="status">
-              {state.message}
-            </p>
-          ) : null}
-
-          {state.error ? (
-            <p className="text-sm text-red-600" role="alert">
-              {state.error}
-            </p>
-          ) : null}
         </div>
       </Card>
     </li>

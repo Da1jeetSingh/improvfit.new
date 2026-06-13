@@ -1,5 +1,6 @@
 import { calculateGoalProgress, type Goal } from "@/types/goal";
-import { cn } from "@/lib/utils";
+
+import { ProgressBar } from "@/components/ui/progress-bar";
 
 type GoalProgressProps = {
   goal: Goal;
@@ -10,9 +11,9 @@ export function GoalProgress({ goal }: GoalProgressProps) {
 
   if (progress === null) {
     return (
-      <p className="text-sm text-zinc-500">
+      <p className="text-sm text-muted">
         {goal.current_value} logged
-        {goal.target_value === null ? " · set a target to track progress" : ""}
+        {goal.target_value === null ? " · set a numeric target to track %" : ""}
       </p>
     );
   }
@@ -20,21 +21,13 @@ export function GoalProgress({ goal }: GoalProgressProps) {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between text-sm">
-        <span className="font-medium text-zinc-700">
+        <span className="font-medium text-foreground">
           {goal.current_value}
           {goal.target_value !== null ? ` / ${goal.target_value}` : ""}
         </span>
-        <span className="text-zinc-500">{progress}%</span>
+        <span className="text-muted">{progress}%</span>
       </div>
-      <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-100">
-        <div
-          className={cn(
-            "h-full rounded-full transition-all",
-            goal.status === "completed" ? "bg-green-deep" : "bg-green-light",
-          )}
-          style={{ width: `${progress}%` }}
-        />
-      </div>
+      <ProgressBar value={progress} />
     </div>
   );
 }

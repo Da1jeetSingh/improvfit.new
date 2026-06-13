@@ -10,15 +10,22 @@ export default async function GoalsPage() {
   const session = await getSession();
   if (!session) redirect("/login");
 
-  const goals = await getGoals();
+  const { goals, error } = await getGoals();
 
   return (
     <section className="space-y-8">
       <PageHeader
         eyebrow="Targets"
         title="Goals"
-        description="Set targets and track how close you are to reaching them."
+        description="Create, track, and manage your own cricket goals."
       />
+
+      {error ? (
+        <p className="text-sm text-red-600" role="alert">
+          Could not load goals: {error}
+        </p>
+      ) : null}
+
       <GoalForm />
       <GoalList goals={goals} />
     </section>
