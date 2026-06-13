@@ -45,3 +45,17 @@ export function isDateInWeek(dateValue: string, weekStart: Date, weekEnd: Date) 
   const date = new Date(`${dateValue}T00:00:00`);
   return date >= weekStart && date <= weekEnd;
 }
+
+/** Previous calendar week (Monday through Sunday) before the given date's current week. */
+export function getPreviousWeekRange(date = new Date()): WeekRange {
+  const current = getCurrentWeekRange(date);
+  const weekEnd = addLocalDays(current.weekStart, -1);
+  const weekStart = addLocalDays(weekEnd, -6);
+
+  return {
+    weekStart,
+    weekEnd,
+    weekStartKey: toLocalDateKey(weekStart),
+    weekEndKey: toLocalDateKey(weekEnd),
+  };
+}

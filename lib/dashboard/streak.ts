@@ -101,3 +101,35 @@ export function calculateActivityStreak(
     loggedToday,
   };
 }
+
+/** Longest consecutive calendar-day activity streak from all logged history. */
+export function calculateBestStreak(
+  sessions: TrainingSession[],
+  matches: Match[],
+): number {
+  const activityDates = [...collectActivityDates(sessions, matches)].sort();
+
+  if (activityDates.length === 0) {
+    return 0;
+  }
+
+  let best = 1;
+  let current = 1;
+
+  for (let index = 1; index < activityDates.length; index += 1) {
+    const previous = new Date(`${activityDates[index - 1]}T00:00:00`);
+    const day = new Date(`${activityDates[index]}T00:00:00`);
+    const dayGap = Math.round(
+      (day.getTime() - previous.getTime()) / (1000 * 60 * 60 * 24),
+    );
+
+    if (dayGap === 1) {
+      current += 1;
+      best = Math.max(best, current);
+    } else if (dayGap > 1) {
+      current = 1;
+    }
+  }
+
+  return best;
+}
