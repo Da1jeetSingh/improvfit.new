@@ -23,6 +23,26 @@ Open [http://localhost:3000](http://localhost:3000) to view the app.
 
 In Supabase, set your site URL and redirect URLs (for example `http://localhost:3000/auth/callback`) under **Authentication → URL configuration**.
 
+4. Apply the database schema (see **Database** below).
+
+## Database
+
+SQL migrations live in `supabase/migrations/`.
+
+To apply the schema:
+
+1. Open your Supabase project → **SQL Editor**
+2. Paste and run `supabase/migrations/20250613100000_initial_schema.sql`
+
+Or, with the [Supabase CLI](https://supabase.com/docs/guides/cli):
+
+```bash
+supabase link --project-ref your-project-ref
+supabase db push
+```
+
+Tables: `users`, `matches`, `training_sessions`, `goals`. Row Level Security ensures each signed-in user only sees their own data.
+
 ## Project structure
 
 ```
@@ -35,6 +55,8 @@ hooks/             # Custom React hooks
 lib/
   auth/            # Auth helpers and server actions
   supabase/        # Supabase browser, server, and middleware clients
+supabase/
+  migrations/      # Database schema SQL
 types/             # Shared TypeScript types
 middleware.ts      # Session refresh and route protection
 ```
