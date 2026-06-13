@@ -1,0 +1,155 @@
+"use client";
+
+import { useActionState } from "react";
+
+import { Card } from "@/components/ui/card";
+import {
+  formatLabel,
+  inputClassName,
+  labelClassName,
+} from "@/components/ui/form-styles";
+import {
+  createTrainingSession,
+  type TrainingActionState,
+} from "@/lib/training/actions";
+import { cn } from "@/lib/utils";
+import { focusAreas, selfRatings } from "@/types/training";
+
+const initialState: TrainingActionState = {};
+
+export function TrainingForm() {
+  const [state, formAction, isPending] = useActionState(
+    createTrainingSession,
+    initialState,
+  );
+
+  return (
+    <form action={formAction} className="space-y-6">
+      <Card
+        title="Log training"
+        description="Record a practice session in under a minute."
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="session_date" className={labelClassName}>
+              Date
+            </label>
+            <input
+              id="session_date"
+              name="session_date"
+              type="date"
+              required
+              className={inputClassName}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="duration_minutes" className={labelClassName}>
+              Duration (minutes)
+            </label>
+            <input
+              id="duration_minutes"
+              name="duration_minutes"
+              type="number"
+              min={1}
+              inputMode="numeric"
+              required
+              className={inputClassName}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="focus" className={labelClassName}>
+              Focus area
+            </label>
+            <select
+              id="focus"
+              name="focus"
+              required
+              defaultValue=""
+              className={inputClassName}
+            >
+              <option value="" disabled>
+                Select focus
+              </option>
+              {focusAreas.map((area) => (
+                <option key={area} value={area}>
+                  {formatLabel(area)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="balls_faced" className={labelClassName}>
+              Balls faced
+            </label>
+            <input
+              id="balls_faced"
+              name="balls_faced"
+              type="number"
+              min={0}
+              inputMode="numeric"
+              className={inputClassName}
+            />
+          </div>
+
+          <div className="sm:col-span-2">
+            <label htmlFor="self_rating" className={labelClassName}>
+              Self-rating
+            </label>
+            <select
+              id="self_rating"
+              name="self_rating"
+              defaultValue=""
+              className={inputClassName}
+            >
+              <option value="">No rating</option>
+              {selfRatings.map((rating) => (
+                <option key={rating} value={rating}>
+                  {rating} / 5
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="sm:col-span-2">
+            <label htmlFor="notes" className={labelClassName}>
+              Notes
+            </label>
+            <textarea
+              id="notes"
+              name="notes"
+              rows={3}
+              placeholder="Drills, what clicked, what to repeat next time..."
+              className={cn(inputClassName, "resize-y")}
+            />
+          </div>
+        </div>
+      </Card>
+
+      {state.error ? (
+        <p className="text-sm text-red-600" role="alert">
+          {state.error}
+        </p>
+      ) : null}
+
+      {state.message ? (
+        <p className="text-sm text-emerald-700" role="status">
+          {state.message}
+        </p>
+      ) : null}
+
+      <button
+        type="submit"
+        disabled={isPending}
+        className={cn(
+          "w-full rounded-md bg-emerald-700 px-4 py-3 text-sm font-medium text-white sm:w-auto",
+          "hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60",
+        )}
+      >
+        {isPending ? "Saving..." : "Save session"}
+      </button>
+    </form>
+  );
+}
