@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard" },
+  { href: "/weekly", label: "Weekly" },
   { href: "/profile", label: "Profile" },
   { href: "/training", label: "Training" },
   { href: "/matches", label: "Matches" },
