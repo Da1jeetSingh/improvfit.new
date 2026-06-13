@@ -38,7 +38,13 @@ export async function getSession() {
     error,
   } = await supabase.auth.getUser();
 
-  if (error || !user) {
+  if (error) {
+    console.error("[auth] getSession validation failed:", error.message);
+    await supabase.auth.signOut();
+    return null;
+  }
+
+  if (!user) {
     return null;
   }
 

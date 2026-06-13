@@ -1,7 +1,17 @@
 import { type NextRequest, NextResponse } from "next/server";
 
 import { isLoginRoute, isProtectedRoute, isSignupRoute } from "@/lib/auth";
-import { updateSession } from "@/lib/supabase/middleware";
+import {
+  applySessionCookies,
+  updateSession,
+} from "@/lib/supabase/middleware";
+
+function redirectWithSession(
+  url: URL,
+  supabaseResponse: NextResponse,
+) {
+  return applySessionCookies(NextResponse.redirect(url), supabaseResponse);
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -27,21 +37,21 @@ export async function middleware(request: NextRequest) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
     loginUrl.searchParams.set("next", pathname);
-    return NextResponse.redirect(loginUrl);
+    return redirectWithSession(loginUrl, supabaseResponse);
   }
 
   if (user && isLoginRoute(pathname)) {
     const dashboardUrl = request.nextUrl.clone();
     dashboardUrl.pathname = "/dashboard";
     dashboardUrl.search = "";
-    return NextResponse.redirect(dashboardUrl);
+    return redirectWithSession(dashboardUrl, supabaseResponse);
   }
 
   if (user && isSignupRoute(pathname)) {
     const dashboardUrl = request.nextUrl.clone();
     dashboardUrl.pathname = "/dashboard";
     dashboardUrl.search = "";
-    return NextResponse.redirect(dashboardUrl);
+    return redirectWithSession(dashboardUrl, supabaseResponse);
   }
 
   return supabaseResponse;
