@@ -2,8 +2,13 @@ import { createClient } from "@/lib/supabase/server";
 import { calculateDashboardMetrics } from "@/lib/dashboard/metrics";
 import { getProfile } from "@/lib/profile";
 import { goalSelect } from "@/types/goal";
-import { matchSelect } from "@/types/match";
-import { trainingSessionSelect } from "@/types/training";
+import { matchSelect, type Match } from "@/types/match";
+import { trainingSessionSelect, type TrainingSession } from "@/types/training";
+import type { Goal } from "@/types/goal";
+
+function queryErrorMessage(error: { message: string }) {
+  return error.message;
+}
 
 export async function getDashboardData() {
   const supabase = await createClient();
@@ -34,13 +39,27 @@ export async function getDashboardData() {
       .order("created_at", { ascending: false }),
   ]);
 
-  if (matchesResult.error) throw new Error(matchesResult.error.message);
-  if (sessionsResult.error) throw new Error(sessionsResult.error.message);
-  if (goalsResult.error) throw new Error(goalsResult.error.message);
+  if (sessionsResult.error) {
+    throw new Error(queryErrorMessage(sessionsResult.error));
+  }
 
-  const matches = matchesResult.data ?? [];
-  const sessions = sessionsResult.data ?? [];
-  const goals = goalsResult.data ?? [];
+  if (goalsResult.error) {
+    throw new Error(queryErrorMessage(goalsResult.error));
+  }
+
+  let matches: Match[] = [];
+
+  if (matchesResult.error) {
+    console.error(
+      "[dashboard] matches query failed:",
+      queryErrorMessage(matchesResult.error),
+    );
+  } else {
+    matches = (matchesResult.data ?? []) as Match[];
+  }
+
+  const sessions = (sessionsResult.data ?? []) as TrainingSession[];
+  const goals = (goalsResult.data ?? []) as Goal[];
 
   return {
     profile,
