@@ -6,11 +6,10 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import {
   dismissalTypes,
-  matchLevels,
-  opponentTypes,
+  matchFormats,
+  matchSelect,
   type DismissalType,
-  type MatchLevel,
-  type OpponentType,
+  type MatchFormat,
 } from "@/types/match";
 
 export type MatchActionState = {
@@ -65,7 +64,7 @@ function parseMatchForm(formData: FormData) {
 
   const runs = parseNonNegativeInt(formData.get("runs"));
   if (runs === undefined) {
-    return { error: "Runs must be a whole number of 0 or more." as const };
+    return { error: "Runs scored must be a whole number of 0 or more." as const };
   }
 
   const ballsFaced = parseNonNegativeInt(formData.get("balls_faced"));
@@ -86,6 +85,8 @@ function parseMatchForm(formData: FormData) {
   return {
     data: {
       played_on: playedOn,
+      opposition: parseOptionalText(formData.get("opposition")),
+      format: parseOptionalEnum<MatchFormat>(formData.get("format"), matchFormats),
       runs,
       balls_faced: ballsFaced,
       strike_rate: computeStrikeRate(runs, ballsFaced),
@@ -94,14 +95,6 @@ function parseMatchForm(formData: FormData) {
       dismissal_type: parseOptionalEnum<DismissalType>(
         formData.get("dismissal_type"),
         dismissalTypes,
-      ),
-      match_level: parseOptionalEnum<MatchLevel>(
-        formData.get("match_level"),
-        matchLevels,
-      ),
-      opponent_type: parseOptionalEnum<OpponentType>(
-        formData.get("opponent_type"),
-        opponentTypes,
       ),
       notes: parseOptionalText(formData.get("notes")),
     },
@@ -126,16 +119,25 @@ export async function createMatch(
     return { error: parsed.error };
   }
 
-  const { error } = await supabase.from("matches").insert({
-    user_id: user.id,
-    ...parsed.data,
-  });
+  const { data, error } = await supabase
+    .from("matches")
+    .insert({
+      user_id: user.id,
+      ...parsed.data,
+    })
+    .select(matchSelect)
+    .single();
 
   if (error) {
     return { error: error.message };
   }
 
+  if (!data) {
+    return { error: "Match could not be saved. Please try again." };
+  }
+
   revalidatePath("/matches");
+  revalidatePath("/dashboard");
 
   return { message: "Match saved." };
 }
@@ -174,6 +176,7 @@ export async function updateMatch(
   }
 
   revalidatePath("/matches");
+  revalidatePath("/dashboard");
   revalidatePath(`/matches/${matchId}/edit`);
   redirect("/matches");
 }
@@ -199,6 +202,7 @@ export async function deleteMatch(matchId: string): Promise<MatchActionState> {
   }
 
   revalidatePath("/matches");
+  revalidatePath("/dashboard");
 
   return { message: "Match deleted." };
 }

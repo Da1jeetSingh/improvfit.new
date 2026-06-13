@@ -10,15 +10,22 @@ export default async function MatchesPage() {
   const session = await getSession();
   if (!session) redirect("/login");
 
-  const matches = await getMatches();
+  const { matches, error } = await getMatches();
 
   return (
     <section className="space-y-8">
       <PageHeader
         eyebrow="Performance"
         title="Matches"
-        description="Log batting performances and track your match history."
+        description="Log match performances and review your own batting history."
       />
+
+      {error ? (
+        <p className="text-sm text-red-600" role="alert">
+          Could not load matches: {error}
+        </p>
+      ) : null}
+
       <MatchForm />
       <MatchList matches={matches} />
     </section>

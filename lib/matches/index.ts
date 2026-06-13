@@ -1,14 +1,19 @@
 import { createClient } from "@/lib/supabase/server";
 import { type Match, matchSelect } from "@/types/match";
 
-export async function getMatches(): Promise<Match[]> {
+export type MatchesResult = {
+  matches: Match[];
+  error: string | null;
+};
+
+export async function getMatches(): Promise<MatchesResult> {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return [];
+    return { matches: [], error: null };
   }
 
   const { data, error } = await supabase
@@ -18,10 +23,11 @@ export async function getMatches(): Promise<Match[]> {
     .order("played_on", { ascending: false });
 
   if (error) {
-    throw new Error(error.message);
+    console.error("[matches] query failed:", error.message);
+    return { matches: [], error: error.message };
   }
 
-  return (data ?? []) as Match[];
+  return { matches: (data ?? []) as Match[], error: null };
 }
 
 export async function getMatch(matchId: string): Promise<Match | null> {
@@ -42,7 +48,8 @@ export async function getMatch(matchId: string): Promise<Match | null> {
     .maybeSingle();
 
   if (error) {
-    throw new Error(error.message);
+    console.error("[matches] single match query failed:", error.message);
+    return null;
   }
 
   return data as Match | null;

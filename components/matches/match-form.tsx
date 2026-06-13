@@ -17,8 +17,8 @@ import {
 import { cn } from "@/lib/utils";
 import {
   dismissalTypes,
-  matchLevels,
-  opponentTypes,
+  formatMatchFormat,
+  matchFormats,
   type Match,
 } from "@/types/match";
 
@@ -27,6 +27,10 @@ const initialState: MatchActionState = {};
 type MatchFormProps = {
   match?: Match;
 };
+
+function todayDateValue() {
+  return new Date().toISOString().slice(0, 10);
+}
 
 function computeStrikeRate(runs: number, balls: number) {
   if (!balls) {
@@ -65,59 +69,54 @@ export function MatchForm({ match }: MatchFormProps) {
 
       <Card
         title={match ? "Edit match" : "Log a match"}
-        description="Add your batting performance. Strike rate is calculated from runs and balls."
+        description="Record your batting performance from a game or practice match."
       >
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="sm:col-span-2">
+          <div>
             <label htmlFor="played_on" className={labelClassName}>
-              Date
+              Match date
             </label>
             <input
               id="played_on"
               name="played_on"
               type="date"
               required
-              defaultValue={match?.played_on ?? ""}
+              defaultValue={match?.played_on ?? todayDateValue()}
               className={inputClassName}
             />
           </div>
 
           <div>
-            <label htmlFor="match_level" className={labelClassName}>
-              Match level
+            <label htmlFor="format" className={labelClassName}>
+              Format
             </label>
             <select
-              id="match_level"
-              name="match_level"
-              defaultValue={match?.match_level ?? ""}
+              id="format"
+              name="format"
+              defaultValue={match?.format ?? ""}
               className={inputClassName}
             >
-              <option value="">Select level</option>
-              {matchLevels.map((level) => (
-                <option key={level} value={level}>
-                  {formatLabel(level)}
+              <option value="">Select format</option>
+              {matchFormats.map((format) => (
+                <option key={format} value={format}>
+                  {formatMatchFormat(format)}
                 </option>
               ))}
             </select>
           </div>
 
-          <div>
-            <label htmlFor="opponent_type" className={labelClassName}>
-              Opponent type
+          <div className="sm:col-span-2">
+            <label htmlFor="opposition" className={labelClassName}>
+              Opponent
             </label>
-            <select
-              id="opponent_type"
-              name="opponent_type"
-              defaultValue={match?.opponent_type ?? ""}
+            <input
+              id="opposition"
+              name="opposition"
+              type="text"
+              placeholder="Team or club name"
+              defaultValue={match?.opposition ?? ""}
               className={inputClassName}
-            >
-              <option value="">Select type</option>
-              {opponentTypes.map((type) => (
-                <option key={type} value={type}>
-                  {formatLabel(type)}
-                </option>
-              ))}
-            </select>
+            />
           </div>
 
           <div>
@@ -153,38 +152,6 @@ export function MatchForm({ match }: MatchFormProps) {
           </div>
 
           <div>
-            <label htmlFor="strike_rate_display" className={labelClassName}>
-              Strike rate
-            </label>
-            <input
-              id="strike_rate_display"
-              type="text"
-              readOnly
-              value={strikeRate === null ? "" : strikeRate.toFixed(2)}
-              className={cn(inputClassName, "bg-zinc-50 text-zinc-600")}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="dismissal_type" className={labelClassName}>
-              Dismissal type
-            </label>
-            <select
-              id="dismissal_type"
-              name="dismissal_type"
-              defaultValue={match?.dismissal_type ?? ""}
-              className={inputClassName}
-            >
-              <option value="">Select dismissal</option>
-              {dismissalTypes.map((type) => (
-                <option key={type} value={type}>
-                  {formatLabel(type)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
             <label htmlFor="fours" className={labelClassName}>
               Fours
             </label>
@@ -214,6 +181,38 @@ export function MatchForm({ match }: MatchFormProps) {
             />
           </div>
 
+          <div>
+            <label htmlFor="dismissal_type" className={labelClassName}>
+              Dismissal type
+            </label>
+            <select
+              id="dismissal_type"
+              name="dismissal_type"
+              defaultValue={match?.dismissal_type ?? ""}
+              className={inputClassName}
+            >
+              <option value="">Select dismissal</option>
+              {dismissalTypes.map((type) => (
+                <option key={type} value={type}>
+                  {formatLabel(type)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="strike_rate_display" className={labelClassName}>
+              Strike rate
+            </label>
+            <input
+              id="strike_rate_display"
+              type="text"
+              readOnly
+              value={strikeRate === null ? "" : strikeRate.toFixed(2)}
+              className={cn(inputClassName, "bg-green-muted/30 text-muted")}
+            />
+          </div>
+
           <div className="sm:col-span-2">
             <label htmlFor="notes" className={labelClassName}>
               Notes
@@ -237,7 +236,7 @@ export function MatchForm({ match }: MatchFormProps) {
       ) : null}
 
       {state.message ? (
-        <p className="text-sm text-emerald-700" role="status">
+        <p className="text-sm text-green-deep" role="status">
           {state.message}
         </p>
       ) : null}
