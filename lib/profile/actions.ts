@@ -7,6 +7,7 @@ import {
   battingStyles,
   bowlingStyles,
   playerRoles,
+  profileSelect,
   skillLevels,
   type BattingStyle,
   type BowlingStyle,
@@ -50,7 +51,7 @@ function parseAge(value: FormDataEntryValue | null) {
   return age;
 }
 
-export async function updateProfile(
+export async function saveProfile(
   _prevState: ProfileActionState,
   formData: FormData,
 ): Promise<ProfileActionState> {
@@ -60,7 +61,7 @@ export async function updateProfile(
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: "You must be signed in to update your profile." };
+    return { error: "You must be signed in to save your profile." };
   }
 
   const age = parseAge(formData.get("age"));
@@ -68,10 +69,7 @@ export async function updateProfile(
     return { error: "Age must be a whole number between 5 and 100." };
   }
 
-  const role = parseOptionalEnum<PlayerRole>(
-    formData.get("role"),
-    playerRoles,
-  );
+  const role = parseOptionalEnum<PlayerRole>(formData.get("role"), playerRoles);
   const battingStyle = parseOptionalEnum<BattingStyle>(
     formData.get("batting_style"),
     battingStyles,
@@ -85,24 +83,44 @@ export async function updateProfile(
     skillLevels,
   );
 
-  const { error } = await supabase
-    .from("users")
-    .update({
-      full_name: parseOptionalText(formData.get("full_name")),
-      age,
-      role,
-      batting_style: battingStyle,
-      bowling_style: bowlingStyle,
-      skill_level: skillLevel,
-      personal_goals: parseOptionalText(formData.get("personal_goals")),
-    })
-    .eq("id", user.id);
+  const profileData = {
+    id: user.id,
+    full_name: parseOptionalText(formData.get("full_name")),
+    age,
+    role,
+    batting_style: battingStyle,
+    bowling_style: bowlingStyle,
+    skill_level: skillLevel,
+    personal_goals: parseOptionalText(formData.get("personal_goals")),
+  };
+
+  const { error } = await supabase.from("users").upsert(profileData, {
+    onConflict: "id",
+  });
 
   if (error) {
     return { error: error.message };
   }
 
+  const { data, error: verifyError } = await supabase
+    .from("users")
+    .select(profileSelect)
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (verifyError) {
+    return { error: verifyError.message };
+  }
+
+  if (!data) {
+    return { error: "Profile could not be saved. Please try again." };
+  }
+
   revalidatePath("/profile");
+  revalidatePath("/dashboard");
 
   return { message: "Profile saved." };
 }
+
+/** @deprecated Use saveProfile */
+export const updateProfile = saveProfile;

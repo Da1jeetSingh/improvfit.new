@@ -9,7 +9,7 @@ import {
   inputClassName,
   labelClassName,
 } from "@/components/ui/form-styles";
-import { updateProfile, type ProfileActionState } from "@/lib/profile/actions";
+import { saveProfile, type ProfileActionState } from "@/lib/profile/actions";
 import { cn } from "@/lib/utils";
 import {
   battingStyles,
@@ -27,7 +27,7 @@ type ProfileFormProps = {
 
 export function ProfileForm({ profile }: ProfileFormProps) {
   const [state, formAction, isPending] = useActionState(
-    updateProfile,
+    saveProfile,
     initialState,
   );
 
@@ -153,20 +153,17 @@ export function ProfileForm({ profile }: ProfileFormProps) {
         </div>
       </Card>
 
-      <Card
-        title="Goals"
-        description="What you are working toward this season."
-      >
+      <Card title="Main goal" description="What you are working toward this season.">
         <div>
           <label htmlFor="personal_goals" className={labelClassName}>
-            Your goals
+            Main goal
           </label>
           <textarea
             id="personal_goals"
             name="personal_goals"
             rows={4}
             defaultValue={profile.personal_goals ?? ""}
-            placeholder="Example: Improve strike rate in T20s and bowl fuller lengths in the death overs."
+            placeholder="Example: Score more runs in the top order and improve death bowling."
             className={cn(inputClassName, "resize-y")}
           />
         </div>
