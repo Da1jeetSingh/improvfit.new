@@ -10,15 +10,22 @@ export default async function TrainingPage() {
   const session = await getSession();
   if (!session) redirect("/login");
 
-  const sessions = await getTrainingSessions();
+  const { sessions, error } = await getTrainingSessions();
 
   return (
     <section className="space-y-8">
       <PageHeader
         eyebrow="Practice"
         title="Training"
-        description="Log sessions fast and build a clear training habit."
+        description="Log sessions and review your own practice history."
       />
+
+      {error ? (
+        <p className="text-sm text-red-600" role="alert">
+          Could not load training sessions: {error}
+        </p>
+      ) : null}
+
       <TrainingForm />
       <TrainingList sessions={sessions} />
     </section>

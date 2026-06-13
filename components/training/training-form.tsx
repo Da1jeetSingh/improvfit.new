@@ -18,6 +18,10 @@ import { focusAreas, selfRatings } from "@/types/training";
 
 const initialState: TrainingActionState = {};
 
+function todayDateValue() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 export function TrainingForm() {
   const [state, formAction, isPending] = useActionState(
     createTrainingSession,
@@ -40,6 +44,7 @@ export function TrainingForm() {
               name="session_date"
               type="date"
               required
+              defaultValue={todayDateValue()}
               className={inputClassName}
             />
           </div>
@@ -55,6 +60,22 @@ export function TrainingForm() {
               min={1}
               inputMode="numeric"
               required
+              placeholder="60"
+              className={inputClassName}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="balls_faced" className={labelClassName}>
+              Balls faced
+            </label>
+            <input
+              id="balls_faced"
+              name="balls_faced"
+              type="number"
+              min={0}
+              inputMode="numeric"
+              placeholder="Optional"
               className={inputClassName}
             />
           </div>
@@ -79,20 +100,6 @@ export function TrainingForm() {
                 </option>
               ))}
             </select>
-          </div>
-
-          <div>
-            <label htmlFor="balls_faced" className={labelClassName}>
-              Balls faced
-            </label>
-            <input
-              id="balls_faced"
-              name="balls_faced"
-              type="number"
-              min={0}
-              inputMode="numeric"
-              className={inputClassName}
-            />
           </div>
 
           <div className="sm:col-span-2">
@@ -136,7 +143,7 @@ export function TrainingForm() {
       ) : null}
 
       {state.message ? (
-        <p className="text-sm text-emerald-700" role="status">
+        <p className="text-sm text-green-deep" role="status">
           {state.message}
         </p>
       ) : null}

@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import {
   focusAreas,
   selfRatings,
+  trainingSessionSelect,
   type FocusArea,
   type SelfRating,
 } from "@/types/training";
@@ -90,7 +91,7 @@ function parseSelfRating(value: FormDataEntryValue | null) {
 function parseTrainingForm(formData: FormData) {
   const sessionDate = parseOptionalText(formData.get("session_date"));
   if (!sessionDate) {
-    return { error: "Session date is required." as const };
+    return { error: "Date is required." as const };
   }
 
   const focus = parseRequiredEnum<FocusArea>(
@@ -154,16 +155,25 @@ export async function createTrainingSession(
     return { error: parsed.error };
   }
 
-  const { error } = await supabase.from("training_sessions").insert({
-    user_id: user.id,
-    ...parsed.data,
-  });
+  const { data, error } = await supabase
+    .from("training_sessions")
+    .insert({
+      user_id: user.id,
+      ...parsed.data,
+    })
+    .select(trainingSessionSelect)
+    .single();
 
   if (error) {
     return { error: error.message };
   }
 
+  if (!data) {
+    return { error: "Training session could not be saved. Please try again." };
+  }
+
   revalidatePath("/training");
+  revalidatePath("/dashboard");
 
   return { message: "Training session saved." };
 }
