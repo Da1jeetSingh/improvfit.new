@@ -5,6 +5,8 @@ import { useActionState, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
+  alertErrorClassName,
+  alertSuccessClassName,
   formatLabel,
   inputClassName,
   labelClassName,
@@ -230,13 +232,13 @@ export function MatchForm({ match }: MatchFormProps) {
       </Card>
 
       {state.error ? (
-        <p className="text-sm text-red-600" role="alert">
+        <p className={alertErrorClassName} role="alert">
           {state.error}
         </p>
       ) : null}
 
       {state.message ? (
-        <p className="text-sm text-green-deep" role="status">
+        <p className={alertSuccessClassName} role="status">
           {state.message}
         </p>
       ) : null}

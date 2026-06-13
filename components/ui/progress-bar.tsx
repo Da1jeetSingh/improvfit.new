@@ -16,15 +16,15 @@ export function ProgressBar({
   const percent = Math.min(100, Math.max(0, (value / max) * 100));
 
   return (
-    <div className={cn("space-y-1.5", className)}>
+    <div className={cn("space-y-2", className)}>
       {showLabel ? (
         <div className="flex justify-between text-sm">
-          <span className="font-medium text-foreground">{Math.round(percent)}%</span>
+          <span className="font-bold text-foreground">{Math.round(percent)}%</span>
         </div>
       ) : null}
       <div className="h-2.5 w-full overflow-hidden rounded-full bg-green-muted">
         <div
-          className="h-full rounded-full bg-green-light transition-all duration-500"
+          className="h-full rounded-full bg-gradient-to-r from-green-deep to-green-light transition-all duration-700 ease-out"
           style={{ width: `${percent}%` }}
         />
       </div>

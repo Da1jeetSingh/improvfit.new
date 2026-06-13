@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { PageHeader } from "@/components/layout/page-header";
 import { GoalForm } from "@/components/goals/goal-form";
+import { sectionLinkClassName } from "@/components/ui/form-styles";
 import { getSession } from "@/lib/auth";
 import { getGoal } from "@/lib/goals";
 
@@ -19,11 +20,8 @@ export default async function EditGoalPage({ params }: EditGoalPageProps) {
   if (!goal) notFound();
 
   return (
-    <section className="space-y-6">
-      <Link
-        href="/goals"
-        className="text-sm font-semibold text-green-deep hover:underline"
-      >
+    <section className="space-y-8">
+      <Link href="/goals" className={sectionLinkClassName}>
         ← Back to goals
       </Link>
       <PageHeader

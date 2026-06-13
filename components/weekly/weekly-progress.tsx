@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
-import { formatDate } from "@/components/ui/form-styles";
+import { formatDate, emptyCardClassName } from "@/components/ui/form-styles";
+import { StatTile } from "@/components/ui/stat-tile";
 import type { WeeklyProgress } from "@/lib/dashboard/weekly-progress";
 
 type WeeklyProgressCardProps = {
@@ -7,23 +8,6 @@ type WeeklyProgressCardProps = {
   error?: string | null;
   title?: string;
 };
-
-function SummaryItem({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-xl border border-border bg-white p-4">
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted">
-        {label}
-      </p>
-      <p className="mt-2 text-2xl font-bold text-foreground">{value}</p>
-    </div>
-  );
-}
 
 function formatDuration(minutes: number) {
   if (minutes < 60) {
@@ -53,11 +37,8 @@ export function WeeklyProgressCard({
 
   if (error) {
     return (
-      <Card
-        title={title}
-        description={weekLabel}
-      >
-        <p className="text-sm text-red-600" role="alert">
+      <Card title={title} description={weekLabel}>
+        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
           Could not load weekly progress: {error}
         </p>
       </Card>
@@ -66,24 +47,18 @@ export function WeeklyProgressCard({
 
   if (!progress.hasDataThisWeek) {
     return (
-      <Card
-        title={title}
-        description={weekLabel}
-        className="border-dashed"
-      >
-        <p className="text-sm text-muted">
+      <Card title={title} description={weekLabel} className={emptyCardClassName}>
+        <p className="text-sm leading-relaxed text-muted">
           No training or matches logged this week yet. Log a session or match
           performance to see your weekly progress here.
         </p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <SummaryItem
+        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          <StatTile
+            compact
             label="Current streak"
             value={`${progress.currentStreak} ${progress.currentStreak === 1 ? "day" : "days"}`}
           />
-          <SummaryItem
-            label="Active goals"
-            value={String(progress.activeGoals)}
-          />
+          <StatTile compact label="Active goals" value={String(progress.activeGoals)} />
         </div>
       </Card>
     );
@@ -91,29 +66,15 @@ export function WeeklyProgressCard({
 
   return (
     <Card title={title} description={weekLabel}>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <SummaryItem
-          label="Training sessions"
-          value={String(progress.trainingSessions)}
-        />
-        <SummaryItem label="Matches" value={String(progress.matches)} />
-        <SummaryItem
-          label="Training time"
-          value={formatDuration(progress.totalTrainingMinutes)}
-        />
-        <SummaryItem
-          label="Balls faced (training)"
-          value={String(progress.totalTrainingBallsFaced)}
-        />
-        <SummaryItem
-          label="Runs scored"
-          value={String(progress.totalMatchRuns)}
-        />
-        <SummaryItem
-          label="Active goals"
-          value={String(progress.activeGoals)}
-        />
-        <SummaryItem
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <StatTile compact label="Training sessions" value={String(progress.trainingSessions)} />
+        <StatTile compact label="Matches" value={String(progress.matches)} />
+        <StatTile compact label="Training time" value={formatDuration(progress.totalTrainingMinutes)} />
+        <StatTile compact label="Balls faced (training)" value={String(progress.totalTrainingBallsFaced)} />
+        <StatTile compact label="Runs scored" value={String(progress.totalMatchRuns)} />
+        <StatTile compact label="Active goals" value={String(progress.activeGoals)} />
+        <StatTile
+          compact
           label="Current streak"
           value={`${progress.currentStreak} ${progress.currentStreak === 1 ? "day" : "days"}`}
         />

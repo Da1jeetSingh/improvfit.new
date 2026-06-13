@@ -11,7 +11,7 @@ export default async function WeeklyPage() {
   const { weeklyProgress, weeklyProgressError } = data;
 
   return (
-    <section className="space-y-8">
+    <section className="space-y-10">
       <PageHeader
         eyebrow="Progress"
         title="Weekly progress"

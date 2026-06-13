@@ -1,3 +1,5 @@
+import { Badge } from "@/components/ui/badge";
+
 type PageHeaderProps = {
   eyebrow?: string;
   title: string;
@@ -6,16 +8,18 @@ type PageHeaderProps = {
 
 export function PageHeader({ eyebrow, title, description }: PageHeaderProps) {
   return (
-    <header className="mb-8 space-y-2">
+    <header className="mb-10 space-y-3 animate-fade-in-up">
       {eyebrow ? (
-        <p className="text-sm font-semibold uppercase tracking-wide text-green-deep">
+        <Badge variant="success" className="uppercase tracking-wider">
           {eyebrow}
-        </p>
+        </Badge>
       ) : null}
-      <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+      <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-[2.5rem] lg:leading-tight">
         {title}
       </h1>
-      <p className="max-w-2xl text-base text-muted">{description}</p>
+      <p className="max-w-2xl text-base leading-relaxed text-muted sm:text-lg">
+        {description}
+      </p>
     </header>
   );
 }

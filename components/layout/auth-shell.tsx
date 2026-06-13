@@ -9,17 +9,22 @@ type AuthShellProps = {
 
 export function AuthShell({ title, description, children }: AuthShellProps) {
   return (
-    <div className="flex min-h-full flex-col items-center justify-center px-4 py-12">
-      <div className="mb-8">
-        <BrandHeader href="/" />
+    <div className="relative flex min-h-full flex-col items-center justify-center px-4 py-16">
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--green-muted)_0%,_transparent_55%)]"
+        aria-hidden
+      />
+
+      <div className="relative mb-10 animate-fade-in-up">
+        <BrandHeader href="/" size="large" />
       </div>
 
-      <Card className="w-full max-w-md" padding="lg">
-        <div className="mb-6 text-center">
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+      <Card className="relative w-full max-w-md animate-fade-in-up animate-delay-1" padding="lg">
+        <div className="mb-8 text-center">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
             {title}
           </h1>
-          <p className="mt-2 text-sm text-muted">{description}</p>
+          <p className="mt-3 text-sm leading-relaxed text-muted">{description}</p>
         </div>
         {children}
       </Card>

@@ -11,7 +11,7 @@ export default async function StatsPage() {
   const { stats, statsError } = data;
 
   return (
-    <section className="space-y-8">
+    <section className="space-y-10">
       <PageHeader
         eyebrow="Analytics"
         title="Stats"

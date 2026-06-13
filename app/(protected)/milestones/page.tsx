@@ -11,7 +11,7 @@ export default async function MilestonesPage() {
   const { milestones, milestonesError } = data;
 
   return (
-    <section className="space-y-8">
+    <section className="space-y-10">
       <PageHeader
         eyebrow="Achievements"
         title="Milestones"

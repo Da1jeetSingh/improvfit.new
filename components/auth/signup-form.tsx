@@ -5,7 +5,7 @@ import { useActionState } from "react";
 
 import { signup, type AuthActionState } from "@/lib/auth/actions";
 import { Button } from "@/components/ui/button";
-import { inputClassName, labelClassName } from "@/components/ui/form-styles";
+import { inputClassName, labelClassName, sectionLinkClassName } from "@/components/ui/form-styles";
 
 const initialState: AuthActionState = {};
 
@@ -14,7 +14,7 @@ export function SignupForm() {
 
   return (
     <>
-      <form action={formAction} className="space-y-4">
+      <form action={formAction} className="space-y-5">
         <div>
           <label htmlFor="signup-email" className={labelClassName}>
             Email
@@ -42,33 +42,33 @@ export function SignupForm() {
             required
             className={inputClassName}
           />
-          <p className="mt-1 text-xs text-muted">At least 8 characters.</p>
+          <p className="mt-2 text-xs text-muted">At least 8 characters.</p>
         </div>
 
         {state.error ? (
-          <p className="text-sm text-red-600" role="alert">
+          <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
             {state.error}
           </p>
         ) : null}
 
         {state.message ? (
-          <p className="text-sm text-green-deep" role="status">
+          <p className="rounded-xl bg-green-muted px-4 py-3 text-sm font-medium text-green-deep" role="status">
             {state.message}
           </p>
         ) : null}
 
-        <Button type="submit" fullWidth disabled={isPending}>
+        <Button type="submit" fullWidth size="lg" disabled={isPending}>
           {isPending ? "Creating account..." : "Create account"}
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-xs text-muted">
+      <p className="mt-8 text-center text-xs text-muted">
         Player-only app. No coaches or academies.
       </p>
 
       <p className="mt-4 text-center text-sm text-muted">
         Already have an account?{" "}
-        <Link href="/login" className="font-semibold text-green-deep hover:underline">
+        <Link href="/login" className={sectionLinkClassName}>
           Log in
         </Link>
       </p>

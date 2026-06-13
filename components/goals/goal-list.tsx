@@ -4,10 +4,16 @@ import Link from "next/link";
 import { useTransition } from "react";
 
 import { GoalProgress } from "@/components/goals/goal-progress";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { formatDate, formatLabel } from "@/components/ui/form-styles";
+import {
+  emptyCardClassName,
+  formatDate,
+  formatLabel,
+  sectionHeadingClassName,
+} from "@/components/ui/form-styles";
 import { deleteGoal } from "@/lib/goals/actions";
-import { cn } from "@/lib/utils";
 import {
   formatGoalCategory,
   formatGoalTarget,
@@ -25,9 +31,9 @@ export function GoalList({ goals }: GoalListProps) {
       <Card
         title="Your goals"
         description="Created goals will appear here."
-        className="border-dashed"
+        className={emptyCardClassName}
       >
-        <p className="text-sm text-muted">
+        <p className="text-sm leading-relaxed text-muted">
           No goals yet. Create your first target above — batting, bowling,
           fitness, or anything you want to improve.
         </p>
@@ -36,15 +42,15 @@ export function GoalList({ goals }: GoalListProps) {
   }
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-5">
       <div>
-        <h2 className="text-lg font-semibold text-foreground">Your goals</h2>
-        <p className="mt-1 text-sm text-muted">
+        <h2 className={sectionHeadingClassName}>Your goals</h2>
+        <p className="mt-1.5 text-sm text-muted">
           {goals.length} saved {goals.length === 1 ? "goal" : "goals"}
         </p>
       </div>
 
-      <ul className="space-y-3">
+      <ul className="space-y-4">
         {goals.map((goal) => (
           <GoalListItem key={goal.id} goal={goal} />
         ))}
@@ -71,73 +77,55 @@ function GoalListItem({ goal }: { goal: Goal }) {
   return (
     <li>
       <Card padding="sm">
-        <div className="space-y-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div className="space-y-2">
+        <div className="space-y-5">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-2">
-                <h3 className="font-semibold text-foreground">{goal.title}</h3>
-                <span
-                  className={cn(
-                    "rounded-full px-2.5 py-0.5 text-xs font-medium",
+                <h3 className="font-bold text-foreground">{goal.title}</h3>
+                <Badge
+                  variant={
                     goal.status === "completed"
-                      ? "bg-green-muted text-green-deep"
+                      ? "success"
                       : goal.status === "in_progress"
-                        ? "bg-green-muted text-foreground"
-                        : "bg-green-muted/50 text-muted",
-                  )}
+                        ? "default"
+                        : "muted"
+                  }
                 >
                   {formatLabel(goal.status)}
-                </span>
+                </Badge>
                 {goal.category ? (
-                  <span className="rounded-full bg-green-muted px-2.5 py-0.5 text-xs font-medium text-green-deep">
-                    {formatGoalCategory(goal.category)}
-                  </span>
+                  <Badge variant="success">{formatGoalCategory(goal.category)}</Badge>
                 ) : null}
-                {overdue ? (
-                  <span className="rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-medium text-red-700">
-                    Overdue
-                  </span>
-                ) : null}
+                {overdue ? <Badge variant="danger">Overdue</Badge> : null}
               </div>
 
               {goal.description ? (
-                <p className="text-sm text-muted">{goal.description}</p>
+                <p className="text-sm leading-relaxed text-muted">{goal.description}</p>
               ) : null}
 
               {target ? (
-                <p className="text-sm text-foreground">
-                  Target: {target}
-                </p>
+                <p className="text-sm font-medium text-foreground">Target: {target}</p>
               ) : null}
 
               {goal.due_date ? (
-                <p className="text-sm text-muted">
-                  Deadline: {formatDate(goal.due_date)}
-                </p>
+                <p className="text-sm text-muted">Deadline: {formatDate(goal.due_date)}</p>
               ) : null}
             </div>
 
             <div className="flex gap-2">
-              <Link
-                href={`/goals/${goal.id}/edit`}
-                className={cn(
-                  "rounded-xl border-2 border-border px-3 py-1.5 text-sm font-semibold text-foreground",
-                  "hover:bg-green-muted",
-                )}
-              >
-                Edit
+              <Link href={`/goals/${goal.id}/edit`}>
+                <Button variant="secondary" size="sm">
+                  Edit
+                </Button>
               </Link>
-              <button
-                type="button"
+              <Button
+                variant="danger"
+                size="sm"
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className={cn(
-                  "rounded-xl border border-red-200 px-3 py-1.5 text-sm font-semibold text-red-700",
-                  "hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60",
-                )}
               >
                 {isDeleting ? "Deleting..." : "Delete"}
-              </button>
+              </Button>
             </div>
           </div>
 

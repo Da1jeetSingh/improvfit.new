@@ -1,28 +1,12 @@
 import { Card } from "@/components/ui/card";
-import { formatDate } from "@/components/ui/form-styles";
+import { alertErrorClassName, emptyCardClassName, formatDate } from "@/components/ui/form-styles";
+import { StatTile } from "@/components/ui/stat-tile";
 import type { ProgressSummary } from "@/lib/dashboard/progress-summary";
 
 type ProgressSummaryCardProps = {
   summary: ProgressSummary;
   error?: string | null;
 };
-
-function SummaryItem({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-xl border border-border bg-white p-4">
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted">
-        {label}
-      </p>
-      <p className="mt-2 text-2xl font-bold text-foreground">{value}</p>
-    </div>
-  );
-}
 
 export function ProgressSummaryCard({ summary, error }: ProgressSummaryCardProps) {
   if (error) {
@@ -31,7 +15,7 @@ export function ProgressSummaryCard({ summary, error }: ProgressSummaryCardProps
         title="Progress summary"
         description="Your overall cricket activity at a glance."
       >
-        <p className="text-sm text-red-600" role="alert">
+        <p className={alertErrorClassName} role="alert">
           Could not load progress summary: {error}
         </p>
       </Card>
@@ -43,9 +27,9 @@ export function ProgressSummaryCard({ summary, error }: ProgressSummaryCardProps
       <Card
         title="Progress summary"
         description="Your overall cricket activity at a glance."
-        className="border-dashed"
+        className={emptyCardClassName}
       >
-        <p className="text-sm text-muted">
+        <p className="text-sm leading-relaxed text-muted">
           No progress logged yet. Add a training session, match performance, or
           goal to see your summary here.
         </p>
@@ -58,13 +42,15 @@ export function ProgressSummaryCard({ summary, error }: ProgressSummaryCardProps
       title="Progress summary"
       description="Your overall cricket activity at a glance."
     >
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <SummaryItem
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <StatTile
+          compact
           label="Current streak"
           value={`${summary.currentStreak} ${summary.currentStreak === 1 ? "day" : "days"}`}
         />
-        <SummaryItem label="Active goals" value={String(summary.activeGoals)} />
-        <SummaryItem
+        <StatTile compact label="Active goals" value={String(summary.activeGoals)} />
+        <StatTile
+          compact
           label="Latest training"
           value={
             summary.latestTrainingDate
@@ -72,17 +58,20 @@ export function ProgressSummaryCard({ summary, error }: ProgressSummaryCardProps
               : "—"
           }
         />
-        <SummaryItem
+        <StatTile
+          compact
           label="Latest match"
           value={
             summary.latestMatchDate ? formatDate(summary.latestMatchDate) : "—"
           }
         />
-        <SummaryItem
+        <StatTile
+          compact
           label="Total training sessions"
           value={String(summary.totalTrainingSessions)}
         />
-        <SummaryItem
+        <StatTile
+          compact
           label="Total match performances"
           value={String(summary.totalMatchPerformances)}
         />

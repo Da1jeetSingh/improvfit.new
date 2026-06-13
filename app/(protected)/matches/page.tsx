@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
 import { MatchForm } from "@/components/matches/match-form";
 import { MatchList } from "@/components/matches/match-list";
+import { alertErrorClassName } from "@/components/ui/form-styles";
 import { getSession } from "@/lib/auth";
 import { getMatches } from "@/lib/matches";
 
@@ -13,7 +14,7 @@ export default async function MatchesPage() {
   const { matches, error } = await getMatches();
 
   return (
-    <section className="space-y-8">
+    <section className="space-y-10">
       <PageHeader
         eyebrow="Performance"
         title="Matches"
@@ -21,7 +22,7 @@ export default async function MatchesPage() {
       />
 
       {error ? (
-        <p className="text-sm text-red-600" role="alert">
+        <p className={alertErrorClassName} role="alert">
           Could not load matches: {error}
         </p>
       ) : null}

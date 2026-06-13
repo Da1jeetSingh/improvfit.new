@@ -1,5 +1,11 @@
+import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { formatDate, formatLabel } from "@/components/ui/form-styles";
+import {
+  emptyCardClassName,
+  formatDate,
+  formatLabel,
+  sectionHeadingClassName,
+} from "@/components/ui/form-styles";
 import type { TrainingSession } from "@/types/training";
 
 type TrainingListProps = {
@@ -12,9 +18,9 @@ export function TrainingList({ sessions }: TrainingListProps) {
       <Card
         title="Your sessions"
         description="Saved training logs will appear here."
-        className="border-dashed"
+        className={emptyCardClassName}
       >
-        <p className="text-sm text-muted">
+        <p className="text-sm leading-relaxed text-muted">
           No training sessions yet. Log your first practice above — even a short
           net or fielding drill counts.
         </p>
@@ -23,30 +29,26 @@ export function TrainingList({ sessions }: TrainingListProps) {
   }
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-5">
       <div>
-        <h2 className="text-lg font-semibold text-foreground">Your sessions</h2>
-        <p className="mt-1 text-sm text-muted">
+        <h2 className={sectionHeadingClassName}>Your sessions</h2>
+        <p className="mt-1.5 text-sm text-muted">
           {sessions.length} saved {sessions.length === 1 ? "session" : "sessions"}
         </p>
       </div>
 
-      <ul className="space-y-3">
+      <ul className="space-y-4">
         {sessions.map((session) => (
           <li key={session.id}>
             <Card padding="sm">
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="font-semibold text-foreground">
+                  <p className="font-bold text-foreground">
                     {formatDate(session.session_date)}
                   </p>
-                  <span className="rounded-full bg-green-muted px-2.5 py-0.5 text-xs font-medium text-green-deep">
-                    {formatLabel(session.focus)}
-                  </span>
+                  <Badge variant="success">{formatLabel(session.focus)}</Badge>
                   {session.self_rating ? (
-                    <span className="rounded-full bg-green-muted px-2.5 py-0.5 text-xs font-medium text-foreground">
-                      {session.self_rating}/5
-                    </span>
+                    <Badge>{session.self_rating}/5</Badge>
                   ) : null}
                 </div>
 
@@ -58,7 +60,7 @@ export function TrainingList({ sessions }: TrainingListProps) {
                 </p>
 
                 {session.notes ? (
-                  <p className="text-sm text-foreground">{session.notes}</p>
+                  <p className="text-sm leading-relaxed text-foreground">{session.notes}</p>
                 ) : null}
               </div>
             </Card>

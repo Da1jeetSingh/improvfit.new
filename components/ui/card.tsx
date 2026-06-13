@@ -9,9 +9,9 @@ type CardProps = {
 };
 
 const paddingMap = {
-  sm: "p-4",
-  md: "p-5 sm:p-6",
-  lg: "p-6 sm:p-8",
+  sm: "p-5",
+  md: "p-6 sm:p-7",
+  lg: "p-7 sm:p-9",
 };
 
 export function Card({
@@ -24,20 +24,22 @@ export function Card({
   return (
     <section
       className={cn(
-        "rounded-2xl border-2 border-green-deep/15 bg-white shadow-sm",
+        "premium-surface animate-fade-in-up",
         paddingMap[padding],
         className,
       )}
     >
       {title || description ? (
-        <div className="mb-4">
+        <div className="mb-5">
           {title ? (
-            <h2 className="text-lg font-semibold tracking-tight text-foreground">
+            <h2 className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
               {title}
             </h2>
           ) : null}
           {description ? (
-            <p className="mt-1 text-sm text-muted">{description}</p>
+            <p className="mt-1.5 text-sm leading-relaxed text-muted">
+              {description}
+            </p>
           ) : null}
         </div>
       ) : null}
