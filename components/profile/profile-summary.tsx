@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card";
+import { listRowClassName } from "@/components/ui/form-styles";
 import {
   formatProfileValue,
   hasProfileData,
@@ -17,7 +18,7 @@ function SummaryItem({
   value: string;
 }) {
   return (
-    <div className="flex flex-col gap-1 rounded-xl bg-green-muted/30 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className={`flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-center sm:justify-between ${listRowClassName}`}>
       <dt className="text-[11px] font-semibold uppercase tracking-wider text-muted">
         {label}
       </dt>

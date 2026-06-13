@@ -5,7 +5,13 @@ import { useActionState } from "react";
 
 import { signup, type AuthActionState } from "@/lib/auth/actions";
 import { Button } from "@/components/ui/button";
-import { inputClassName, labelClassName, sectionLinkClassName } from "@/components/ui/form-styles";
+import {
+  alertErrorClassName,
+  alertSuccessClassName,
+  inputClassName,
+  labelClassName,
+  sectionLinkClassName,
+} from "@/components/ui/form-styles";
 
 const initialState: AuthActionState = {};
 
@@ -42,17 +48,17 @@ export function SignupForm() {
             required
             className={inputClassName}
           />
-          <p className="mt-2 text-xs text-muted">At least 8 characters.</p>
+          <p className="mt-2 text-xs text-muted-subtle">At least 8 characters.</p>
         </div>
 
         {state.error ? (
-          <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+          <p className={alertErrorClassName} role="alert">
             {state.error}
           </p>
         ) : null}
 
         {state.message ? (
-          <p className="rounded-xl bg-green-muted px-4 py-3 text-sm font-medium text-green-deep" role="status">
+          <p className={alertSuccessClassName} role="status">
             {state.message}
           </p>
         ) : null}
@@ -62,8 +68,8 @@ export function SignupForm() {
         </Button>
       </form>
 
-      <p className="mt-8 text-center text-xs text-muted">
-        Player-only app. No coaches or academies.
+      <p className="mt-8 text-center text-xs text-muted-subtle">
+        Player-only performance OS. Built for disciplined athlete development.
       </p>
 
       <p className="mt-4 text-center text-sm text-muted">

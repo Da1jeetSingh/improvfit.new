@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { formatDate, emptyCardClassName } from "@/components/ui/form-styles";
+import { alertErrorClassName, emptyCardClassName, formatDate } from "@/components/ui/form-styles";
 import { StatTile } from "@/components/ui/stat-tile";
 import type { WeeklyProgress } from "@/lib/dashboard/weekly-progress";
 
@@ -38,7 +38,7 @@ export function WeeklyProgressCard({
   if (error) {
     return (
       <Card title={title} description={weekLabel}>
-        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+        <p className={alertErrorClassName} role="alert">
           Could not load weekly progress: {error}
         </p>
       </Card>

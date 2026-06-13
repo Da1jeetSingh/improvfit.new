@@ -18,12 +18,12 @@ export function StatTile({
   return (
     <div
       className={cn(
-        "premium-stat",
-        compact ? "p-4" : "p-5 sm:p-6",
+        "ds-stat",
+        compact ? "pl-5 pr-4 py-4" : "pl-6 pr-5 py-5 sm:py-6",
         className,
       )}
     >
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
         {label}
       </p>
       <p
@@ -34,7 +34,9 @@ export function StatTile({
       >
         {value}
       </p>
-      {hint ? <p className="mt-1.5 text-xs text-muted">{hint}</p> : null}
+      {hint ? (
+        <p className="mt-1.5 text-xs leading-relaxed text-muted">{hint}</p>
+      ) : null}
     </div>
   );
 }

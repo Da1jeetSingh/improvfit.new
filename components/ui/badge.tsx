@@ -9,11 +9,11 @@ type BadgeProps = {
 };
 
 const variants: Record<BadgeVariant, string> = {
-  default: "bg-green-muted text-foreground",
-  brand: "bg-green-deep text-white",
-  success: "bg-green-soft/60 text-green-deep",
-  muted: "bg-green-muted/60 text-muted",
-  danger: "bg-red-50 text-red-700",
+  default: "bg-green-tint text-green-deep border border-green-muted",
+  brand: "bg-green-deep text-white border border-green-deep",
+  success: "bg-green-muted text-green-brand border border-green-soft/50",
+  muted: "bg-surface text-muted border border-border-subtle",
+  danger: "bg-red-50 text-red-700 border border-red-200/60",
 };
 
 export function Badge({
@@ -24,7 +24,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold",
+        "inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide",
         variants[variant],
         className,
       )}

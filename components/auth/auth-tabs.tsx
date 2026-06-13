@@ -30,14 +30,14 @@ export function AuthTabs({
 
   return (
     <div>
-      <div className="mb-8 flex rounded-2xl bg-green-muted/60 p-1.5">
+      <div className="mb-8 flex rounded-2xl border border-border-subtle bg-green-tint p-1.5">
         <button
           type="button"
           onClick={() => setTab("login")}
           className={cn(
             "flex-1 rounded-xl py-2.5 text-sm font-semibold transition-all duration-200",
             tab === "login"
-              ? "bg-white text-foreground shadow-soft"
+              ? "bg-surface-raised text-foreground shadow-soft"
               : "text-muted hover:text-foreground",
           )}
         >
@@ -49,7 +49,7 @@ export function AuthTabs({
           className={cn(
             "flex-1 rounded-xl py-2.5 text-sm font-semibold transition-all duration-200",
             tab === "signup"
-              ? "bg-white text-foreground shadow-soft"
+              ? "bg-surface-raised text-foreground shadow-soft"
               : "text-muted hover:text-foreground",
           )}
         >
@@ -58,7 +58,7 @@ export function AuthTabs({
       </div>
 
       {callbackError ? (
-        <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+        <p className="mb-4 rounded-xl border border-red-200/60 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
           Sign-in could not be completed. Please try again.
         </p>
       ) : null}
@@ -93,7 +93,7 @@ export function AuthTabs({
             />
           </div>
           {loginState.error ? (
-            <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+            <p className="rounded-xl border border-red-200/60 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
               {loginState.error}
             </p>
           ) : null}
@@ -129,15 +129,15 @@ export function AuthTabs({
               required
               className={inputClassName}
             />
-            <p className="mt-2 text-xs text-muted">At least 8 characters.</p>
+            <p className="mt-2 text-xs text-muted-subtle">At least 8 characters.</p>
           </div>
           {signupState.error ? (
-            <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+            <p className="rounded-xl border border-red-200/60 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
               {signupState.error}
             </p>
           ) : null}
           {signupState.message ? (
-            <p className="rounded-xl bg-green-muted px-4 py-3 text-sm font-medium text-green-deep" role="status">
+            <p className="rounded-xl border border-green-muted bg-green-tint px-4 py-3 text-sm font-semibold text-green-deep" role="status">
               {signupState.message}
             </p>
           ) : null}
@@ -147,8 +147,8 @@ export function AuthTabs({
         </form>
       )}
 
-      <p className="mt-8 text-center text-xs text-muted">
-        Player-only app. No coaches or academies.
+      <p className="mt-8 text-center text-xs text-muted-subtle">
+        Player-only performance OS. Built for disciplined athlete development.
       </p>
     </div>
   );

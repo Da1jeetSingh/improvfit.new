@@ -24,13 +24,13 @@ export function Card({
   return (
     <section
       className={cn(
-        "premium-surface animate-fade-in-up",
+        "ds-surface animate-fade-in-up",
         paddingMap[padding],
         className,
       )}
     >
       {title || description ? (
-        <div className="mb-5">
+        <div className="mb-5 border-b border-border-subtle pb-4">
           {title ? (
             <h2 className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
               {title}

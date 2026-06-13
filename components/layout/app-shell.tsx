@@ -28,17 +28,14 @@ export function AppShell({ children, email }: AppShellProps) {
 
   return (
     <div className="relative min-h-full bg-background">
-      <div
-        className="pointer-events-none fixed inset-x-0 top-0 h-72 bg-gradient-to-b from-green-muted/50 to-transparent"
-        aria-hidden
-      />
+      <div className="ds-ambient" aria-hidden />
 
       <div className="relative mx-auto flex min-h-full w-full max-w-6xl flex-col px-4 pb-28 pt-6 sm:px-6 lg:pb-10 lg:pt-8">
         <header className="mb-8 flex items-center justify-between">
           <BrandHeader />
           <div className="hidden items-center gap-4 sm:flex">
             {email ? (
-              <span className="rounded-full bg-green-muted px-3 py-1 text-xs font-medium text-muted">
+              <span className="rounded-full border border-border-subtle bg-surface px-3 py-1.5 text-xs font-medium text-muted">
                 {email}
               </span>
             ) : null}
@@ -56,10 +53,10 @@ export function AppShell({ children, email }: AppShellProps) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200",
+                  "rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200 ease-out",
                   active
                     ? "bg-green-deep text-white shadow-soft"
-                    : "text-foreground hover:bg-green-muted",
+                    : "text-foreground-secondary hover:bg-green-tint hover:text-foreground",
                 )}
               >
                 {item.label}
@@ -70,7 +67,7 @@ export function AppShell({ children, email }: AppShellProps) {
 
         <main className="flex-1 animate-fade-in-up">{children}</main>
 
-        <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border/80 bg-white/90 px-1 py-2 shadow-elevated backdrop-blur-md lg:hidden">
+        <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border-subtle bg-surface/95 px-1 py-2 shadow-elevated backdrop-blur-md lg:hidden">
           <ul className="mx-auto flex max-w-lg justify-between gap-0.5 overflow-x-auto">
             {navItems.map((item) => {
               const active =

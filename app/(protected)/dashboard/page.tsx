@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ChartBars } from "@/components/ui/chart-bars";
-import { formatDate, formatLabel, sectionLinkClassName } from "@/components/ui/form-styles";
+import { formatDate, formatLabel, listRowClassName, sectionLinkClassName } from "@/components/ui/form-styles";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { StatTile } from "@/components/ui/stat-tile";
 import { getDashboardData } from "@/lib/dashboard";
@@ -96,7 +96,7 @@ export default async function DashboardPage() {
               {recentMatches.map((m) => (
                 <li
                   key={m.id}
-                  className="flex items-center justify-between rounded-xl bg-green-muted/30 px-4 py-3 text-sm transition-colors hover:bg-green-muted/50"
+                  className={`flex items-center justify-between px-4 py-3 text-sm ${listRowClassName}`}
                 >
                   <span className="text-muted">{formatDate(m.played_on)}</span>
                   <span className="font-bold text-foreground">{m.runs ?? 0} runs</span>
@@ -117,7 +117,7 @@ export default async function DashboardPage() {
               {recentSessions.map((s) => (
                 <li
                   key={s.id}
-                  className="flex items-center justify-between rounded-xl bg-green-muted/30 px-4 py-3 text-sm transition-colors hover:bg-green-muted/50"
+                  className={`flex items-center justify-between px-4 py-3 text-sm ${listRowClassName}`}
                 >
                   <span className="font-medium text-foreground">{formatLabel(s.focus)}</span>
                   <span className="text-muted">{s.duration_minutes} min</span>
@@ -138,7 +138,7 @@ export default async function DashboardPage() {
               {recentGoals.map((g) => (
                 <li
                   key={g.id}
-                  className="flex items-center justify-between rounded-xl bg-green-muted/30 px-4 py-3 text-sm transition-colors hover:bg-green-muted/50"
+                  className={`flex items-center justify-between px-4 py-3 text-sm ${listRowClassName}`}
                 >
                   <span className="truncate pr-2 font-medium text-foreground">{g.title}</span>
                   <Badge variant="muted">{formatLabel(g.status)}</Badge>

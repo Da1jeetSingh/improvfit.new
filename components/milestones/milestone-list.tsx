@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { emptyCardClassName } from "@/components/ui/form-styles";
+import { alertErrorClassName, emptyCardClassName } from "@/components/ui/form-styles";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import type { Milestone, MilestonesSummary } from "@/lib/dashboard/milestones";
 import { cn } from "@/lib/utils";
@@ -14,8 +14,8 @@ function MilestoneCard({ milestone }: { milestone: Milestone }) {
   return (
     <div
       className={cn(
-        "premium-stat p-5 transition-all duration-300",
-        milestone.unlocked && "ring-1 ring-green-deep/20",
+        "ds-stat pl-5 pr-4 py-5 transition-all duration-300",
+        milestone.unlocked && "border-green-sage/35",
       )}
     >
       <div className="flex items-start justify-between gap-3">
@@ -50,7 +50,7 @@ export function MilestoneList({ summary, error }: MilestoneListProps) {
   if (error) {
     return (
       <Card title="Milestones" description="Celebrate your cricket progress.">
-        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+        <p className={alertErrorClassName} role="alert">
           Could not load milestones: {error}
         </p>
       </Card>

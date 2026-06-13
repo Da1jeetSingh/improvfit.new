@@ -9,11 +9,8 @@ type AuthShellProps = {
 
 export function AuthShell({ title, description, children }: AuthShellProps) {
   return (
-    <div className="relative flex min-h-full flex-col items-center justify-center px-4 py-16">
-      <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--green-muted)_0%,_transparent_55%)]"
-        aria-hidden
-      />
+    <div className="relative flex min-h-full flex-col items-center justify-center bg-background px-4 py-16">
+      <div className="ds-ambient" aria-hidden />
 
       <div className="relative mb-10 animate-fade-in-up">
         <BrandHeader href="/" size="large" />

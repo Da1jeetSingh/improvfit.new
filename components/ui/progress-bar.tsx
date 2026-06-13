@@ -22,9 +22,9 @@ export function ProgressBar({
           <span className="font-bold text-foreground">{Math.round(percent)}%</span>
         </div>
       ) : null}
-      <div className="h-2.5 w-full overflow-hidden rounded-full bg-green-muted">
+      <div className="h-2 w-full overflow-hidden rounded-full bg-green-muted">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-green-deep to-green-light transition-all duration-700 ease-out"
+          className="h-full rounded-full bg-gradient-to-r from-green-deep via-green-brand to-green-sage transition-all duration-700 ease-out"
           style={{ width: `${percent}%` }}
         />
       </div>

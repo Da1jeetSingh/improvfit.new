@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { emptyCardClassName } from "@/components/ui/form-styles";
+import { alertErrorClassName, emptyCardClassName } from "@/components/ui/form-styles";
 import { StatTile } from "@/components/ui/stat-tile";
 import type { PlayerStats } from "@/lib/dashboard/stats";
 
@@ -46,14 +46,14 @@ function SplitBar({
   }
 
   return (
-    <div className="mt-4 h-3 overflow-hidden rounded-full bg-green-muted">
+    <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-green-muted">
       <div className="flex h-full">
         <div
-          className="h-full rounded-l-full bg-gradient-to-r from-green-deep to-green-brand transition-all duration-500"
+          className="h-full rounded-l-full bg-gradient-to-r from-[var(--chart-primary)] to-[var(--chart-secondary)] transition-all duration-500"
           style={{ width: `${trainingPercent}%` }}
         />
         <div
-          className="h-full rounded-r-full bg-green-soft/80"
+          className="h-full rounded-r-full bg-[var(--chart-quaternary)]/70"
           style={{ width: `${matchPercent}%` }}
         />
       </div>
@@ -65,7 +65,7 @@ export function StatsAnalytics({ stats, error }: StatsAnalyticsProps) {
   if (error) {
     return (
       <Card title="Your stats" description="Performance metrics from your logs.">
-        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+        <p className={alertErrorClassName} role="alert">
           Could not load stats: {error}
         </p>
       </Card>
