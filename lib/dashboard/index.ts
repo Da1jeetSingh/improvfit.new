@@ -20,8 +20,15 @@ export async function getDashboardData() {
     return null;
   }
 
-  const [profile, matchesResult, sessionsResult, goalsResult] = await Promise.all([
-    getProfile(),
+  let profile = null;
+
+  try {
+    profile = await getProfile();
+  } catch (error) {
+    console.error("[dashboard] profile load failed:", error);
+  }
+
+  const [matchesResult, sessionsResult, goalsResult] = await Promise.all([
     supabase
       .from("matches")
       .select(matchSelect)
