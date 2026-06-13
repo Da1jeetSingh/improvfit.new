@@ -43,6 +43,11 @@ supabase db push
 
 Tables: `users`, `matches`, `training_sessions`, `goals`. Row Level Security ensures each signed-in user only sees their own data.
 
+Apply migrations in order:
+
+1. `supabase/migrations/20250613100000_initial_schema.sql`
+2. `supabase/migrations/20250613110000_add_profile_fields.sql`
+
 ## Project structure
 
 ```
