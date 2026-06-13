@@ -5,6 +5,7 @@ import type { WeeklyProgress } from "@/lib/dashboard/weekly-progress";
 type WeeklyProgressCardProps = {
   progress: WeeklyProgress;
   error?: string | null;
+  title?: string;
 };
 
 function SummaryItem({
@@ -43,13 +44,17 @@ function formatWeekRange(weekStart: string, weekEnd: string) {
   return `${formatDate(weekStart)} – ${formatDate(weekEnd)}`;
 }
 
-export function WeeklyProgressCard({ progress, error }: WeeklyProgressCardProps) {
+export function WeeklyProgressCard({
+  progress,
+  error,
+  title = "Weekly progress",
+}: WeeklyProgressCardProps) {
   const weekLabel = formatWeekRange(progress.weekStart, progress.weekEnd);
 
   if (error) {
     return (
       <Card
-        title="This week"
+        title={title}
         description={weekLabel}
       >
         <p className="text-sm text-red-600" role="alert">
@@ -62,7 +67,7 @@ export function WeeklyProgressCard({ progress, error }: WeeklyProgressCardProps)
   if (!progress.hasDataThisWeek) {
     return (
       <Card
-        title="This week"
+        title={title}
         description={weekLabel}
         className="border-dashed"
       >
@@ -85,7 +90,7 @@ export function WeeklyProgressCard({ progress, error }: WeeklyProgressCardProps)
   }
 
   return (
-    <Card title="This week" description={weekLabel}>
+    <Card title={title} description={weekLabel}>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <SummaryItem
           label="Training sessions"
