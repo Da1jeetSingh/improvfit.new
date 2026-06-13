@@ -87,13 +87,7 @@ export async function signup(
   };
 }
 
-export async function logout() {
-  try {
-    const supabase = await createClient();
-    await supabase.auth.signOut();
-  } catch (error) {
-    console.error("[auth] logout failed:", error);
-  }
 
-  redirect("/login");
+export async function logout() {
+  redirect("/auth/logout");
 }

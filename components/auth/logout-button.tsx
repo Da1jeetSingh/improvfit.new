@@ -1,9 +1,8 @@
-import { logout } from "@/lib/auth/actions";
 import { Button } from "@/components/ui/button";
 
 export function LogoutButton() {
   return (
-    <form action={logout}>
+    <form action="/auth/logout" method="post">
       <Button type="submit" variant="secondary" className="py-2 text-xs">
         Log out
       </Button>

@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 
-import { isLoginRoute, isProtectedRoute, isSignupRoute } from "@/lib/auth";
+import { isProtectedRoute } from "@/lib/auth";
 import {
   applySessionCookies,
   updateSession,
@@ -38,20 +38,6 @@ export async function middleware(request: NextRequest) {
     loginUrl.pathname = "/login";
     loginUrl.searchParams.set("next", pathname);
     return redirectWithSession(loginUrl, supabaseResponse);
-  }
-
-  if (user && isLoginRoute(pathname)) {
-    const dashboardUrl = request.nextUrl.clone();
-    dashboardUrl.pathname = "/dashboard";
-    dashboardUrl.search = "";
-    return redirectWithSession(dashboardUrl, supabaseResponse);
-  }
-
-  if (user && isSignupRoute(pathname)) {
-    const dashboardUrl = request.nextUrl.clone();
-    dashboardUrl.pathname = "/dashboard";
-    dashboardUrl.search = "";
-    return redirectWithSession(dashboardUrl, supabaseResponse);
   }
 
   return supabaseResponse;

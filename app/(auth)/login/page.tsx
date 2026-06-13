@@ -1,5 +1,8 @@
+import { redirect } from "next/navigation";
+
 import { AuthShell } from "@/components/layout/auth-shell";
 import { AuthTabs } from "@/components/auth/auth-tabs";
+import { getSession } from "@/lib/auth";
 
 type LoginPageProps = {
   searchParams: Promise<{
@@ -11,6 +14,12 @@ type LoginPageProps = {
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams;
+  const session = await getSession();
+
+  if (session) {
+    const next = params.next ?? "/dashboard";
+    redirect(next.startsWith("/") ? next : "/dashboard");
+  }
 
   return (
     <AuthShell
