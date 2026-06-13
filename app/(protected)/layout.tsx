@@ -21,7 +21,7 @@ export default async function ProtectedLayout({
   }
 
   return (
-    <div className="mx-auto flex min-h-full w-full max-w-2xl flex-col px-6 py-8">
+    <div className="mx-auto flex min-h-full w-full max-w-5xl flex-col px-6 py-8">
       <header className="mb-8 flex flex-col gap-4 border-b border-zinc-200 pb-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <Link href="/dashboard" className="text-lg font-semibold text-zinc-900">
