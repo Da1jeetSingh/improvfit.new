@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   formatLabel,
   inputClassName,
@@ -140,16 +141,9 @@ export function TrainingForm() {
         </p>
       ) : null}
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className={cn(
-          "w-full rounded-md bg-emerald-700 px-4 py-3 text-sm font-medium text-white sm:w-auto",
-          "hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60",
-        )}
-      >
+      <Button type="submit" disabled={isPending} fullWidth className="sm:w-auto">
         {isPending ? "Saving..." : "Save session"}
-      </button>
+      </Button>
     </form>
   );
 }

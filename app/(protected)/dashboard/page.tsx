@@ -1,166 +1,149 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { StatCard } from "@/components/dashboard/stat-card";
-import { TrainingChart } from "@/components/dashboard/training-chart";
+import { PageHeader } from "@/components/layout/page-header";
 import { Card } from "@/components/ui/card";
+import { ChartBars } from "@/components/ui/chart-bars";
 import { formatDate, formatLabel } from "@/components/ui/form-styles";
+import { ProgressBar } from "@/components/ui/progress-bar";
 import { getDashboardData } from "@/lib/dashboard";
 import { formatMetric } from "@/lib/dashboard/metrics";
-import type { PlayerProfile } from "@/types/profile";
 
-function ProfileSummary({ profile }: { profile: PlayerProfile | null }) {
-  if (!profile?.full_name && !profile?.role) {
-    return (
-      <Card title="Player profile" description="Your cricket profile at a glance.">
-        <p className="text-sm text-zinc-500">Profile not filled in yet.</p>
-        <Link
-          href="/profile"
-          className="mt-3 inline-block text-sm font-medium text-emerald-700 hover:underline"
-        >
-          Complete your profile →
-        </Link>
-      </Card>
-    );
-  }
-
+function StatTile({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: string;
+  hint: string;
+}) {
   return (
-    <Card title="Player profile" description="Your cricket profile at a glance.">
-      <dl className="grid gap-3 text-sm sm:grid-cols-2">
-        <div>
-          <dt className="text-zinc-500">Name</dt>
-          <dd className="font-medium text-zinc-900">
-            {profile.full_name ?? "—"}
-          </dd>
-        </div>
-        <div>
-          <dt className="text-zinc-500">Role</dt>
-          <dd className="font-medium text-zinc-900">
-            {profile.role ? formatLabel(profile.role) : "—"}
-          </dd>
-        </div>
-        <div>
-          <dt className="text-zinc-500">Skill level</dt>
-          <dd className="font-medium text-zinc-900">
-            {profile.skill_level ? formatLabel(profile.skill_level) : "—"}
-          </dd>
-        </div>
-        <div>
-          <dt className="text-zinc-500">Batting</dt>
-          <dd className="font-medium text-zinc-900">
-            {profile.batting_style ? formatLabel(profile.batting_style) : "—"}
-          </dd>
-        </div>
-      </dl>
-      <Link
-        href="/profile"
-        className="mt-4 inline-block text-sm font-medium text-emerald-700 hover:underline"
-      >
-        Edit profile →
-      </Link>
+    <Card padding="sm" className="text-center sm:text-left">
+      <p className="text-xs font-semibold uppercase tracking-wide text-muted">
+        {label}
+      </p>
+      <p className="mt-2 text-3xl font-bold text-foreground">{value}</p>
+      <p className="mt-1 text-xs text-muted">{hint}</p>
     </Card>
   );
 }
 
 export default async function DashboardPage() {
-  const dashboard = await getDashboardData();
+  const data = await getDashboardData();
+  if (!data) redirect("/login");
 
-  if (!dashboard) {
-    redirect("/login");
-  }
-
-  const { profile, metrics, recentSessions } = dashboard;
-  const hasTrainingData = metrics.trainingSessionsTotal > 0;
+  const { profile, metrics, recentMatches, recentSessions, recentGoals } = data;
 
   return (
     <section className="space-y-8">
-      <header className="space-y-2">
-        <p className="text-sm font-medium uppercase tracking-wide text-emerald-700">
-          Player overview
-        </p>
-        <h1 className="text-3xl font-semibold tracking-tight text-zinc-900">
-          Dashboard
-        </h1>
-        <p className="max-w-2xl text-zinc-600">
-          Your profile and training activity in one place.
-        </p>
-      </header>
+      <PageHeader
+        eyebrow="Overview"
+        title={`Hey${profile?.full_name ? `, ${profile.full_name.split(" ")[0]}` : ""}`}
+        description="Your recent activity, stats, and progress at a glance."
+      />
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard
-          label="Sessions (30 days)"
-          value={String(metrics.trainingSessionsLast30Days)}
-          hint="Training logged this month"
-        />
-        <StatCard
-          label="Per week"
-          value={formatMetric(metrics.trainingSessionsPerWeek)}
-          hint="Average based on last 30 days"
-        />
-        <StatCard
-          label="All time"
-          value={String(metrics.trainingSessionsTotal)}
-          hint="Total sessions logged"
-        />
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatTile label="Matches" value={String(metrics.matchesPlayed)} hint="Logged innings" />
+        <StatTile label="Total runs" value={String(metrics.totalRuns)} hint="All matches" />
+        <StatTile label="Average" value={formatMetric(metrics.battingAverage)} hint="Runs per dismissal" />
+        <StatTile label="Strike rate" value={formatMetric(metrics.strikeRate)} hint="Per 100 balls" />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <ProfileSummary profile={profile} />
+        <Card title="Training rhythm" description="Sessions over the last 4 weeks.">
+          <ChartBars data={metrics.weeklyTraining} />
+          <p className="mt-4 text-sm text-muted">
+            {metrics.trainingSessionsLast30Days} sessions in the last 30 days
+            {metrics.trainingSessionsPerWeek
+              ? ` · ~${metrics.trainingSessionsPerWeek}/week`
+              : ""}
+          </p>
+        </Card>
 
-        <Card
-          title="Training frequency"
-          description="Sessions over the last four weeks."
-        >
-          {hasTrainingData ? (
-            <TrainingChart buckets={metrics.weeklyTraining} />
+        <Card title="Goal progress" description={`${metrics.goalsCompleted} of ${metrics.goalsTotal} completed`}>
+          {metrics.goalsTotal === 0 ? (
+            <p className="text-sm text-muted">No goals yet.</p>
           ) : (
-            <div>
-              <p className="text-sm text-zinc-500">No training sessions yet.</p>
-              <Link
-                href="/training"
-                className="mt-3 inline-block text-sm font-medium text-emerald-700 hover:underline"
-              >
-                Log your first session →
-              </Link>
+            <div className="space-y-4">
+              <p className="text-2xl font-bold text-foreground">
+                {metrics.averageGoalProgress === null
+                  ? "—"
+                  : `${metrics.averageGoalProgress}%`}
+                <span className="ml-2 text-sm font-normal text-muted">avg progress</span>
+              </p>
+              {metrics.goalSummaries.slice(0, 3).map((goal) => (
+                <div key={goal.id}>
+                  <div className="mb-1 flex justify-between text-sm">
+                    <span className="font-medium">{goal.title}</span>
+                    <span className="text-muted">{formatLabel(goal.status)}</span>
+                  </div>
+                  <ProgressBar
+                    value={goal.progress ?? 0}
+                    showLabel={goal.progress !== null}
+                  />
+                </div>
+              ))}
             </div>
           )}
         </Card>
       </div>
 
-      <Card title="Recent sessions" description="Your latest training logs.">
-        {recentSessions.length === 0 ? (
-          <p className="text-sm text-zinc-500">Nothing logged yet.</p>
-        ) : (
-          <ul className="divide-y divide-zinc-100">
-            {recentSessions.map((session) => (
-              <li
-                key={session.id}
-                className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm"
-              >
-                <div>
-                  <p className="font-medium text-zinc-900">
-                    {formatDate(session.session_date)}
-                  </p>
-                  <p className="text-zinc-500">
-                    {formatLabel(session.focus)} · {session.duration_minutes} min
-                  </p>
-                </div>
-                {session.self_rating ? (
-                  <span className="rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-medium text-zinc-700">
-                    {session.self_rating}/5
-                  </span>
-                ) : null}
-              </li>
-            ))}
-          </ul>
-        )}
-        <Link
-          href="/training"
-          className="mt-4 inline-block text-sm font-medium text-emerald-700 hover:underline"
-        >
-          View all training →
-        </Link>
-      </Card>
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card title="Recent matches">
+          {recentMatches.length === 0 ? (
+            <p className="text-sm text-muted">No matches logged.</p>
+          ) : (
+            <ul className="space-y-3 text-sm">
+              {recentMatches.map((m) => (
+                <li key={m.id} className="flex justify-between border-b border-border pb-2">
+                  <span>{formatDate(m.played_on)}</span>
+                  <span className="font-semibold">{m.runs ?? 0} runs</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <Link href="/matches" className="mt-4 inline-block text-sm font-semibold text-green-deep hover:underline">
+            View matches →
+          </Link>
+        </Card>
+
+        <Card title="Recent training">
+          {recentSessions.length === 0 ? (
+            <p className="text-sm text-muted">No sessions logged.</p>
+          ) : (
+            <ul className="space-y-3 text-sm">
+              {recentSessions.map((s) => (
+                <li key={s.id} className="flex justify-between border-b border-border pb-2">
+                  <span>{formatLabel(s.focus)}</span>
+                  <span className="text-muted">{s.duration_minutes} min</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <Link href="/training" className="mt-4 inline-block text-sm font-semibold text-green-deep hover:underline">
+            View training →
+          </Link>
+        </Card>
+
+        <Card title="Recent goals">
+          {recentGoals.length === 0 ? (
+            <p className="text-sm text-muted">No goals set.</p>
+          ) : (
+            <ul className="space-y-3 text-sm">
+              {recentGoals.map((g) => (
+                <li key={g.id} className="flex justify-between border-b border-border pb-2">
+                  <span className="truncate pr-2">{g.title}</span>
+                  <span className="text-muted">{formatLabel(g.status)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <Link href="/goals" className="mt-4 inline-block text-sm font-semibold text-green-deep hover:underline">
+            View goals →
+          </Link>
+        </Card>
+      </div>
     </section>
   );
 }

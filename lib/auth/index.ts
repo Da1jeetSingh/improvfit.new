@@ -4,6 +4,8 @@ export const protectedRoutes = [
   "/dashboard",
   "/profile",
   "/training",
+  "/matches",
+  "/goals",
 ] as const;
 
 export const authRoutes = ["/login", "/signup"] as const;

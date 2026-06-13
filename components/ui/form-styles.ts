@@ -1,11 +1,12 @@
 import { cn } from "@/lib/utils";
 
-export const inputClassName = cn(
-  "mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-base",
-  "focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20",
-);
+export const labelClassName = "block text-sm font-semibold text-foreground";
 
-export const labelClassName = "block text-sm font-medium text-zinc-700";
+export const inputClassName = cn(
+  "mt-1.5 w-full rounded-xl border-2 border-border bg-white px-4 py-2.5 text-base text-foreground",
+  "placeholder:text-muted/70",
+  "focus:border-green-deep focus:outline-none focus:ring-2 focus:ring-green-deep/15",
+);
 
 export function formatLabel(value: string) {
   return value

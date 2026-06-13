@@ -1,38 +1,27 @@
-import Link from "next/link";
-
-import { LoginForm } from "@/components/auth/login-form";
-import { PageShell } from "@/components/page-shell";
+import { AuthShell } from "@/components/layout/auth-shell";
+import { AuthTabs } from "@/components/auth/auth-tabs";
 
 type LoginPageProps = {
   searchParams: Promise<{
     next?: string;
     error?: string;
+    tab?: string;
   }>;
 };
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams;
-  const next = params.next ?? "/dashboard";
 
   return (
-    <PageShell
-      title="Login"
-      description="Sign in to your IMPROV account."
+    <AuthShell
+      title="Welcome back"
+      description="Track your cricket performance, one session at a time."
     >
-      {params.error === "auth_callback_failed" ? (
-        <p className="mt-4 text-sm text-red-600" role="alert">
-          Sign-in could not be completed. Please try again.
-        </p>
-      ) : null}
-
-      <LoginForm next={next} />
-
-      <p className="mt-6 text-sm text-zinc-600">
-        No account yet?{" "}
-        <Link href="/signup" className="font-medium text-emerald-700 hover:underline">
-          Sign up
-        </Link>
-      </p>
-    </PageShell>
+      <AuthTabs
+        next={params.next ?? "/dashboard"}
+        defaultTab={params.tab === "signup" ? "signup" : "login"}
+        callbackError={params.error === "auth_callback_failed"}
+      />
+    </AuthShell>
   );
 }

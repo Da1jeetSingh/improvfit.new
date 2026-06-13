@@ -3,6 +3,12 @@
 import { useActionState } from "react";
 
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  formatLabel,
+  inputClassName,
+  labelClassName,
+} from "@/components/ui/form-styles";
 import { updateProfile, type ProfileActionState } from "@/lib/profile/actions";
 import { cn } from "@/lib/utils";
 import {
@@ -14,20 +20,6 @@ import {
 } from "@/types/profile";
 
 const initialState: ProfileActionState = {};
-
-const inputClassName = cn(
-  "mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-base",
-  "focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20",
-);
-
-const labelClassName = "block text-sm font-medium text-zinc-700";
-
-function formatLabel(value: string) {
-  return value
-    .split(/[\s-]+/)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
 
 type ProfileFormProps = {
   profile: PlayerProfile;
@@ -187,21 +179,14 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       ) : null}
 
       {state.message ? (
-        <p className="text-sm text-emerald-700" role="status">
+        <p className="text-sm text-green-deep" role="status">
           {state.message}
         </p>
       ) : null}
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className={cn(
-          "w-full rounded-md bg-emerald-700 px-4 py-3 text-sm font-medium text-white sm:w-auto",
-          "hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60",
-        )}
-      >
+      <Button type="submit" disabled={isPending} fullWidth className="sm:w-auto">
         {isPending ? "Saving..." : "Save profile"}
-      </button>
+      </Button>
     </form>
   );
 }

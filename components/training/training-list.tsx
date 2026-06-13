@@ -36,7 +36,7 @@ export function TrainingList({ sessions }: TrainingListProps) {
                   <p className="font-semibold text-zinc-900">
                     {formatDate(session.session_date)}
                   </p>
-                  <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-800">
+                  <span className="rounded-full bg-green-muted px-2.5 py-0.5 text-xs font-medium text-green-deep">
                     {formatLabel(session.focus)}
                   </span>
                   {session.self_rating ? (

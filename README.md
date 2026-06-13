@@ -1,48 +1,30 @@
-# IMPROV
+# Improv
 
-Player-only cricket MVP built with Next.js and Supabase.
+Premium player-only cricket performance app. Next.js + Supabase.
 
-## MVP scope
+## Design
 
-1. **Player profile** — name, role, styles, skill level, goals
-2. **Training sessions** — log practice with date, duration, focus, notes
-3. **Dashboard** — profile summary and training activity
+- Black brand name + logo (top left: **Improv** then logo)
+- Deep baggy green (`#1b4d3e`) — borders and accents
+- Light green (`#7dd3a8`) — charts and progress bars
+- White/black neutrals
 
-No coaches, payments, or AI features.
+## Screens
+
+1. Login / sign up (`/login`)
+2. Player profile (`/profile`)
+3. Training logging (`/training`)
+4. Match logging (`/matches`)
+5. Goals (`/goals`)
+6. Dashboard (`/dashboard`)
 
 ## Setup
 
-### 1. Database (Supabase)
+1. Run `supabase/mvp.sql` in Supabase SQL Editor (new projects)
+2. Copy `.env.example` → `.env.local` and add Supabase keys
+3. Set auth redirect: `https://your-domain/auth/callback`
+4. `npm install && npm run dev`
 
-New project: run **`supabase/mvp.sql`** once in the Supabase SQL Editor.
+## Player-only scope
 
-Existing project with prior migrations: keep using `supabase/migrations/` in order.
-
-### 2. Environment
-
-```bash
-cp .env.example .env.local
-```
-
-Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` from Supabase → Settings → API.
-
-Set auth redirect URL: `http://localhost:3000/auth/callback`
-
-### 3. Run locally
-
-```bash
-npm install
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000).
-
-## Routes
-
-| Route | Purpose |
-|-------|---------|
-| `/profile` | View and edit player profile |
-| `/training` | Log and list training sessions |
-| `/dashboard` | Profile summary + training stats |
-
-Protected routes require sign-in.
+No coaches, academies, parents, payments, or AI features.

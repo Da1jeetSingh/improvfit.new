@@ -63,11 +63,66 @@ create index training_sessions_session_date_idx
   on public.training_sessions (session_date desc);
 
 -- ---------------------------------------------------------------------------
+-- Matches
+-- ---------------------------------------------------------------------------
+
+create table public.matches (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users (id) on delete cascade,
+  played_on date not null,
+  runs integer check (runs is null or runs >= 0),
+  balls_faced integer check (balls_faced is null or balls_faced >= 0),
+  strike_rate numeric(6, 2) check (strike_rate is null or strike_rate >= 0),
+  fours integer check (fours is null or fours >= 0),
+  sixes integer check (sixes is null or sixes >= 0),
+  dismissal_type text check (
+    dismissal_type is null
+    or dismissal_type in (
+      'not out', 'bowled', 'caught', 'lbw', 'run out',
+      'stumped', 'hit wicket', 'retired'
+    )
+  ),
+  match_level text check (
+    match_level is null
+    or match_level in ('club', 'school', 'university', 'county', 'international')
+  ),
+  opponent_type text check (
+    opponent_type is null
+    or opponent_type in ('league', 'friendly', 'tournament', 'practice')
+  ),
+  notes text,
+  created_at timestamptz not null default now()
+);
+
+create index matches_user_id_idx on public.matches (user_id);
+
+-- ---------------------------------------------------------------------------
+-- Goals
+-- ---------------------------------------------------------------------------
+
+create table public.goals (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users (id) on delete cascade,
+  title text not null,
+  target_value numeric check (target_value is null or target_value > 0),
+  current_value numeric not null default 0 check (current_value >= 0),
+  due_date date,
+  status text not null default 'not_started' check (
+    status in ('not_started', 'in_progress', 'completed')
+  ),
+  created_at timestamptz not null default now()
+);
+
+create index goals_user_id_idx on public.goals (user_id);
+
+-- ---------------------------------------------------------------------------
 -- Row Level Security
 -- ---------------------------------------------------------------------------
 
 alter table public.users enable row level security;
 alter table public.training_sessions enable row level security;
+alter table public.matches enable row level security;
+alter table public.goals enable row level security;
 
 create policy "Users can view own profile"
   on public.users for select to authenticated
@@ -98,6 +153,26 @@ create policy "Users can update own training sessions"
 create policy "Users can delete own training sessions"
   on public.training_sessions for delete to authenticated
   using (auth.uid() = user_id);
+
+create policy "Users can view own matches"
+  on public.matches for select to authenticated using (auth.uid() = user_id);
+create policy "Users can insert own matches"
+  on public.matches for insert to authenticated with check (auth.uid() = user_id);
+create policy "Users can update own matches"
+  on public.matches for update to authenticated
+  using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "Users can delete own matches"
+  on public.matches for delete to authenticated using (auth.uid() = user_id);
+
+create policy "Users can view own goals"
+  on public.goals for select to authenticated using (auth.uid() = user_id);
+create policy "Users can insert own goals"
+  on public.goals for insert to authenticated with check (auth.uid() = user_id);
+create policy "Users can update own goals"
+  on public.goals for update to authenticated
+  using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "Users can delete own goals"
+  on public.goals for delete to authenticated using (auth.uid() = user_id);
 
 -- ---------------------------------------------------------------------------
 -- Auto-create profile on sign-up

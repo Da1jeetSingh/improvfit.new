@@ -1,1 +1,6 @@
-export type AppRoute = "dashboard" | "profile" | "training";
+export type AppRoute =
+  | "dashboard"
+  | "profile"
+  | "training"
+  | "matches"
+  | "goals";
