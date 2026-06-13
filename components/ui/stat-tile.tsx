@@ -6,6 +6,7 @@ type StatTileProps = {
   hint?: string;
   className?: string;
   compact?: boolean;
+  accent?: boolean;
 };
 
 export function StatTile({
@@ -14,28 +15,33 @@ export function StatTile({
   hint,
   className,
   compact = false,
+  accent = false,
 }: StatTileProps) {
   return (
     <div
       className={cn(
-        "ds-stat",
-        compact ? "pl-5 pr-4 py-4" : "pl-6 pr-5 py-5 sm:py-6",
+        accent ? "ds-stat-accent" : "ds-mini-stat",
+        compact ? "px-4 py-4" : "px-5 py-5 sm:py-6",
         className,
       )}
     >
-      <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
+      <p
+        className={cn(
+          "ds-stat-label text-[10px] font-semibold uppercase tracking-[0.1em] text-muted",
+        )}
+      >
         {label}
       </p>
       <p
         className={cn(
-          "mt-2 font-bold tracking-tight text-foreground",
+          "ds-stat-value mt-1.5 font-bold tracking-tight text-foreground",
           compact ? "text-2xl" : "text-3xl",
         )}
       >
         {value}
       </p>
       {hint ? (
-        <p className="mt-1.5 text-xs leading-relaxed text-muted">{hint}</p>
+        <p className="mt-1 text-xs leading-relaxed text-muted">{hint}</p>
       ) : null}
     </div>
   );

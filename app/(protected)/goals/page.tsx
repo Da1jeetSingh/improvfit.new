@@ -16,8 +16,8 @@ export default async function GoalsPage() {
   return (
     <section className="space-y-10">
       <PageHeader
-        eyebrow="Targets"
-        title="Goals"
+        eyebrow="Goals"
+        title="Convert ambition into visible targets."
         description="Create, track, and manage your own cricket goals."
       />
 

@@ -16,8 +16,8 @@ export default async function MatchesPage() {
   return (
     <section className="space-y-10">
       <PageHeader
-        eyebrow="Performance"
-        title="Matches"
+        eyebrow="Match"
+        title="Log match-day batting outcomes."
         description="Log match performances and review your own batting history."
       />
 

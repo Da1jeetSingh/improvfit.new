@@ -12,6 +12,7 @@ import {
   formatLabel,
   sectionHeadingClassName,
 } from "@/components/ui/form-styles";
+import { StatTile } from "@/components/ui/stat-tile";
 import { deleteMatch } from "@/lib/matches/actions";
 import { formatMatchFormat, type Match } from "@/types/match";
 
@@ -23,7 +24,7 @@ export function MatchList({ matches }: MatchListProps) {
   if (matches.length === 0) {
     return (
       <Card
-        title="Your matches"
+        title="Past matches"
         description="Saved performances will appear here."
         className={emptyCardClassName}
       >
@@ -38,7 +39,7 @@ export function MatchList({ matches }: MatchListProps) {
   return (
     <section className="space-y-5">
       <div>
-        <h2 className={sectionHeadingClassName}>Your matches</h2>
+        <h2 className={sectionHeadingClassName}>Past matches</h2>
         <p className="mt-1.5 text-sm text-muted">
           {matches.length} saved {matches.length === 1 ? "match" : "matches"}
         </p>
@@ -66,39 +67,50 @@ function MatchListItem({ match }: { match: Match }) {
     });
   }
 
+  const strikeRateDisplay =
+    match.strike_rate !== null ? match.strike_rate.toFixed(2) : "—";
+
   return (
     <li>
       <Card padding="sm">
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-          <div className="space-y-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="font-bold text-foreground">{formatDate(match.played_on)}</p>
-              {match.format ? (
-                <Badge variant="success">{formatMatchFormat(match.format)}</Badge>
-              ) : null}
-            </div>
-
-            {match.opposition ? (
-              <p className="text-sm font-semibold text-foreground">vs {match.opposition}</p>
-            ) : null}
-
-            <p className="text-sm text-muted">
-              <span className="font-bold text-foreground">{match.runs ?? 0}</span> runs
-              {match.balls_faced !== null ? ` off ${match.balls_faced} balls` : ""}
-              {match.strike_rate !== null ? ` · SR ${match.strike_rate}` : ""}
-            </p>
-
-            <p className="text-sm text-muted">
-              {match.fours ?? 0} fours · {match.sixes ?? 0} sixes
-              {match.dismissal_type ? ` · ${formatLabel(match.dismissal_type)}` : ""}
-            </p>
-
-            {match.notes ? (
-              <p className="text-sm leading-relaxed text-foreground">{match.notes}</p>
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-sm font-medium text-muted">{formatDate(match.played_on)}</p>
+            {match.format ? (
+              <Badge variant="muted">{formatMatchFormat(match.format)}</Badge>
             ) : null}
           </div>
 
-          <div className="flex gap-2">
+          {match.opposition ? (
+            <p className="text-base font-bold text-foreground">vs {match.opposition}</p>
+          ) : null}
+
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <StatTile compact label="Runs" value={String(match.runs ?? 0)} />
+            <StatTile
+              compact
+              label="Balls"
+              value={match.balls_faced !== null ? String(match.balls_faced) : "—"}
+            />
+            <StatTile
+              compact
+              label="4s / 6s"
+              value={`${match.fours ?? 0}/${match.sixes ?? 0}`}
+            />
+            <StatTile compact label="SR" value={strikeRateDisplay} accent />
+          </div>
+
+          {match.dismissal_type ? (
+            <p className="text-sm text-muted">
+              Dismissal: <span className="font-medium text-foreground">{formatLabel(match.dismissal_type)}</span>
+            </p>
+          ) : null}
+
+          {match.notes ? (
+            <p className="text-sm leading-relaxed text-muted">{match.notes}</p>
+          ) : null}
+
+          <div className="flex gap-2 pt-1">
             <Link href={`/matches/${match.id}/edit`}>
               <Button variant="secondary" size="sm">
                 Edit

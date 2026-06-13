@@ -7,30 +7,34 @@ type BrandHeaderProps = {
   className?: string;
   href?: string;
   size?: "default" | "large";
+  showLogo?: boolean;
 };
 
 export function BrandHeader({
   className,
   href = "/dashboard",
   size = "default",
+  showLogo = true,
 }: BrandHeaderProps) {
   return (
     <Link
       href={href}
       className={cn(
-        "group inline-flex items-center gap-3 text-foreground transition-opacity hover:opacity-90",
+        "group inline-flex items-center gap-2.5 text-foreground transition-opacity hover:opacity-90",
         className,
       )}
     >
-      <Logo
-        className={cn(
-          "transition-transform duration-300 group-hover:scale-105",
-          size === "large" ? "h-9 w-9" : "h-8 w-8",
-        )}
-      />
+      {showLogo ? (
+        <Logo
+          className={cn(
+            "transition-transform duration-300 group-hover:scale-105",
+            size === "large" ? "h-9 w-9" : "h-8 w-8",
+          )}
+        />
+      ) : null}
       <span
         className={cn(
-          "font-bold tracking-tight",
+          "font-bold uppercase tracking-tight",
           size === "large" ? "text-2xl" : "text-xl",
         )}
       >

@@ -13,9 +13,9 @@ export default async function StatsPage() {
   return (
     <section className="space-y-10">
       <PageHeader
-        eyebrow="Analytics"
-        title="Stats"
-        description="Useful performance metrics from your training and match logs."
+        eyebrow="Stats"
+        title="Match trends and workload clarity."
+        description="Follow batting runs, bowling impact, and discipline focus with clean mobile-first charts."
       />
 
       <StatsAnalytics stats={stats} error={statsError} />

@@ -10,42 +10,32 @@ type ChartBarsProps = {
   className?: string;
 };
 
-const barTones = [
-  "from-[var(--chart-primary)] to-[var(--chart-secondary)]",
-  "from-[var(--chart-secondary)] to-[var(--chart-tertiary)]",
-  "from-[var(--chart-tertiary)] to-[var(--chart-quaternary)]",
-  "from-[var(--chart-quaternary)] to-[var(--chart-muted)]",
-] as const;
-
 export function ChartBars({ data, className }: ChartBarsProps) {
   const max = Math.max(...data.map((d) => d.value), 1);
 
   return (
     <div
       className={cn(
-        "flex h-44 items-end justify-between gap-2 rounded-xl bg-green-tint/50 p-4 sm:gap-4",
+        "flex h-44 items-end justify-between gap-2 rounded-2xl border border-border-subtle bg-surface p-4 sm:gap-4",
         className,
       )}
     >
-      {data.map((bar, index) => {
+      {data.map((bar) => {
         const height = `${Math.max((bar.value / max) * 100, bar.value > 0 ? 10 : 0)}%`;
-        const tone = barTones[index % barTones.length];
 
         return (
           <div
             key={bar.label}
             className="group flex flex-1 flex-col items-center gap-2"
           >
-            <span className="text-sm font-bold text-foreground transition-transform duration-200 group-hover:scale-105">
+            <span className="text-sm font-bold text-foreground">
               {bar.value}
             </span>
             <div className="flex h-28 w-full items-end">
               <div
                 className={cn(
-                  "w-full rounded-t-lg bg-gradient-to-t transition-all duration-500 ease-out",
-                  bar.value === 0
-                    ? "bg-[var(--chart-muted)]/70"
-                    : `${tone} group-hover:opacity-90`,
+                  "w-full rounded-t-xl transition-all duration-500 ease-out",
+                  bar.value === 0 ? "bg-green-muted/50" : "bg-green-deep group-hover:bg-green-brand",
                 )}
                 style={{ height }}
               />

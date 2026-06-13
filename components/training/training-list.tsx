@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import {
   emptyCardClassName,
@@ -16,7 +15,7 @@ export function TrainingList({ sessions }: TrainingListProps) {
   if (sessions.length === 0) {
     return (
       <Card
-        title="Your sessions"
+        title="Past sessions"
         description="Saved training logs will appear here."
         className={emptyCardClassName}
       >
@@ -31,7 +30,7 @@ export function TrainingList({ sessions }: TrainingListProps) {
   return (
     <section className="space-y-5">
       <div>
-        <h2 className={sectionHeadingClassName}>Your sessions</h2>
+        <h2 className={sectionHeadingClassName}>Past sessions</h2>
         <p className="mt-1.5 text-sm text-muted">
           {sessions.length} saved {sessions.length === 1 ? "session" : "sessions"}
         </p>
@@ -42,25 +41,25 @@ export function TrainingList({ sessions }: TrainingListProps) {
           <li key={session.id}>
             <Card padding="sm">
               <div className="space-y-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="font-bold text-foreground">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-sm font-medium text-muted">
                     {formatDate(session.session_date)}
                   </p>
-                  <Badge variant="success">{formatLabel(session.focus)}</Badge>
-                  {session.self_rating ? (
-                    <Badge>{session.self_rating}/5</Badge>
-                  ) : null}
+                  <span className="rounded-full border border-border-subtle bg-surface px-2.5 py-0.5 text-xs font-medium text-muted">
+                    {session.duration_minutes} min
+                  </span>
                 </div>
 
-                <p className="text-sm text-muted">
-                  {session.duration_minutes} min
-                  {session.balls_faced !== null
-                    ? ` · ${session.balls_faced} balls faced`
-                    : ""}
+                <p className="text-base font-bold text-foreground">
+                  {formatLabel(session.focus)}
                 </p>
 
+                {session.balls_faced !== null ? (
+                  <p className="text-sm text-muted">{session.balls_faced} balls faced</p>
+                ) : null}
+
                 {session.notes ? (
-                  <p className="text-sm leading-relaxed text-foreground">{session.notes}</p>
+                  <p className="text-sm leading-relaxed text-muted">{session.notes}</p>
                 ) : null}
               </div>
             </Card>

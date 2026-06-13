@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/form-styles";
 import { deleteGoal } from "@/lib/goals/actions";
 import {
+  calculateGoalProgress,
   formatGoalCategory,
   formatGoalTarget,
   isGoalOverdue,
@@ -63,6 +64,7 @@ function GoalListItem({ goal }: { goal: Goal }) {
   const [isDeleting, startDeleteTransition] = useTransition();
   const overdue = isGoalOverdue(goal);
   const target = formatGoalTarget(goal);
+  const progress = calculateGoalProgress(goal);
 
   function handleDelete() {
     if (!window.confirm("Delete this goal?")) {
@@ -78,10 +80,40 @@ function GoalListItem({ goal }: { goal: Goal }) {
     <li>
       <Card padding="sm">
         <div className="space-y-5">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div className="space-y-3">
-              <div className="flex flex-wrap items-center gap-2">
+          <div className="flex gap-4">
+            <div
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-green-deep text-white"
+              aria-hidden
+            >
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <circle cx="12" cy="12" r="8" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <div className="flex items-start justify-between gap-3">
                 <h3 className="font-bold text-foreground">{goal.title}</h3>
+                {progress !== null ? (
+                  <span className="shrink-0 text-xs font-medium text-muted">
+                    {progress}% complete
+                  </span>
+                ) : null}
+              </div>
+
+              {goal.current_value !== null && goal.target_value !== null ? (
+                <p className="mt-1 text-sm text-muted">
+                  {goal.current_value} / {goal.target_value}
+                </p>
+              ) : null}
+
+              <div className="mt-2 flex flex-wrap items-center gap-2">
                 <Badge
                   variant={
                     goal.status === "completed"
@@ -100,36 +132,36 @@ function GoalListItem({ goal }: { goal: Goal }) {
               </div>
 
               {goal.description ? (
-                <p className="text-sm leading-relaxed text-muted">{goal.description}</p>
+                <p className="mt-3 text-sm leading-relaxed text-muted">{goal.description}</p>
               ) : null}
 
               {target ? (
-                <p className="text-sm font-medium text-foreground">Target: {target}</p>
+                <p className="mt-2 text-sm font-medium text-foreground">Target: {target}</p>
               ) : null}
 
               {goal.due_date ? (
-                <p className="text-sm text-muted">Deadline: {formatDate(goal.due_date)}</p>
+                <p className="mt-1 text-sm text-muted">Deadline: {formatDate(goal.due_date)}</p>
               ) : null}
-            </div>
-
-            <div className="flex gap-2">
-              <Link href={`/goals/${goal.id}/edit`}>
-                <Button variant="secondary" size="sm">
-                  Edit
-                </Button>
-              </Link>
-              <Button
-                variant="danger"
-                size="sm"
-                onClick={handleDelete}
-                disabled={isDeleting}
-              >
-                {isDeleting ? "Deleting..." : "Delete"}
-              </Button>
             </div>
           </div>
 
-          <GoalProgress goal={goal} />
+          <GoalProgress goal={goal} showLabel={false} />
+
+          <div className="flex gap-2">
+            <Link href={`/goals/${goal.id}/edit`}>
+              <Button variant="secondary" size="sm">
+                Edit
+              </Button>
+            </Link>
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </Button>
+          </div>
         </div>
       </Card>
     </li>

@@ -14,7 +14,7 @@ function MilestoneCard({ milestone }: { milestone: Milestone }) {
   return (
     <div
       className={cn(
-        "ds-stat pl-5 pr-4 py-5 transition-all duration-300",
+        "ds-mini-stat px-5 py-5 transition-all duration-300",
         milestone.unlocked && "border-green-sage/35",
       )}
     >

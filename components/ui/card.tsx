@@ -1,8 +1,10 @@
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 type CardProps = {
   title?: string;
   description?: string;
+  badge?: string;
   children: React.ReactNode;
   className?: string;
   padding?: "sm" | "md" | "lg";
@@ -17,6 +19,7 @@ const paddingMap = {
 export function Card({
   title,
   description,
+  badge,
   children,
   className,
   padding = "md",
@@ -29,17 +32,16 @@ export function Card({
         className,
       )}
     >
-      {title || description ? (
-        <div className="mb-5 border-b border-border-subtle pb-4">
+      {badge || title || description ? (
+        <div className="mb-6 space-y-2">
+          {badge ? <Badge variant="section">{badge}</Badge> : null}
           {title ? (
             <h2 className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
               {title}
             </h2>
           ) : null}
           {description ? (
-            <p className="mt-1.5 text-sm leading-relaxed text-muted">
-              {description}
-            </p>
+            <p className="text-sm leading-relaxed text-muted">{description}</p>
           ) : null}
         </div>
       ) : null}

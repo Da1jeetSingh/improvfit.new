@@ -16,8 +16,8 @@ export default async function TrainingPage() {
   return (
     <section className="space-y-10">
       <PageHeader
-        eyebrow="Practice"
-        title="Training"
+        eyebrow="Training Log"
+        title="Log sessions and preserve the details."
         description="Log sessions and review your own practice history."
       />
 

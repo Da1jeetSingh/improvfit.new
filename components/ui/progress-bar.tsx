@@ -18,13 +18,13 @@ export function ProgressBar({
   return (
     <div className={cn("space-y-2", className)}>
       {showLabel ? (
-        <div className="flex justify-between text-sm">
-          <span className="font-bold text-foreground">{Math.round(percent)}%</span>
+        <div className="flex justify-end text-xs">
+          <span className="font-medium text-muted">{Math.round(percent)}% complete</span>
         </div>
       ) : null}
-      <div className="h-2 w-full overflow-hidden rounded-full bg-green-muted">
+      <div className="h-3 w-full overflow-hidden rounded-full bg-green-muted/60">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-green-deep via-green-brand to-green-sage transition-all duration-700 ease-out"
+          className="h-full rounded-full bg-green-deep transition-all duration-700 ease-out"
           style={{ width: `${percent}%` }}
         />
       </div>
