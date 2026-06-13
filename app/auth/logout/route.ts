@@ -6,7 +6,7 @@ import {
 } from "@/lib/supabase/route-handler";
 
 async function signOut(request: NextRequest) {
-  const response = NextResponse.redirect(new URL("/login", request.url));
+  const response = NextResponse.redirect(new URL("/", request.url));
   const supabase = createRouteHandlerClient(request, response);
 
   await supabase.auth.signOut({ scope: "global" });
