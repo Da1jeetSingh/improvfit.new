@@ -30,14 +30,14 @@ export function AuthTabs({
 
   return (
     <div>
-      <div className="mb-6 flex rounded-xl border-2 border-border p-1">
+      <div className="mb-8 flex rounded-2xl border border-border-subtle bg-green-tint p-1.5">
         <button
           type="button"
           onClick={() => setTab("login")}
           className={cn(
-            "flex-1 rounded-lg py-2 text-sm font-semibold transition-colors",
+            "flex-1 rounded-xl py-2.5 text-sm font-semibold transition-all duration-200",
             tab === "login"
-              ? "bg-foreground text-background"
+              ? "bg-surface-raised text-foreground shadow-soft"
               : "text-muted hover:text-foreground",
           )}
         >
@@ -47,9 +47,9 @@ export function AuthTabs({
           type="button"
           onClick={() => setTab("signup")}
           className={cn(
-            "flex-1 rounded-lg py-2 text-sm font-semibold transition-colors",
+            "flex-1 rounded-xl py-2.5 text-sm font-semibold transition-all duration-200",
             tab === "signup"
-              ? "bg-foreground text-background"
+              ? "bg-surface-raised text-foreground shadow-soft"
               : "text-muted hover:text-foreground",
           )}
         >
@@ -58,13 +58,13 @@ export function AuthTabs({
       </div>
 
       {callbackError ? (
-        <p className="mb-4 text-sm text-red-600" role="alert">
+        <p className="mb-4 rounded-xl border border-red-200/60 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
           Sign-in could not be completed. Please try again.
         </p>
       ) : null}
 
       {tab === "login" ? (
-        <form action={loginAction} className="space-y-4">
+        <form action={loginAction} className="space-y-5">
           <input type="hidden" name="next" value={next} />
           <div>
             <label htmlFor="login-email" className={labelClassName}>
@@ -93,16 +93,16 @@ export function AuthTabs({
             />
           </div>
           {loginState.error ? (
-            <p className="text-sm text-red-600" role="alert">
+            <p className="rounded-xl border border-red-200/60 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
               {loginState.error}
             </p>
           ) : null}
-          <Button type="submit" fullWidth disabled={loginPending}>
+          <Button type="submit" fullWidth size="lg" disabled={loginPending}>
             {loginPending ? "Signing in..." : "Log in"}
           </Button>
         </form>
       ) : (
-        <form action={signupAction} className="space-y-4">
+        <form action={signupAction} className="space-y-5">
           <div>
             <label htmlFor="signup-email" className={labelClassName}>
               Email
@@ -129,26 +129,26 @@ export function AuthTabs({
               required
               className={inputClassName}
             />
-            <p className="mt-1 text-xs text-muted">At least 8 characters.</p>
+            <p className="mt-2 text-xs text-muted-subtle">At least 8 characters.</p>
           </div>
           {signupState.error ? (
-            <p className="text-sm text-red-600" role="alert">
+            <p className="rounded-xl border border-red-200/60 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
               {signupState.error}
             </p>
           ) : null}
           {signupState.message ? (
-            <p className="text-sm text-green-deep" role="status">
+            <p className="rounded-xl border border-green-muted bg-green-tint px-4 py-3 text-sm font-semibold text-green-deep" role="status">
               {signupState.message}
             </p>
           ) : null}
-          <Button type="submit" fullWidth disabled={signupPending}>
+          <Button type="submit" fullWidth size="lg" disabled={signupPending}>
             {signupPending ? "Creating account..." : "Create account"}
           </Button>
         </form>
       )}
 
-      <p className="mt-6 text-center text-xs text-muted">
-        Player-only app. No coaches or academies.
+      <p className="mt-8 text-center text-xs text-muted-subtle">
+        Player-only performance OS. Built for disciplined athlete development.
       </p>
     </div>
   );

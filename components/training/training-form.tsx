@@ -5,6 +5,8 @@ import { useActionState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
+  alertErrorClassName,
+  alertSuccessClassName,
   formatLabel,
   inputClassName,
   labelClassName,
@@ -31,7 +33,8 @@ export function TrainingForm() {
   return (
     <form action={formAction} className="space-y-6">
       <Card
-        title="Log training"
+        badge="Session capture"
+        title="Log today's work"
         description="Record a practice session in under a minute."
       >
         <div className="grid gap-4 sm:grid-cols-2">
@@ -137,19 +140,19 @@ export function TrainingForm() {
       </Card>
 
       {state.error ? (
-        <p className="text-sm text-red-600" role="alert">
+        <p className={alertErrorClassName} role="alert">
           {state.error}
         </p>
       ) : null}
 
       {state.message ? (
-        <p className="text-sm text-green-deep" role="status">
+        <p className={alertSuccessClassName} role="status">
           {state.message}
         </p>
       ) : null}
 
-      <Button type="submit" disabled={isPending} fullWidth className="sm:w-auto">
-        {isPending ? "Saving..." : "Save session"}
+      <Button type="submit" disabled={isPending} fullWidth>
+        {isPending ? "Saving..." : "+ Add session"}
       </Button>
     </form>
   );

@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { calculateDashboardMetrics } from "@/lib/dashboard/metrics";
+import { calculateProgressSummary } from "@/lib/dashboard/progress-summary";
 import { calculateActivityStreak } from "@/lib/dashboard/streak";
+import { calculateWeeklyProgress } from "@/lib/dashboard/weekly-progress";
 import { getProfile } from "@/lib/profile";
 import { goalSelect } from "@/types/goal";
 import { matchSelect, type Match } from "@/types/match";
@@ -81,16 +83,24 @@ export async function getDashboardData() {
   }
 
   const streak = calculateActivityStreak(sessions, matches);
-  const streakError =
-    matchesResult.error && sessionsResult.error
-      ? "Training and match logs could not be loaded."
+  const progressSummary = calculateProgressSummary(
+    sessions,
+    matches,
+    goals,
+    streak,
+  );
+  const weeklyProgress = calculateWeeklyProgress(sessions, matches, goals, streak);
+  const progressError =
+    matchesResult.error && sessionsResult.error && goalsResult.error
+      ? "Could not load your activity data."
       : null;
 
   return {
     profile,
     metrics: calculateDashboardMetrics(matches, sessions, goals),
-    streak,
-    streakError,
+    progressSummary,
+    weeklyProgress,
+    progressError,
     recentMatches: matches.slice(0, 3),
     recentSessions: sessions.slice(0, 3),
     recentGoals: goals.slice(0, 3),

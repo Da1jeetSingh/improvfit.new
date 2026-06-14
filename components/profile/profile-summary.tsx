@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card";
+import { listRowClassName } from "@/components/ui/form-styles";
 import {
   formatProfileValue,
   hasProfileData,
@@ -17,11 +18,11 @@ function SummaryItem({
   value: string;
 }) {
   return (
-    <div className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
-      <dt className="text-xs font-semibold uppercase tracking-wide text-muted">
+    <div className={`flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-center sm:justify-between ${listRowClassName}`}>
+      <dt className="text-[11px] font-semibold uppercase tracking-wider text-muted">
         {label}
       </dt>
-      <dd className="text-sm font-medium text-foreground">{value}</dd>
+      <dd className="text-sm font-bold text-foreground">{value}</dd>
     </div>
   );
 }
@@ -34,8 +35,8 @@ export function ProfileSummary({ profile }: ProfileSummaryProps) {
   return (
     <Card
       title="Saved profile"
-      description="Your current details from Supabase."
-      className="mb-6"
+      description="Your current details."
+      className="mb-8"
     >
       <dl className="space-y-3">
         <SummaryItem label="Name" value={formatProfileValue(profile.full_name)} />

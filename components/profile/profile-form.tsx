@@ -5,6 +5,8 @@ import { useActionState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
+  alertErrorClassName,
+  alertSuccessClassName,
   formatLabel,
   inputClassName,
   labelClassName,
@@ -170,13 +172,13 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       </Card>
 
       {state.error ? (
-        <p className="text-sm text-red-600" role="alert">
+        <p className={alertErrorClassName} role="alert">
           {state.error}
         </p>
       ) : null}
 
       {state.message ? (
-        <p className="text-sm text-green-deep" role="status">
+        <p className={alertSuccessClassName} role="status">
           {state.message}
         </p>
       ) : null}

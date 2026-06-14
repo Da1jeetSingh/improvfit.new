@@ -5,7 +5,10 @@ import { useActionState, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
+  alertErrorClassName,
+  alertSuccessClassName,
   formatLabel,
+  highlightValueClassName,
   inputClassName,
   labelClassName,
 } from "@/components/ui/form-styles";
@@ -68,7 +71,8 @@ export function MatchForm({ match }: MatchFormProps) {
       {match ? <input type="hidden" name="match_id" value={match.id} /> : null}
 
       <Card
-        title={match ? "Edit match" : "Log a match"}
+        badge="Match entry"
+        title={match ? "Edit match" : "Log batting performance"}
         description="Record your batting performance from a game or practice match."
       >
         <div className="grid gap-4 sm:grid-cols-2">
@@ -200,17 +204,13 @@ export function MatchForm({ match }: MatchFormProps) {
             </select>
           </div>
 
-          <div>
-            <label htmlFor="strike_rate_display" className={labelClassName}>
-              Strike rate
-            </label>
-            <input
-              id="strike_rate_display"
-              type="text"
-              readOnly
-              value={strikeRate === null ? "" : strikeRate.toFixed(2)}
-              className={cn(inputClassName, "bg-green-muted/30 text-muted")}
-            />
+          <div className="sm:col-span-2">
+            <p className={labelClassName}>Auto strike rate</p>
+            <div className={highlightValueClassName}>
+              <p className="text-4xl font-bold tracking-tight text-green-deep">
+                {strikeRate === null ? "—" : strikeRate.toFixed(2)}
+              </p>
+            </div>
           </div>
 
           <div className="sm:col-span-2">
@@ -230,19 +230,19 @@ export function MatchForm({ match }: MatchFormProps) {
       </Card>
 
       {state.error ? (
-        <p className="text-sm text-red-600" role="alert">
+        <p className={alertErrorClassName} role="alert">
           {state.error}
         </p>
       ) : null}
 
       {state.message ? (
-        <p className="text-sm text-green-deep" role="status">
+        <p className={alertSuccessClassName} role="status">
           {state.message}
         </p>
       ) : null}
 
-      <Button type="submit" disabled={isPending} fullWidth className="sm:w-auto">
-        {isPending ? "Saving..." : match ? "Update match" : "Save match"}
+      <Button type="submit" disabled={isPending} fullWidth>
+        {isPending ? "Saving..." : match ? "Update match" : "+ Add match"}
       </Button>
     </form>
   );

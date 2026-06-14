@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 
+import { dashboardRoute, sanitizeNextPath } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
 export type AuthActionState = {
@@ -23,7 +24,7 @@ export async function login(
 ): Promise<AuthActionState> {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
-  const next = String(formData.get("next") ?? "/dashboard");
+  const next = String(formData.get("next") ?? dashboardRoute);
 
   if (!email || !password) {
     return { error: "Email and password are required." };
@@ -44,7 +45,7 @@ export async function login(
     return { error: authFailureMessage(error, "Sign in failed.") };
   }
 
-  redirect(next.startsWith("/") ? next : "/dashboard");
+  redirect(sanitizeNextPath(next));
 }
 
 export async function signup(
@@ -74,7 +75,7 @@ export async function signup(
     }
 
     if (data.session) {
-      redirect("/dashboard");
+      redirect(dashboardRoute);
     }
   } catch (error) {
     console.error("[auth] signup failed:", error);

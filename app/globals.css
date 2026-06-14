@@ -1,29 +1,212 @@
 @import "tailwindcss";
 
+/*
+ * IMPROV Design System
+ * Premium athlete-performance SaaS — warm off-white, forest green accents.
+ * White cards on soft background · intentional green for CTAs & highlights
+ */
+
 :root {
-  --background: #ffffff;
+  --background: #f5f5f5;
+  --surface: #fafafa;
+  --surface-raised: #ffffff;
+  --surface-input: #ffffff;
   --foreground: #0a0a0a;
-  --green-deep: #1b4d3e;
-  --green-light: #7dd3a8;
-  --green-muted: #e8f5ef;
-  --border: #d9e8e1;
-  --muted: #6b7280;
+  --foreground-secondary: #3d3d38;
+  --muted: #6b6b66;
+  --muted-subtle: #94948e;
+  --border: #e0e0da;
+  --border-subtle: #ebebe5;
+
+  /* Forest green brand */
+  --green-deep: #003d2b;
+  --green-brand: #0b4f3a;
+  --green-sage: #3d6b5a;
+  --green-light: #5a8572;
+  --green-soft: #a8c4b4;
+  --green-muted: #dce8e2;
+  --green-tint: #f0f5f2;
+
+  /* Chart palette */
+  --chart-primary: #003d2b;
+  --chart-secondary: #0b4f3a;
+  --chart-tertiary: #3d6b5a;
+  --chart-quaternary: #5a8572;
+  --chart-muted: #c5d9ce;
+
+  /* Elevation — soft, premium */
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-card: 0 2px 12px -2px rgba(0, 35, 25, 0.06),
+    0 1px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-elevated: 0 8px 32px -8px rgba(0, 35, 25, 0.1),
+    0 4px 12px -4px rgba(0, 0, 0, 0.05);
+
+  --radius-sm: 0.75rem;
+  --radius-md: 1rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-card: var(--radius-lg);
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-input: var(--surface-input);
   --color-foreground: var(--foreground);
+  --color-foreground-secondary: var(--foreground-secondary);
   --color-green-deep: var(--green-deep);
+  --color-green-brand: var(--green-brand);
+  --color-green-sage: var(--green-sage);
   --color-green-light: var(--green-light);
+  --color-green-soft: var(--green-soft);
   --color-green-muted: var(--green-muted);
+  --color-green-tint: var(--green-tint);
   --color-border: var(--border);
+  --color-border-subtle: var(--border-subtle);
   --color-muted: var(--muted);
+  --color-muted-subtle: var(--muted-subtle);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --shadow-soft: var(--shadow-soft);
+  --shadow-card: var(--shadow-card);
+  --shadow-elevated: var(--shadow-elevated);
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-delay-1 {
+  animation-delay: 0.06s;
+}
+
+.animate-delay-2 {
+  animation-delay: 0.12s;
+}
+
+.animate-delay-3 {
+  animation-delay: 0.18s;
+}
+
+/* White raised cards */
+.premium-surface,
+.ds-surface {
+  border-radius: var(--radius-card);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-subtle);
+}
+
+.ds-surface-subtle {
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-soft);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ds-surface-subtle:hover {
+  border-color: var(--border);
+  box-shadow: var(--shadow-card);
+}
+
+.ds-empty {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--green-sage) 30%, var(--border));
+  background: color-mix(in srgb, var(--green-tint) 60%, var(--surface-raised));
+}
+
+/* Mini stat tiles — screenshot style */
+.premium-stat,
+.ds-stat,
+.ds-mini-stat {
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--border-subtle);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.premium-stat:hover,
+.ds-stat:hover,
+.ds-mini-stat:hover {
+  box-shadow: var(--shadow-card);
+  border-color: var(--border);
+}
+
+/* Green highlight stat (e.g. strike rate) */
+.ds-stat-accent {
+  border-radius: var(--radius-md);
+  background: var(--green-deep);
+  border: 1px solid var(--green-deep);
+  color: #ffffff;
+}
+
+.ds-stat-accent .ds-stat-label {
+  color: color-mix(in srgb, white 70%, transparent);
+}
+
+.ds-stat-accent .ds-stat-value {
+  color: #ffffff;
+}
+
+.text-link {
+  color: var(--green-deep);
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.text-link:hover {
+  color: var(--green-brand);
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--green-muted) 0%,
+    var(--surface-raised) 45%,
+    var(--green-muted) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+.ds-ambient {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 70% 45% at 50% -5%,
+    color-mix(in srgb, var(--green-muted) 25%, transparent),
+    transparent 65%
+  );
 }

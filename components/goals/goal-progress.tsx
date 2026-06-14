@@ -4,9 +4,10 @@ import { ProgressBar } from "@/components/ui/progress-bar";
 
 type GoalProgressProps = {
   goal: Goal;
+  showLabel?: boolean;
 };
 
-export function GoalProgress({ goal }: GoalProgressProps) {
+export function GoalProgress({ goal, showLabel = true }: GoalProgressProps) {
   const progress = calculateGoalProgress(goal);
 
   if (progress === null) {
@@ -18,16 +19,5 @@ export function GoalProgress({ goal }: GoalProgressProps) {
     );
   }
 
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between text-sm">
-        <span className="font-medium text-foreground">
-          {goal.current_value}
-          {goal.target_value !== null ? ` / ${goal.target_value}` : ""}
-        </span>
-        <span className="text-muted">{progress}%</span>
-      </div>
-      <ProgressBar value={progress} />
-    </div>
-  );
+  return <ProgressBar value={progress} showLabel={showLabel} />;
 }

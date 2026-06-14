@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { PageHeader } from "@/components/layout/page-header";
 import { MatchForm } from "@/components/matches/match-form";
+import { sectionLinkClassName } from "@/components/ui/form-styles";
 import { getSession } from "@/lib/auth";
 import { getMatch } from "@/lib/matches";
 
@@ -19,11 +20,8 @@ export default async function EditMatchPage({ params }: EditMatchPageProps) {
   if (!match) notFound();
 
   return (
-    <section className="space-y-6">
-      <Link
-        href="/matches"
-        className="text-sm font-semibold text-green-deep hover:underline"
-      >
+    <section className="space-y-8">
+      <Link href="/matches" className={sectionLinkClassName}>
         ← Back to matches
       </Link>
       <PageHeader

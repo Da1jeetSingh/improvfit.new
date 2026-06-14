@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { ProfileForm } from "@/components/profile/profile-form";
 import { ProfileSummary } from "@/components/profile/profile-summary";
 import { Card } from "@/components/ui/card";
+import { emptyCardClassName } from "@/components/ui/form-styles";
 import { getProfile } from "@/lib/profile";
 import { hasProfileData } from "@/types/profile";
 
@@ -15,7 +16,7 @@ export default async function ProfilePage() {
   }
 
   return (
-    <section className="space-y-6">
+    <section className="space-y-10">
       <PageHeader
         eyebrow="Player"
         title="Your profile"
@@ -25,8 +26,8 @@ export default async function ProfilePage() {
       {hasProfileData(profile) ? (
         <ProfileSummary profile={profile} />
       ) : (
-        <Card className="border-dashed">
-          <p className="text-sm text-muted">
+        <Card className={emptyCardClassName}>
+          <p className="text-sm leading-relaxed text-muted">
             No profile saved yet. Fill in the form below and tap Save profile.
           </p>
         </Card>
