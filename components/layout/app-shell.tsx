@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 
 import { BrandHeader } from "@/components/brand/brand-header";
 import { LogoutButton } from "@/components/auth/logout-button";
+import { StreakBadge } from "@/components/streak/streak-badge";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -21,9 +22,10 @@ const navItems = [
 type AppShellProps = {
   children: React.ReactNode;
   email?: string;
+  currentStreak?: number;
 };
 
-export function AppShell({ children, email }: AppShellProps) {
+export function AppShell({ children, email, currentStreak = 0 }: AppShellProps) {
   const pathname = usePathname();
 
   return (
@@ -31,8 +33,11 @@ export function AppShell({ children, email }: AppShellProps) {
       <div className="ds-ambient" aria-hidden />
 
       <header className="sticky top-0 z-40 border-b border-border-subtle bg-surface-raised/95 backdrop-blur-md">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
-          <BrandHeader />
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:gap-4 sm:px-6">
+          <div className="flex min-w-0 items-center gap-3">
+            <BrandHeader />
+            <StreakBadge count={currentStreak} className="hidden sm:inline-flex" />
+          </div>
 
           <nav className="hidden flex-1 items-center justify-center gap-6 lg:flex">
             {navItems.map((item) => {
@@ -56,7 +61,8 @@ export function AppShell({ children, email }: AppShellProps) {
             })}
           </nav>
 
-          <div className="flex shrink-0 items-center gap-3">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            <StreakBadge count={currentStreak} className="sm:hidden" />
             {email ? (
               <span className="hidden rounded-full border border-border-subtle bg-surface px-3 py-1.5 text-xs font-medium text-muted sm:inline">
                 {email}

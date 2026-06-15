@@ -52,12 +52,7 @@ export function WeeklyProgressCard({
           No training or matches logged this week yet. Log a session or match
           performance to see your weekly progress here.
         </p>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
-          <StatTile
-            compact
-            label="Current streak"
-            value={`${progress.currentStreak} ${progress.currentStreak === 1 ? "day" : "days"}`}
-          />
+        <div className="mt-6">
           <StatTile compact label="Active goals" value={String(progress.activeGoals)} />
         </div>
       </Card>
@@ -73,11 +68,6 @@ export function WeeklyProgressCard({
         <StatTile compact label="Balls faced (training)" value={String(progress.totalTrainingBallsFaced)} />
         <StatTile compact label="Runs scored" value={String(progress.totalMatchRuns)} />
         <StatTile compact label="Active goals" value={String(progress.activeGoals)} />
-        <StatTile
-          compact
-          label="Current streak"
-          value={`${progress.currentStreak} ${progress.currentStreak === 1 ? "day" : "days"}`}
-        />
       </div>
     </Card>
   );

@@ -19,12 +19,6 @@ export function DashboardStats({
     >
       <StatTile
         compact
-        label="Current streak"
-        value={`${progressSummary.currentStreak}d`}
-        hint="Consecutive active days"
-      />
-      <StatTile
-        compact
         label="Matches"
         value={String(metrics.matchesPlayed)}
         hint="Logged innings"
@@ -34,6 +28,12 @@ export function DashboardStats({
         label="Batting average"
         value={formatMetric(metrics.battingAverage)}
         hint="Runs per dismissal"
+      />
+      <StatTile
+        compact
+        label="Training (30d)"
+        value={String(metrics.trainingSessionsLast30Days)}
+        hint="Recent sessions"
       />
       <StatTile
         compact

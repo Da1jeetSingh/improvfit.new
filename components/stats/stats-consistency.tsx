@@ -1,6 +1,5 @@
 import { Card } from "@/components/ui/card";
 import { ChartBars } from "@/components/ui/chart-bars";
-import { formatDate } from "@/components/ui/form-styles";
 import { StatTile } from "@/components/ui/stat-tile";
 import type { RoleProgressStats } from "@/lib/stats/progress";
 
@@ -9,35 +8,26 @@ type StatsConsistencyProps = {
 };
 
 export function StatsConsistency({ progress }: StatsConsistencyProps) {
-  const { consistency, weeklyActivity, training } = progress;
+  const { weeklyActivity, training } = progress;
 
   return (
     <div className="grid gap-8 lg:grid-cols-2">
       <Card
         title="Consistency"
-        description="Your activity rhythm from logged training and matches."
+        description="Training focus split from your logged sessions."
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <StatTile
             compact
-            accent
-            label="Current streak"
-            value={`${consistency.currentStreak} ${
-              consistency.currentStreak === 1 ? "day" : "days"
-            }`}
-            hint={
-              consistency.loggedToday
-                ? "Active today"
-                : consistency.lastActiveDate
-                  ? `Last active ${formatDate(consistency.lastActiveDate)}`
-                  : "Log activity to start"
-            }
+            label="Batting sessions"
+            value={String(training.battingSessions)}
+            hint="All-time batting focus"
           />
           <StatTile
             compact
-            label="Training focus"
-            value={`${training.battingSessions} / ${training.bowlingSessions}`}
-            hint="Batting / bowling sessions"
+            label="Bowling sessions"
+            value={String(training.bowlingSessions)}
+            hint="All-time bowling focus"
           />
         </div>
       </Card>
