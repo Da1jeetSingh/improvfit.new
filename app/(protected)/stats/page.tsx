@@ -1,24 +1,31 @@
 import { redirect } from "next/navigation";
 
 import { PageHeader } from "@/components/layout/page-header";
-import { StatsAnalytics } from "@/components/stats/stats-analytics";
+import { StatsProgress } from "@/components/stats/stats-progress";
+import { getDashboardSubtitle } from "@/lib/dashboard/greeting";
 import { getStatsData } from "@/lib/stats";
+import { getProfile } from "@/lib/profile";
 
 export default async function StatsPage() {
-  const data = await getStatsData();
+  const [data, profile] = await Promise.all([getStatsData(), getProfile()]);
+
   if (!data) redirect("/login");
 
-  const { stats, statsError } = data;
+  const { progress, statsError } = data;
 
   return (
     <section className="space-y-10">
       <PageHeader
-        eyebrow="Stats"
-        title="Match trends and workload clarity."
-        description="Follow batting runs, bowling impact, and discipline focus with clean mobile-first charts."
+        eyebrow="Progress"
+        title="Stats & progress"
+        description={
+          profile
+            ? `${getDashboardSubtitle(profile)} Track weekly trends and consistency.`
+            : "Track weekly trends and consistency from your logged activity."
+        }
       />
 
-      <StatsAnalytics stats={stats} error={statsError} />
+      <StatsProgress progress={progress} error={statsError} />
     </section>
   );
 }

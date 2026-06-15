@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
-import { calculatePlayerStats } from "@/lib/dashboard/stats";
+import { calculateRoleProgressStats } from "@/lib/stats/progress";
+import { getProfile } from "@/lib/profile";
+import { goalSelect, type Goal } from "@/types/goal";
 import { matchSelect, type Match } from "@/types/match";
 import { trainingSessionSelect, type TrainingSession } from "@/types/training";
 
@@ -17,7 +19,8 @@ export async function getStatsData() {
     return null;
   }
 
-  const [matchesResult, sessionsResult] = await Promise.all([
+  const [profile, matchesResult, sessionsResult, goalsResult] = await Promise.all([
+    getProfile(),
     supabase
       .from("matches")
       .select(matchSelect)
@@ -28,6 +31,11 @@ export async function getStatsData() {
       .select(trainingSessionSelect)
       .eq("user_id", user.id)
       .order("session_date", { ascending: false }),
+    supabase
+      .from("goals")
+      .select(goalSelect)
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false }),
   ]);
 
   let matches: Match[] = [];
@@ -52,14 +60,31 @@ export async function getStatsData() {
     sessions = (sessionsResult.data ?? []) as TrainingSession[];
   }
 
-  const stats = calculatePlayerStats(sessions, matches);
+  let goals: Goal[] = [];
+
+  if (goalsResult.error) {
+    console.error(
+      "[stats] goals query failed:",
+      queryErrorMessage(goalsResult.error),
+    );
+  } else {
+    goals = (goalsResult.data ?? []) as Goal[];
+  }
+
+  const progress = calculateRoleProgressStats(
+    profile?.role ?? null,
+    sessions,
+    matches,
+    goals,
+  );
+
   const statsError =
-    matchesResult.error && sessionsResult.error
+    matchesResult.error && sessionsResult.error && goalsResult.error
       ? "Could not load your stats data."
       : null;
 
   return {
-    stats,
+    progress,
     statsError,
   };
 }
