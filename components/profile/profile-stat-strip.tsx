@@ -7,19 +7,11 @@ type ProfileStatStripProps = {
 };
 
 export function ProfileStatStrip({ stats }: ProfileStatStripProps) {
-  const streakLabel = stats.streakDays === 1 ? "1 day" : `${stats.streakDays} days`;
-
   return (
     <section
       aria-label="Profile stats"
-      className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
+      className="grid gap-3 sm:grid-cols-3"
     >
-      <ProfileStatCard
-        label="Streak"
-        value={streakLabel}
-        hint="Current activity"
-        accent={stats.streakDays > 0}
-      />
       <ProfileStatCard
         label="Sessions"
         value={String(stats.sessionsLogged)}

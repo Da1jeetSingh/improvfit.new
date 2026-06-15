@@ -53,6 +53,7 @@ export const primaryNavItems: AppNavItem[] = [
 export const secondaryNavItems = [
   { href: "/weekly", label: "Weekly" },
   { href: "/milestones", label: "Awards" },
+  { href: "/settings", label: "Settings" },
 ] as const;
 
 export function isNavItemActive(pathname: string, href: string) {

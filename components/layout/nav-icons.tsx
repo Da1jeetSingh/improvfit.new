@@ -79,3 +79,19 @@ export function ProfileNavIcon({ className }: NavIconProps) {
     </NavIcon>
   );
 }
+
+export function SettingsNavIcon({ className }: NavIconProps) {
+  return (
+    <NavIcon className={className}>
+      <circle cx="12" cy="12" r="2.75" />
+      <path d="M12 3v2" />
+      <path d="M12 19v2" />
+      <path d="M3 12h2" />
+      <path d="M19 12h2" />
+      <path d="m5.6 5.6 1.4 1.4" />
+      <path d="m17 17 1.4 1.4" />
+      <path d="m18.4 5.6-1.4 1.4" />
+      <path d="m7 17-1.4 1.4" />
+    </NavIcon>
+  );
+}

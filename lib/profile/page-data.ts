@@ -1,13 +1,11 @@
 import { syncUserAchievements, type AchievementsSummary } from "@/lib/achievements";
 import { fetchUserActivity } from "@/lib/achievements/fetch-activity";
-import { calculateActivityStreak } from "@/lib/dashboard/streak";
 import { createClient } from "@/lib/supabase/server";
 import type { PlayerProfile } from "@/types/profile";
 
 import { getProfile } from "./index";
 
 export type ProfileStats = {
-  streakDays: number;
   sessionsLogged: number;
   matchesLogged: number;
   goalsCompleted: number;
@@ -39,12 +37,9 @@ export async function getProfilePageData(): Promise<ProfilePageData | null> {
     return null;
   }
 
-  const streak = calculateActivityStreak(activity.sessions, activity.matches);
-
   return {
     profile,
     stats: {
-      streakDays: streak.currentStreak,
       sessionsLogged: activity.sessions.length,
       matchesLogged: activity.matches.length,
       goalsCompleted: activity.goals.filter((goal) => goal.status === "completed")
