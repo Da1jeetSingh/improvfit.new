@@ -1,18 +1,21 @@
 import { WeeklyProgressCard } from "@/components/weekly/weekly-progress";
-import { DashboardFutureSlot } from "@/components/dashboard/dashboard-future-slot";
+import { CoachMessageCard } from "@/components/coach/coach-message-card";
 import { Card } from "@/components/ui/card";
 import { emptyCardClassName } from "@/components/ui/form-styles";
+import type { CoachMessage } from "@/lib/coach/types";
 import type { WeeklyProgress } from "@/lib/dashboard/weekly-progress";
 
 type DashboardModuleGridProps = {
   hasActivity: boolean;
   weeklyProgress: WeeklyProgress;
+  coachMessage: CoachMessage | null;
   progressError?: string | null;
 };
 
 export function DashboardModuleGrid({
   hasActivity,
   weeklyProgress,
+  coachMessage,
   progressError,
 }: DashboardModuleGridProps) {
   return (
@@ -35,10 +38,7 @@ export function DashboardModuleGrid({
         </Card>
       )}
 
-      <DashboardFutureSlot
-        title="Coach insights"
-        description="Personalized guidance based on your form."
-      />
+      <CoachMessageCard message={coachMessage} />
     </section>
   );
 }

@@ -1,9 +1,10 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useActionState, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { CoachMessageCard } from "@/components/coach/coach-message-card";
+import { useCoachSaveFeedback } from "@/components/coach/use-coach-save-feedback";
 import { Card } from "@/components/ui/card";
 import { Modal } from "@/components/ui/modal";
 import {
@@ -44,7 +45,6 @@ export function TrainingForm({
   variant = "page",
   onSuccess,
 }: TrainingFormProps) {
-  const router = useRouter();
   const [state, formAction, isPending] = useActionState(
     createTrainingSession,
     initialState,
@@ -55,12 +55,12 @@ export function TrainingForm({
   const showBatting = showsBattingLogFields(role);
   const showBowling = showsBowlingLogFields(role);
 
-  useEffect(() => {
-    if (state.message && variant === "modal" && onSuccess) {
-      onSuccess();
-      router.refresh();
-    }
-  }, [state.message, variant, onSuccess, router]);
+  useCoachSaveFeedback({
+    coachMessage: state.coachMessage,
+    fallbackMessage: state.message,
+    variant,
+    onSuccess,
+  });
 
   const fields = (
     <div className="grid gap-4 sm:grid-cols-2">
@@ -219,13 +219,24 @@ export function TrainingForm({
         </p>
       ) : null}
 
-      {state.message && variant === "page" ? (
+      {state.coachMessage ? (
+        <CoachMessageCard
+          message={{ text: state.coachMessage, label: "Coach" }}
+          compact
+        />
+      ) : null}
+
+      {state.message && variant === "page" && !state.coachMessage ? (
         <p className={alertSuccessClassName} role="status">
           {state.message}
         </p>
       ) : null}
 
-      <Button type="submit" disabled={isPending} fullWidth={variant === "modal"}>
+      <Button
+        type="submit"
+        disabled={isPending || Boolean(state.coachMessage && variant === "modal")}
+        fullWidth={variant === "modal"}
+      >
         {isPending ? "Saving..." : "Save session"}
       </Button>
     </form>

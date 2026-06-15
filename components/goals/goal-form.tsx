@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useActionState, useState } from "react";
 
+import { CoachMessageCard } from "@/components/coach/coach-message-card";
+import { useCoachSaveFeedback } from "@/components/coach/use-coach-save-feedback";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Modal } from "@/components/ui/modal";
@@ -45,19 +46,18 @@ export function GoalForm({
   variant = "page",
   onSuccess,
 }: GoalFormProps) {
-  const router = useRouter();
   const action = goal ? updateGoal : createGoal;
   const [state, formAction, isPending] = useActionState(action, initialState);
   const categoryOptions = getGoalCategoryOptions(role);
   const defaultCategory = goal?.category ?? getDefaultGoalCategory(role);
   const isCreateModal = variant === "modal" && !goal;
 
-  useEffect(() => {
-    if (state.message && variant === "modal" && onSuccess) {
-      onSuccess();
-      router.refresh();
-    }
-  }, [state.message, variant, onSuccess, router]);
+  useCoachSaveFeedback({
+    coachMessage: state.coachMessage,
+    fallbackMessage: state.message,
+    variant,
+    onSuccess,
+  });
 
   const fields = (
     <div className="grid gap-4 sm:grid-cols-2">
@@ -219,13 +219,24 @@ export function GoalForm({
         </p>
       ) : null}
 
-      {state.message && variant === "page" ? (
+      {state.coachMessage ? (
+        <CoachMessageCard
+          message={{ text: state.coachMessage, label: "Coach" }}
+          compact
+        />
+      ) : null}
+
+      {state.message && variant === "page" && !state.coachMessage ? (
         <p className={alertSuccessClassName} role="status">
           {state.message}
         </p>
       ) : null}
 
-      <Button type="submit" disabled={isPending} fullWidth={variant === "modal"}>
+      <Button
+        type="submit"
+        disabled={isPending || Boolean(state.coachMessage && variant === "modal")}
+        fullWidth={variant === "modal"}
+      >
         {isPending ? "Saving..." : goal ? "Update goal" : "Save goal"}
       </Button>
     </form>
