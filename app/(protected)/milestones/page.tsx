@@ -1,8 +1,7 @@
-import { redirect } from "next/navigation";
-
+import { AchievementGrid } from "@/components/achievements/achievement-grid";
 import { PageHeader } from "@/components/layout/page-header";
-import { MilestoneList } from "@/components/milestones/milestone-list";
 import { getMilestonesData } from "@/lib/milestones";
+import { redirect } from "next/navigation";
 
 export default async function MilestonesPage() {
   const data = await getMilestonesData();
@@ -14,11 +13,11 @@ export default async function MilestonesPage() {
     <section className="space-y-10">
       <PageHeader
         eyebrow="Achievements"
-        title="Milestones"
-        description="Celebrate your progress as you train, play, and hit your goals."
+        title="Your badges"
+        description="Earn badges as you train, play, and hit meaningful cricket milestones."
       />
 
-      <MilestoneList summary={milestones} error={milestonesError} />
+      <AchievementGrid summary={milestones} error={milestonesError} />
     </section>
   );
 }

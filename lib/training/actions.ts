@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { checkAchievementsAfterSave, type AchievementUnlock } from "@/lib/achievements";
 import { getCoachMessageAfterSave } from "@/lib/coach";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -17,6 +18,7 @@ export type TrainingActionState = {
   error?: string;
   message?: string;
   coachMessage?: string;
+  achievementUnlocks?: AchievementUnlock[];
 };
 
 function parseOptionalText(value: FormDataEntryValue | null) {
@@ -197,14 +199,16 @@ export async function createTrainingSession(
 
   revalidatePath("/training");
   revalidatePath("/dashboard");
+  revalidatePath("/milestones");
 
-  const coach = await getCoachMessageAfterSave(
-    "training_saved",
-    data as TrainingSession,
-  );
+  const [coach, achievementUnlocks] = await Promise.all([
+    getCoachMessageAfterSave("training_saved", data as TrainingSession),
+    checkAchievementsAfterSave(supabase, user.id),
+  ]);
 
   return {
     message: "Training session saved.",
     coachMessage: coach?.text,
+    achievementUnlocks,
   };
 }

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { checkAchievementsAfterSave, type AchievementUnlock } from "@/lib/achievements";
 import { getCoachMessageAfterSave } from "@/lib/coach";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -18,6 +19,7 @@ export type GoalActionState = {
   error?: string;
   message?: string;
   coachMessage?: string;
+  achievementUnlocks?: AchievementUnlock[];
 };
 
 function parseOptionalText(value: FormDataEntryValue | null) {
@@ -173,12 +175,17 @@ export async function createGoal(
 
   revalidatePath("/goals");
   revalidatePath("/dashboard");
+  revalidatePath("/milestones");
 
-  const coach = await getCoachMessageAfterSave("goal_created", data as Goal);
+  const [coach, achievementUnlocks] = await Promise.all([
+    getCoachMessageAfterSave("goal_created", data as Goal),
+    checkAchievementsAfterSave(supabase, user.id),
+  ]);
 
   return {
     message: "Goal created.",
     coachMessage: coach?.text,
+    achievementUnlocks,
   };
 }
 
@@ -217,7 +224,9 @@ export async function updateGoal(
 
   revalidatePath("/goals");
   revalidatePath("/dashboard");
+  revalidatePath("/milestones");
   revalidatePath(`/goals/${goalId}/edit`);
+  await checkAchievementsAfterSave(supabase, user.id);
   redirect("/goals");
 }
 
