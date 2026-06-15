@@ -13,7 +13,7 @@ type StatsSummaryProps = {
 };
 
 export function StatsSummary({ progress }: StatsSummaryProps) {
-  const { role, batting, bowling, training, goals, consistency } = progress;
+  const { role, batting, bowling, training, goals } = progress;
   const roleLabel = role ? formatLabel(role) : "Player";
 
   return (
@@ -22,22 +22,11 @@ export function StatsSummary({ progress }: StatsSummaryProps) {
       description={`${roleLabel} performance at a glance.`}
     >
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatTile
-          compact
-          accent
-          label="Current streak"
-          value={`${consistency.currentStreak}d`}
-          hint={
-            consistency.loggedToday
-              ? "Logged today"
-              : "Keep the rhythm going"
-          }
-        />
-
         {showsBattingLogFields(role) && batting ? (
           <>
             <StatTile
               compact
+              accent
               label="Total runs"
               value={String(batting.totalRuns)}
               hint={`Avg ${formatMetric(batting.battingAverage)}`}
@@ -55,6 +44,7 @@ export function StatsSummary({ progress }: StatsSummaryProps) {
           <>
             <StatTile
               compact
+              accent={!showsBattingLogFields(role)}
               label="Total wickets"
               value={String(bowling.totalWickets)}
               hint={`${bowling.totalOvers} overs`}
