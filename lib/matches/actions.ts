@@ -1,11 +1,11 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 import { checkAchievementsAfterSave, type AchievementUnlock } from "@/lib/achievements";
 import { getCoachMessageAfterSave } from "@/lib/coach";
+import { revalidateActivityPaths } from "@/lib/revalidate-activity";
 import {
   dismissalTypes,
   matchFormats,
@@ -173,9 +173,7 @@ export async function createMatch(
     return { error: "Match could not be saved. Please try again." };
   }
 
-  revalidatePath("/matches");
-  revalidatePath("/dashboard");
-  revalidatePath("/milestones");
+  revalidateActivityPaths("/matches");
 
   const [coach, achievementUnlocks] = await Promise.all([
     getCoachMessageAfterSave("match_saved", data as Match),
@@ -222,10 +220,7 @@ export async function updateMatch(
     return { error: error.message };
   }
 
-  revalidatePath("/matches");
-  revalidatePath("/dashboard");
-  revalidatePath("/milestones");
-  revalidatePath(`/matches/${matchId}/edit`);
+  revalidateActivityPaths("/matches", `/matches/${matchId}/edit`);
   await checkAchievementsAfterSave(supabase, user.id);
   redirect("/matches");
 }
@@ -250,8 +245,7 @@ export async function deleteMatch(matchId: string): Promise<MatchActionState> {
     return { error: error.message };
   }
 
-  revalidatePath("/matches");
-  revalidatePath("/dashboard");
+  revalidateActivityPaths("/matches");
 
   return { message: "Match deleted." };
 }

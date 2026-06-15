@@ -1,10 +1,10 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { checkAchievementsAfterSave, type AchievementUnlock } from "@/lib/achievements";
 import { getCoachMessageAfterSave } from "@/lib/coach";
+import { revalidateActivityPaths } from "@/lib/revalidate-activity";
 import { createClient } from "@/lib/supabase/server";
 import {
   goalCategories,
@@ -173,9 +173,7 @@ export async function createGoal(
     return { error: "Goal could not be saved. Please try again." };
   }
 
-  revalidatePath("/goals");
-  revalidatePath("/dashboard");
-  revalidatePath("/milestones");
+  revalidateActivityPaths("/goals");
 
   const [coach, achievementUnlocks] = await Promise.all([
     getCoachMessageAfterSave("goal_created", data as Goal),
@@ -222,10 +220,7 @@ export async function updateGoal(
     return { error: error.message };
   }
 
-  revalidatePath("/goals");
-  revalidatePath("/dashboard");
-  revalidatePath("/milestones");
-  revalidatePath(`/goals/${goalId}/edit`);
+  revalidateActivityPaths("/goals", `/goals/${goalId}/edit`);
   await checkAchievementsAfterSave(supabase, user.id);
   redirect("/goals");
 }
@@ -250,8 +245,7 @@ export async function deleteGoal(goalId: string): Promise<GoalActionState> {
     return { error: error.message };
   }
 
-  revalidatePath("/goals");
-  revalidatePath("/dashboard");
+  revalidateActivityPaths("/goals");
 
   return { message: "Goal deleted." };
 }

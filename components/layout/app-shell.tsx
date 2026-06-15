@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { LogoutButton } from "@/components/auth/logout-button";
 import { BrandHeader } from "@/components/brand/brand-header";
 import { BottomTabBar } from "@/components/layout/bottom-tab-bar";
 import { DesktopNav } from "@/components/layout/desktop-nav";
@@ -45,7 +44,7 @@ export function AppShell({ children, email, currentStreak = 0 }: AppShellProps) 
               href="/settings"
               aria-current={settingsActive ? "page" : undefined}
               className={cn(
-                "inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border-subtle bg-surface text-muted transition-colors duration-200",
+                "inline-flex h-11 w-11 min-h-11 min-w-11 items-center justify-center rounded-xl border border-border-subtle bg-surface text-muted transition-colors duration-200",
                 "hover:border-green-sage/30 hover:bg-green-tint/40 hover:text-foreground",
                 settingsActive && "border-green-sage/35 bg-green-tint/50 text-green-deep",
               )}

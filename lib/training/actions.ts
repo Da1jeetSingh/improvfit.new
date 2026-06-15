@@ -1,9 +1,8 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-
 import { checkAchievementsAfterSave, type AchievementUnlock } from "@/lib/achievements";
 import { getCoachMessageAfterSave } from "@/lib/coach";
+import { revalidateActivityPaths } from "@/lib/revalidate-activity";
 import { createClient } from "@/lib/supabase/server";
 import {
   focusAreas,
@@ -197,9 +196,7 @@ export async function createTrainingSession(
     return { error: "Training session could not be saved. Please try again." };
   }
 
-  revalidatePath("/training");
-  revalidatePath("/dashboard");
-  revalidatePath("/milestones");
+  revalidateActivityPaths("/training");
 
   const [coach, achievementUnlocks] = await Promise.all([
     getCoachMessageAfterSave("training_saved", data as TrainingSession),

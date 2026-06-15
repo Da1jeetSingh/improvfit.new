@@ -1,8 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-
 import { createClient } from "@/lib/supabase/server";
+import { revalidateActivityPaths } from "@/lib/revalidate-activity";
 import {
   battingHands,
   battingOrders,
@@ -139,9 +138,7 @@ export async function saveProfile(
     return { error: "Profile could not be saved. Please try again." };
   }
 
-  revalidatePath("/profile");
-  revalidatePath("/profile/edit");
-  revalidatePath("/dashboard");
+  revalidateActivityPaths("/profile", "/profile/edit", "/settings");
 
   return { message: "Profile saved." };
 }

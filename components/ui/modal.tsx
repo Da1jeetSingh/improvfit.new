@@ -79,12 +79,20 @@ export function Modal({
               <p className="text-sm leading-relaxed text-muted">{description}</p>
             ) : null}
           </div>
-          <Button type="button" variant="ghost" size="sm" onClick={onClose}>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="min-h-11 min-w-11"
+            onClick={onClose}
+          >
             Close
           </Button>
         </div>
 
-        <div className="overflow-y-auto px-5 py-5 sm:px-6">{children}</div>
+        <div className="overflow-y-auto px-5 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:px-6">
+          {children}
+        </div>
       </div>
     </div>
   );

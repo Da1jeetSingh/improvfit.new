@@ -27,6 +27,8 @@ export const actionLinkClassName = cn(
 
 export const emptyCardClassName = "ds-empty";
 
+export const pageSectionClassName = "space-y-10";
+
 export const sectionHeadingClassName =
   "text-xl font-bold tracking-tight text-foreground";
 

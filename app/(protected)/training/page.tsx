@@ -22,7 +22,7 @@ export default async function TrainingPage() {
       <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <PageHeader
           className="mb-0 flex-1"
-          eyebrow="Training Log"
+          eyebrow="Training"
           title="Training log"
           description="Review your practice history and log new sessions."
         />

@@ -4,6 +4,7 @@ import { ProfileAchievementsPreview } from "@/components/profile/profile-achieve
 import { ProfileHeader } from "@/components/profile/profile-header";
 import { ProfileIdentity } from "@/components/profile/profile-identity";
 import { ProfileStatStrip } from "@/components/profile/profile-stat-strip";
+import { pageSectionClassName } from "@/components/ui/form-styles";
 import { getProfilePageData } from "@/lib/profile/page-data";
 
 export default async function ProfilePage() {
@@ -16,7 +17,7 @@ export default async function ProfilePage() {
   const { profile, stats, achievements } = data;
 
   return (
-    <section className="space-y-8">
+    <section className={pageSectionClassName}>
       <ProfileHeader profile={profile} />
       <ProfileStatStrip stats={stats} />
       <ProfileIdentity profile={profile} />

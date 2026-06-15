@@ -6,6 +6,7 @@ import {
   SettingsLogoutCard,
 } from "@/components/settings/settings-account-card";
 import { SettingsActionsCard } from "@/components/settings/settings-actions";
+import { pageSectionClassName } from "@/components/ui/form-styles";
 import { getSession } from "@/lib/auth";
 import { getProfile } from "@/lib/profile";
 
@@ -17,7 +18,7 @@ export default async function SettingsPage() {
   }
 
   return (
-    <section className="space-y-8">
+    <section className={pageSectionClassName}>
       <PageHeader
         eyebrow="Account"
         title="Settings"
