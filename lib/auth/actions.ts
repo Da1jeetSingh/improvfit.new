@@ -2,7 +2,11 @@
 
 import { redirect } from "next/navigation";
 
-import { dashboardRoute, sanitizeNextPath } from "@/lib/auth";
+import {
+  dashboardRoute,
+  onboardingRoute,
+  sanitizeNextPath,
+} from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
 export type AuthActionState = {
@@ -75,7 +79,7 @@ export async function signup(
     }
 
     if (data.session) {
-      redirect(dashboardRoute);
+      redirect(onboardingRoute);
     }
   } catch (error) {
     console.error("[auth] signup failed:", error);

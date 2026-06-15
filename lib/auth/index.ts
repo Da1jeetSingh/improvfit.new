@@ -15,6 +15,7 @@ export const loginRoute = "/login" as const;
 export const signupRoute = "/signup" as const;
 export const homeRoute = "/" as const;
 export const dashboardRoute = "/dashboard" as const;
+export const onboardingRoute = "/onboarding" as const;
 
 export const authRoutes = [loginRoute, signupRoute] as const;
 
@@ -22,6 +23,10 @@ export function isProtectedRoute(pathname: string) {
   return protectedRoutes.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`),
   );
+}
+
+export function isOnboardingRoute(pathname: string) {
+  return pathname === onboardingRoute || pathname.startsWith(`${onboardingRoute}/`);
 }
 
 export function isLoginRoute(pathname: string) {
@@ -70,4 +75,27 @@ export async function getSession() {
   }
 
   return { user };
+}
+
+export async function getPostAuthDestination() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return loginRoute;
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("onboarding_completed")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!profile?.onboarding_completed) {
+    return onboardingRoute;
+  }
+
+  return dashboardRoute;
 }

@@ -1,23 +1,33 @@
 import type { User } from "@supabase/supabase-js";
 
 import { createClient } from "@/lib/supabase/server";
-import { type PlayerProfile, profileSelect } from "@/types/profile";
+import {
+  type PlayerProfile,
+  profileSelect,
+} from "@/types/profile";
 
-const minimalProfileSelect = "id, full_name, created_at";
+const minimalProfileSelect =
+  "id, email, full_name, onboarding_completed, created_at, updated_at";
 
 function profileFromAuthUser(user: User): PlayerProfile {
   const fullName = user.user_metadata?.full_name;
 
   return {
     id: user.id,
+    email: user.email ?? null,
     full_name: typeof fullName === "string" && fullName.length > 0 ? fullName : null,
     age: null,
     role: null,
-    batting_style: null,
-    bowling_style: null,
+    batting_hand: null,
+    batting_order: null,
+    bowling_hand: null,
+    bowling_type: null,
+    bowling_style_details: null,
     skill_level: null,
     personal_goals: null,
+    onboarding_completed: false,
     created_at: user.created_at,
+    updated_at: user.created_at,
   };
 }
 
@@ -27,18 +37,29 @@ function toPlayerProfile(
 ): PlayerProfile {
   return {
     id: String(row.id ?? userId),
+    email: (row.email as string | null | undefined) ?? null,
     full_name: (row.full_name as string | null | undefined) ?? null,
     age: (row.age as number | null | undefined) ?? null,
     role: (row.role as PlayerProfile["role"] | undefined) ?? null,
-    batting_style:
-      (row.batting_style as PlayerProfile["batting_style"] | undefined) ?? null,
-    bowling_style:
-      (row.bowling_style as PlayerProfile["bowling_style"] | undefined) ?? null,
+    batting_hand:
+      (row.batting_hand as PlayerProfile["batting_hand"] | undefined) ?? null,
+    batting_order:
+      (row.batting_order as PlayerProfile["batting_order"] | undefined) ?? null,
+    bowling_hand:
+      (row.bowling_hand as PlayerProfile["bowling_hand"] | undefined) ?? null,
+    bowling_type:
+      (row.bowling_type as PlayerProfile["bowling_type"] | undefined) ?? null,
+    bowling_style_details:
+      (row.bowling_style_details as
+        | PlayerProfile["bowling_style_details"]
+        | undefined) ?? null,
     skill_level:
       (row.skill_level as PlayerProfile["skill_level"] | undefined) ?? null,
     personal_goals:
       (row.personal_goals as string | null | undefined) ?? null,
+    onboarding_completed: Boolean(row.onboarding_completed),
     created_at: String(row.created_at ?? new Date().toISOString()),
+    updated_at: String(row.updated_at ?? new Date().toISOString()),
   };
 }
 
@@ -54,7 +75,7 @@ export async function getProfile(): Promise<PlayerProfile | null> {
 
   try {
     const fullResult = await supabase
-      .from("users")
+      .from("profiles")
       .select(profileSelect)
       .eq("id", user.id)
       .maybeSingle();
@@ -68,7 +89,7 @@ export async function getProfile(): Promise<PlayerProfile | null> {
     }
 
     const fallback = await supabase
-      .from("users")
+      .from("profiles")
       .select(minimalProfileSelect)
       .eq("id", user.id)
       .maybeSingle();
@@ -83,8 +104,8 @@ export async function getProfile(): Promise<PlayerProfile | null> {
     }
 
     const { data: created, error: insertError } = await supabase
-      .from("users")
-      .insert({ id: user.id })
+      .from("profiles")
+      .insert({ id: user.id, email: user.email })
       .select(minimalProfileSelect)
       .single();
 
@@ -98,4 +119,13 @@ export async function getProfile(): Promise<PlayerProfile | null> {
     console.error("[profile] unexpected profile load failure:", error);
     return profileFromAuthUser(user);
   }
+}
+
+export async function getOnboardingStatus(): Promise<boolean | null> {
+  const profile = await getProfile();
+  if (!profile) {
+    return null;
+  }
+
+  return profile.onboarding_completed;
 }

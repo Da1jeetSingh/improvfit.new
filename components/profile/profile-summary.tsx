@@ -43,13 +43,27 @@ export function ProfileSummary({ profile }: ProfileSummaryProps) {
         <SummaryItem label="Age" value={formatProfileValue(profile.age)} />
         <SummaryItem label="Role" value={formatProfileValue(profile.role)} />
         <SummaryItem
-          label="Batting style"
-          value={formatProfileValue(profile.batting_style)}
+          label="Batting hand"
+          value={formatProfileValue(profile.batting_hand)}
         />
         <SummaryItem
-          label="Bowling style"
-          value={formatProfileValue(profile.bowling_style)}
+          label="Batting order"
+          value={formatProfileValue(profile.batting_order)}
         />
+        <SummaryItem
+          label="Bowling hand"
+          value={formatProfileValue(profile.bowling_hand)}
+        />
+        <SummaryItem
+          label="Bowling type"
+          value={formatProfileValue(profile.bowling_type)}
+        />
+        {profile.bowling_type === "spinner" ? (
+          <SummaryItem
+            label="Spin style"
+            value={formatProfileValue(profile.bowling_style_details)}
+          />
+        ) : null}
         <SummaryItem
           label="Skill level"
           value={formatProfileValue(profile.skill_level)}
