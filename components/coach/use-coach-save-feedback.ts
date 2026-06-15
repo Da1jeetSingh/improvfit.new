@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 
 import type { AchievementUnlock } from "@/lib/achievements";
 
+const FEEDBACK_DELAY_MS = 2800;
+
 export function useCoachSaveFeedback({
   coachMessage,
   achievementUnlocks,
@@ -20,31 +22,36 @@ export function useCoachSaveFeedback({
 }) {
   const router = useRouter();
   const hasAchievementUnlocks = Boolean(achievementUnlocks?.length);
-  const hasFeedback = Boolean(coachMessage || hasAchievementUnlocks);
+  const hasRichFeedback = Boolean(coachMessage || hasAchievementUnlocks);
 
   useEffect(() => {
     if (variant !== "modal" || !onSuccess) {
       return;
     }
 
-    if (hasFeedback) {
+    if (hasRichFeedback) {
       router.refresh();
       const timeout = setTimeout(() => {
         onSuccess();
-      }, 2800);
+      }, FEEDBACK_DELAY_MS);
 
       return () => clearTimeout(timeout);
     }
 
     if (fallbackMessage) {
       router.refresh();
-      onSuccess();
+      const timeout = setTimeout(() => {
+        onSuccess();
+      }, 600);
+
+      return () => clearTimeout(timeout);
     }
   }, [
     achievementUnlocks,
     coachMessage,
     fallbackMessage,
-    hasFeedback,
+    hasAchievementUnlocks,
+    hasRichFeedback,
     onSuccess,
     router,
     variant,

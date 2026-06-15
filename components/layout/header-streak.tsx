@@ -5,5 +5,9 @@ type HeaderStreakProps = {
 };
 
 export function HeaderStreak({ count }: HeaderStreakProps) {
+  if (count <= 0) {
+    return null;
+  }
+
   return <StreakBadge count={count} />;
 }

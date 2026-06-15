@@ -6,7 +6,8 @@ import { RecapComparison } from "@/components/recap/recap-comparison";
 import { RecapHighlights } from "@/components/recap/recap-highlights";
 import { RecapSummary } from "@/components/recap/recap-summary";
 import { Card } from "@/components/ui/card";
-import { alertErrorClassName, emptyCardClassName } from "@/components/ui/form-styles";
+import { EmptyState } from "@/components/ui/empty-state";
+import { alertErrorClassName, pageSectionClassName } from "@/components/ui/form-styles";
 import { getMonthlyRecapData } from "@/lib/recap";
 
 export default async function RecapPage() {
@@ -17,7 +18,7 @@ export default async function RecapPage() {
 
   if (recapError) {
     return (
-      <section className="space-y-10">
+      <section className={pageSectionClassName}>
         <PageHeader
           eyebrow="Recap"
           title="Monthly recap"
@@ -33,7 +34,7 @@ export default async function RecapPage() {
   }
 
   return (
-    <section className="space-y-10">
+    <section className={pageSectionClassName}>
       <PageHeader
         eyebrow="Recap"
         title={recap.monthLabel}
@@ -41,12 +42,10 @@ export default async function RecapPage() {
       />
 
       {!recap.hasDataThisMonth ? (
-        <Card className={emptyCardClassName}>
-          <p className="text-sm leading-relaxed text-muted">
-            No activity logged this month yet. Log a training session or match to
-            start building your recap.
-          </p>
-        </Card>
+        <EmptyState
+          title="Getting started"
+          message="No activity logged this month yet. Log a training session or match to start building your recap."
+        />
       ) : null}
 
       <RecapSummary recap={recap} />
