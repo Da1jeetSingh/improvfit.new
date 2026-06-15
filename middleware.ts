@@ -9,7 +9,6 @@ import {
   onboardingRoute,
   sanitizeNextPath,
 } from "@/lib/auth";
-import { isAdminRoute, isFounderEmail } from "@/lib/admin/access";
 import {
   applySessionCookies,
   updateSession,
@@ -71,13 +70,6 @@ export async function middleware(request: NextRequest) {
 
   if (user) {
     const onboardingComplete = await isOnboardingComplete(request, user.id);
-
-    if (isAdminRoute(pathname) && !isFounderEmail(user.email)) {
-      const dashboardUrl = request.nextUrl.clone();
-      dashboardUrl.pathname = dashboardRoute;
-      dashboardUrl.search = "";
-      return redirectWithSession(dashboardUrl, supabaseResponse);
-    }
 
     if (!onboardingComplete && isProtectedRoute(pathname)) {
       const onboardingUrl = request.nextUrl.clone();

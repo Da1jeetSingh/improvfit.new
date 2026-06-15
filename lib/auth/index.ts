@@ -1,4 +1,3 @@
-import { isAdminRoute, isFounderEmail } from "@/lib/admin/access";
 import { createClient } from "@/lib/supabase/server";
 
 export const protectedRoutes = [
@@ -10,7 +9,6 @@ export const protectedRoutes = [
   "/training",
   "/matches",
   "/goals",
-  "/admin",
 ] as const;
 
 export const loginRoute = "/login" as const;
