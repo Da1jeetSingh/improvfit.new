@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 export const protectedRoutes = [
   "/dashboard",
   "/weekly",
+  "/recap",
   "/stats",
   "/milestones",
   "/profile",

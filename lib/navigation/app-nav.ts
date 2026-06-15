@@ -52,6 +52,7 @@ export const primaryNavItems: AppNavItem[] = [
 
 export const secondaryNavItems = [
   { href: "/weekly", label: "Weekly" },
+  { href: "/recap", label: "Recap" },
   { href: "/milestones", label: "Awards" },
   { href: "/settings", label: "Settings" },
 ] as const;
