@@ -1,0 +1,375 @@
+import { calculateActivityStreak } from "@/lib/dashboard/streak";
+import {
+  getCurrentWeekRange,
+  getPreviousWeekRange,
+  isDateInWeek,
+} from "@/lib/dashboard/week";
+import { calculateGoalProgress, type Goal } from "@/types/goal";
+import type { Match } from "@/types/match";
+import type { PlayerRole } from "@/types/profile";
+import type { TrainingSession } from "@/types/training";
+import {
+  showsBattingLogFields,
+  showsBowlingLogFields,
+} from "@/lib/logging/role-fields";
+
+export type WeekMetric = {
+  thisWeek: number;
+  lastWeek: number;
+};
+
+export type BattingProgress = {
+  totalRuns: number;
+  battingAverage: number | null;
+  strikeRate: number | null;
+  totalBallsFaced: number;
+  totalFours: number;
+  totalSixes: number;
+  weekRuns: WeekMetric;
+  weekMatches: WeekMetric;
+};
+
+export type BowlingProgress = {
+  totalWickets: number;
+  totalOvers: number;
+  runsConceded: number;
+  economy: number | null;
+  weekWickets: WeekMetric;
+  weekOvers: WeekMetric;
+};
+
+export type TrainingProgress = {
+  totalSessions: number;
+  totalMinutes: number;
+  battingSessions: number;
+  bowlingSessions: number;
+  weekSessions: WeekMetric;
+};
+
+export type GoalsProgress = {
+  total: number;
+  active: number;
+  completed: number;
+  averageProgress: number | null;
+};
+
+export type ConsistencyProgress = {
+  currentStreak: number;
+  loggedToday: boolean;
+  lastActiveDate: string | null;
+};
+
+export type WeeklyActivityBar = {
+  label: string;
+  value: number;
+};
+
+export type RoleProgressStats = {
+  role: PlayerRole | null;
+  batting: BattingProgress | null;
+  bowling: BowlingProgress | null;
+  training: TrainingProgress;
+  goals: GoalsProgress;
+  consistency: ConsistencyProgress;
+  weeklyActivity: WeeklyActivityBar[];
+  hasAnyData: boolean;
+};
+
+function sumNullable(values: Array<number | null>) {
+  return values.reduce<number>((total, value) => total + (value ?? 0), 0);
+}
+
+function isDismissed(match: Match) {
+  return Boolean(match.dismissal_type && match.dismissal_type !== "not out");
+}
+
+function countInWeek<T>(
+  items: T[],
+  getDate: (item: T) => string,
+  weekStart: Date,
+  weekEnd: Date,
+) {
+  return items.filter((item) => isDateInWeek(getDate(item), weekStart, weekEnd))
+    .length;
+}
+
+function sumInWeek<T>(
+  items: T[],
+  getDate: (item: T) => string,
+  getValue: (item: T) => number | null,
+  weekStart: Date,
+  weekEnd: Date,
+) {
+  return items
+    .filter((item) => isDateInWeek(getDate(item), weekStart, weekEnd))
+    .reduce((total, item) => total + (getValue(item) ?? 0), 0);
+}
+
+function calculateBattingProgress(
+  matches: Match[],
+  currentWeekStart: Date,
+  currentWeekEnd: Date,
+  previousWeekStart: Date,
+  previousWeekEnd: Date,
+): BattingProgress {
+  const totalRuns = sumNullable(matches.map((match) => match.runs));
+  const totalBallsFaced = sumNullable(matches.map((match) => match.balls_faced));
+  const dismissals = matches.filter(isDismissed).length;
+
+  return {
+    totalRuns,
+    battingAverage:
+      dismissals > 0 ? Math.round((totalRuns / dismissals) * 100) / 100 : null,
+    strikeRate:
+      totalBallsFaced > 0
+        ? Math.round((totalRuns / totalBallsFaced) * 10000) / 100
+        : null,
+    totalBallsFaced,
+    totalFours: sumNullable(matches.map((match) => match.fours)),
+    totalSixes: sumNullable(matches.map((match) => match.sixes)),
+    weekRuns: {
+      thisWeek: sumInWeek(
+        matches,
+        (match) => match.played_on,
+        (match) => match.runs,
+        currentWeekStart,
+        currentWeekEnd,
+      ),
+      lastWeek: sumInWeek(
+        matches,
+        (match) => match.played_on,
+        (match) => match.runs,
+        previousWeekStart,
+        previousWeekEnd,
+      ),
+    },
+    weekMatches: {
+      thisWeek: countInWeek(
+        matches,
+        (match) => match.played_on,
+        currentWeekStart,
+        currentWeekEnd,
+      ),
+      lastWeek: countInWeek(
+        matches,
+        (match) => match.played_on,
+        previousWeekStart,
+        previousWeekEnd,
+      ),
+    },
+  };
+}
+
+function calculateBowlingProgress(
+  matches: Match[],
+  currentWeekStart: Date,
+  currentWeekEnd: Date,
+  previousWeekStart: Date,
+  previousWeekEnd: Date,
+): BowlingProgress {
+  const totalWickets = sumNullable(matches.map((match) => match.wickets));
+  const totalOvers = sumNullable(matches.map((match) => match.overs_bowled));
+  const runsConceded = sumNullable(matches.map((match) => match.runs_conceded));
+
+  return {
+    totalWickets,
+    totalOvers: Math.round(totalOvers * 10) / 10,
+    runsConceded,
+    economy:
+      totalOvers > 0
+        ? Math.round((runsConceded / totalOvers) * 100) / 100
+        : null,
+    weekWickets: {
+      thisWeek: sumInWeek(
+        matches,
+        (match) => match.played_on,
+        (match) => match.wickets,
+        currentWeekStart,
+        currentWeekEnd,
+      ),
+      lastWeek: sumInWeek(
+        matches,
+        (match) => match.played_on,
+        (match) => match.wickets,
+        previousWeekStart,
+        previousWeekEnd,
+      ),
+    },
+    weekOvers: {
+      thisWeek: Math.round(
+        sumInWeek(
+          matches,
+          (match) => match.played_on,
+          (match) => match.overs_bowled,
+          currentWeekStart,
+          currentWeekEnd,
+        ) * 10,
+      ) / 10,
+      lastWeek: Math.round(
+        sumInWeek(
+          matches,
+          (match) => match.played_on,
+          (match) => match.overs_bowled,
+          previousWeekStart,
+          previousWeekEnd,
+        ) * 10,
+      ) / 10,
+    },
+  };
+}
+
+function calculateTrainingProgress(
+  sessions: TrainingSession[],
+  currentWeekStart: Date,
+  currentWeekEnd: Date,
+  previousWeekStart: Date,
+  previousWeekEnd: Date,
+): TrainingProgress {
+  return {
+    totalSessions: sessions.length,
+    totalMinutes: sumNullable(
+      sessions.map((session) => session.duration_minutes),
+    ),
+    battingSessions: sessions.filter((session) => session.focus === "batting")
+      .length,
+    bowlingSessions: sessions.filter((session) => session.focus === "bowling")
+      .length,
+    weekSessions: {
+      thisWeek: countInWeek(
+        sessions,
+        (session) => session.session_date,
+        currentWeekStart,
+        currentWeekEnd,
+      ),
+      lastWeek: countInWeek(
+        sessions,
+        (session) => session.session_date,
+        previousWeekStart,
+        previousWeekEnd,
+      ),
+    },
+  };
+}
+
+function calculateGoalsProgress(goals: Goal[]): GoalsProgress {
+  const measurable = goals
+    .map((goal) => calculateGoalProgress(goal))
+    .filter((progress): progress is number => progress !== null);
+
+  return {
+    total: goals.length,
+    active: goals.filter((goal) => goal.status !== "completed").length,
+    completed: goals.filter((goal) => goal.status === "completed").length,
+    averageProgress:
+      measurable.length > 0
+        ? Math.round(
+            (measurable.reduce((sum, value) => sum + value, 0) /
+              measurable.length) *
+              10,
+          ) / 10
+        : null,
+  };
+}
+
+function getWeeklyActivityBars(
+  sessions: TrainingSession[],
+  matches: Match[],
+  referenceDate = new Date(),
+): WeeklyActivityBar[] {
+  const today = new Date(referenceDate);
+  today.setHours(0, 0, 0, 0);
+
+  return [3, 2, 1, 0].map((weeksAgo) => {
+    const weekEnd = new Date(today);
+    weekEnd.setDate(weekEnd.getDate() - weeksAgo * 7);
+    const weekStart = new Date(weekEnd);
+    weekStart.setDate(weekStart.getDate() - 6);
+
+    const sessionCount = countInWeek(
+      sessions,
+      (session) => session.session_date,
+      weekStart,
+      weekEnd,
+    );
+    const matchCount = countInWeek(
+      matches,
+      (match) => match.played_on,
+      weekStart,
+      weekEnd,
+    );
+
+    return {
+      label: weeksAgo === 0 ? "This wk" : `${weeksAgo}w ago`,
+      value: sessionCount + matchCount,
+    };
+  });
+}
+
+export function calculateRoleProgressStats(
+  role: PlayerRole | null,
+  sessions: TrainingSession[],
+  matches: Match[],
+  goals: Goal[],
+  referenceDate = new Date(),
+): RoleProgressStats {
+  const currentWeek = getCurrentWeekRange(referenceDate);
+  const previousWeek = getPreviousWeekRange(referenceDate);
+  const streak = calculateActivityStreak(sessions, matches);
+
+  const batting = showsBattingLogFields(role)
+    ? calculateBattingProgress(
+        matches,
+        currentWeek.weekStart,
+        currentWeek.weekEnd,
+        previousWeek.weekStart,
+        previousWeek.weekEnd,
+      )
+    : null;
+
+  const bowling = showsBowlingLogFields(role)
+    ? calculateBowlingProgress(
+        matches,
+        currentWeek.weekStart,
+        currentWeek.weekEnd,
+        previousWeek.weekStart,
+        previousWeek.weekEnd,
+      )
+    : null;
+
+  const training = calculateTrainingProgress(
+    sessions,
+    currentWeek.weekStart,
+    currentWeek.weekEnd,
+    previousWeek.weekStart,
+    previousWeek.weekEnd,
+  );
+
+  const hasAnyData =
+    sessions.length > 0 || matches.length > 0 || goals.length > 0;
+
+  return {
+    role,
+    batting,
+    bowling,
+    training,
+    goals: calculateGoalsProgress(goals),
+    consistency: {
+      currentStreak: streak.currentStreak,
+      loggedToday: streak.loggedToday,
+      lastActiveDate: streak.lastActiveDate,
+    },
+    weeklyActivity: getWeeklyActivityBars(sessions, matches, referenceDate),
+    hasAnyData,
+  };
+}
+
+export function formatWeekTrend(thisWeek: number, lastWeek: number) {
+  const difference = thisWeek - lastWeek;
+
+  if (difference === 0) {
+    return "Same as last week";
+  }
+
+  const sign = difference > 0 ? "+" : "";
+  return `${sign}${difference} vs last week`;
+}
