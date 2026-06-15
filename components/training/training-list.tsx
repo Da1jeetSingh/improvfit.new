@@ -20,8 +20,7 @@ export function TrainingList({ sessions }: TrainingListProps) {
         className={emptyCardClassName}
       >
         <p className="text-sm leading-relaxed text-muted">
-          No training sessions yet. Log your first practice above — even a short
-          net or fielding drill counts.
+          No training sessions yet. Tap Add Session to log your first practice.
         </p>
       </Card>
     );

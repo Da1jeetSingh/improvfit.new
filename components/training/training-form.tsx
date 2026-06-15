@@ -1,9 +1,11 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Modal } from "@/components/ui/modal";
 import {
   alertErrorClassName,
   alertSuccessClassName,
@@ -12,69 +14,166 @@ import {
   labelClassName,
 } from "@/components/ui/form-styles";
 import {
+  getDefaultTrainingFocus,
+  getTrainingFocusOptions,
+  showsBattingLogFields,
+  showsBowlingLogFields,
+} from "@/lib/logging/role-fields";
+import {
   createTrainingSession,
   type TrainingActionState,
 } from "@/lib/training/actions";
 import { cn } from "@/lib/utils";
-import { focusAreas, selfRatings } from "@/types/training";
+import { selfRatings } from "@/types/training";
+import type { PlayerRole } from "@/types/profile";
 
 const initialState: TrainingActionState = {};
+
+type TrainingFormProps = {
+  role?: PlayerRole | null;
+  variant?: "page" | "modal";
+  onSuccess?: () => void;
+};
 
 function todayDateValue() {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function TrainingForm() {
+export function TrainingForm({
+  role = null,
+  variant = "page",
+  onSuccess,
+}: TrainingFormProps) {
+  const router = useRouter();
   const [state, formAction, isPending] = useActionState(
     createTrainingSession,
     initialState,
   );
 
-  return (
-    <form action={formAction} className="space-y-6">
-      <Card
-        badge="Session capture"
-        title="Log today's work"
-        description="Record a practice session in under a minute."
-      >
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label htmlFor="session_date" className={labelClassName}>
-              Date
-            </label>
-            <input
-              id="session_date"
-              name="session_date"
-              type="date"
-              required
-              defaultValue={todayDateValue()}
-              className={inputClassName}
-            />
-          </div>
+  const focusOptions = getTrainingFocusOptions(role);
+  const defaultFocus = getDefaultTrainingFocus(role);
+  const showBatting = showsBattingLogFields(role);
+  const showBowling = showsBowlingLogFields(role);
 
+  useEffect(() => {
+    if (state.message && variant === "modal" && onSuccess) {
+      onSuccess();
+      router.refresh();
+    }
+  }, [state.message, variant, onSuccess, router]);
+
+  const fields = (
+    <div className="grid gap-4 sm:grid-cols-2">
+      <div>
+        <label htmlFor="session_date" className={labelClassName}>
+          Date
+        </label>
+        <input
+          id="session_date"
+          name="session_date"
+          type="date"
+          required
+          defaultValue={todayDateValue()}
+          className={inputClassName}
+        />
+      </div>
+
+      <div>
+        <label htmlFor="duration_minutes" className={labelClassName}>
+          Duration (minutes)
+        </label>
+        <input
+          id="duration_minutes"
+          name="duration_minutes"
+          type="number"
+          min={1}
+          inputMode="numeric"
+          required
+          placeholder="60"
+          className={inputClassName}
+        />
+      </div>
+
+      <div>
+        <label htmlFor="focus" className={labelClassName}>
+          Focus area
+        </label>
+        <select
+          id="focus"
+          name="focus"
+          required
+          defaultValue={defaultFocus}
+          className={inputClassName}
+        >
+          {focusOptions.map((area) => (
+            <option key={area} value={area}>
+              {formatLabel(area)}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label htmlFor="self_rating" className={labelClassName}>
+          Self-rating
+        </label>
+        <select
+          id="self_rating"
+          name="self_rating"
+          defaultValue=""
+          className={inputClassName}
+        >
+          <option value="">No rating</option>
+          {selfRatings.map((rating) => (
+            <option key={rating} value={rating}>
+              {rating} / 5
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {showBatting ? (
+        <div>
+          <label htmlFor="balls_faced" className={labelClassName}>
+            Balls faced
+          </label>
+          <input
+            id="balls_faced"
+            name="balls_faced"
+            type="number"
+            min={0}
+            inputMode="numeric"
+            placeholder="Optional"
+            className={inputClassName}
+          />
+        </div>
+      ) : null}
+
+      {showBowling ? (
+        <>
           <div>
-            <label htmlFor="duration_minutes" className={labelClassName}>
-              Duration (minutes)
+            <label htmlFor="overs_bowled" className={labelClassName}>
+              Overs bowled
             </label>
             <input
-              id="duration_minutes"
-              name="duration_minutes"
+              id="overs_bowled"
+              name="overs_bowled"
               type="number"
-              min={1}
-              inputMode="numeric"
-              required
-              placeholder="60"
+              min={0}
+              step={0.1}
+              inputMode="decimal"
+              placeholder="Optional"
               className={inputClassName}
             />
           </div>
 
           <div>
-            <label htmlFor="balls_faced" className={labelClassName}>
-              Balls faced
+            <label htmlFor="balls_bowled" className={labelClassName}>
+              Balls bowled
             </label>
             <input
-              id="balls_faced"
-              name="balls_faced"
+              id="balls_bowled"
+              name="balls_bowled"
               type="number"
               min={0}
               inputMode="numeric"
@@ -82,62 +181,37 @@ export function TrainingForm() {
               className={inputClassName}
             />
           </div>
+        </>
+      ) : null}
 
-          <div>
-            <label htmlFor="focus" className={labelClassName}>
-              Focus area
-            </label>
-            <select
-              id="focus"
-              name="focus"
-              required
-              defaultValue=""
-              className={inputClassName}
-            >
-              <option value="" disabled>
-                Select focus
-              </option>
-              {focusAreas.map((area) => (
-                <option key={area} value={area}>
-                  {formatLabel(area)}
-                </option>
-              ))}
-            </select>
-          </div>
+      <div className="sm:col-span-2">
+        <label htmlFor="notes" className={labelClassName}>
+          Notes
+        </label>
+        <textarea
+          id="notes"
+          name="notes"
+          rows={3}
+          placeholder="Drills, what clicked, what to repeat next time..."
+          className={cn(inputClassName, "resize-y")}
+        />
+      </div>
+    </div>
+  );
 
-          <div className="sm:col-span-2">
-            <label htmlFor="self_rating" className={labelClassName}>
-              Self-rating
-            </label>
-            <select
-              id="self_rating"
-              name="self_rating"
-              defaultValue=""
-              className={inputClassName}
-            >
-              <option value="">No rating</option>
-              {selfRatings.map((rating) => (
-                <option key={rating} value={rating}>
-                  {rating} / 5
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="sm:col-span-2">
-            <label htmlFor="notes" className={labelClassName}>
-              Notes
-            </label>
-            <textarea
-              id="notes"
-              name="notes"
-              rows={3}
-              placeholder="Drills, what clicked, what to repeat next time..."
-              className={cn(inputClassName, "resize-y")}
-            />
-          </div>
-        </div>
-      </Card>
+  return (
+    <form action={formAction} className="space-y-5">
+      {variant === "page" ? (
+        <Card
+          badge="Session capture"
+          title="Log today's work"
+          description="Record a practice session in under a minute."
+        >
+          {fields}
+        </Card>
+      ) : (
+        fields
+      )}
 
       {state.error ? (
         <p className={alertErrorClassName} role="alert">
@@ -145,15 +219,51 @@ export function TrainingForm() {
         </p>
       ) : null}
 
-      {state.message ? (
+      {state.message && variant === "page" ? (
         <p className={alertSuccessClassName} role="status">
           {state.message}
         </p>
       ) : null}
 
-      <Button type="submit" disabled={isPending} fullWidth>
-        {isPending ? "Saving..." : "+ Add session"}
+      <Button type="submit" disabled={isPending} fullWidth={variant === "modal"}>
+        {isPending ? "Saving..." : "Save session"}
       </Button>
     </form>
+  );
+}
+
+type AddTrainingButtonProps = {
+  role: PlayerRole | null;
+};
+
+export function AddTrainingButton({ role }: AddTrainingButtonProps) {
+  const [open, setOpen] = useState(false);
+  const [formKey, setFormKey] = useState(0);
+
+  function handleSuccess() {
+    setOpen(false);
+    setFormKey((current) => current + 1);
+  }
+
+  return (
+    <>
+      <Button type="button" onClick={() => setOpen(true)}>
+        Add Session
+      </Button>
+
+      <Modal
+        open={open}
+        title="Add Session"
+        description="Log a training session with workload fields for your role."
+        onClose={() => setOpen(false)}
+      >
+        <TrainingForm
+          key={formKey}
+          role={role}
+          variant="modal"
+          onSuccess={handleSuccess}
+        />
+      </Modal>
+    </>
   );
 }

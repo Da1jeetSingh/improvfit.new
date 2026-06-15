@@ -1,9 +1,11 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Modal } from "@/components/ui/modal";
 import {
   alertErrorClassName,
   alertSuccessClassName,
@@ -12,6 +14,10 @@ import {
   inputClassName,
   labelClassName,
 } from "@/components/ui/form-styles";
+import {
+  showsBattingLogFields,
+  showsBowlingLogFields,
+} from "@/lib/logging/role-fields";
 import {
   createMatch,
   updateMatch,
@@ -24,11 +30,15 @@ import {
   matchFormats,
   type Match,
 } from "@/types/match";
+import type { PlayerRole } from "@/types/profile";
 
 const initialState: MatchActionState = {};
 
 type MatchFormProps = {
   match?: Match;
+  role?: PlayerRole | null;
+  variant?: "page" | "modal";
+  onSuccess?: () => void;
 };
 
 function todayDateValue() {
@@ -43,12 +53,21 @@ function computeStrikeRate(runs: number, balls: number) {
   return Math.round((runs / balls) * 10000) / 100;
 }
 
-export function MatchForm({ match }: MatchFormProps) {
+export function MatchForm({
+  match,
+  role = null,
+  variant = "page",
+  onSuccess,
+}: MatchFormProps) {
+  const router = useRouter();
   const action = match ? updateMatch : createMatch;
   const [state, formAction, isPending] = useActionState(action, initialState);
 
   const [runs, setRuns] = useState(String(match?.runs ?? ""));
   const [ballsFaced, setBallsFaced] = useState(String(match?.balls_faced ?? ""));
+
+  const showBatting = match ? true : showsBattingLogFields(role);
+  const showBowling = match ? true : showsBowlingLogFields(role);
 
   const strikeRate = useMemo(() => {
     const runsValue = runs.trim() === "" ? null : Number(runs);
@@ -66,63 +85,64 @@ export function MatchForm({ match }: MatchFormProps) {
     return computeStrikeRate(runsValue, ballsValue);
   }, [runs, ballsFaced]);
 
-  return (
-    <form action={formAction} className="space-y-6">
-      {match ? <input type="hidden" name="match_id" value={match.id} /> : null}
+  useEffect(() => {
+    if (state.message && variant === "modal" && onSuccess) {
+      onSuccess();
+      router.refresh();
+    }
+  }, [state.message, variant, onSuccess, router]);
 
-      <Card
-        badge="Match entry"
-        title={match ? "Edit match" : "Log batting performance"}
-        description="Record your batting performance from a game or practice match."
-      >
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label htmlFor="played_on" className={labelClassName}>
-              Match date
-            </label>
-            <input
-              id="played_on"
-              name="played_on"
-              type="date"
-              required
-              defaultValue={match?.played_on ?? todayDateValue()}
-              className={inputClassName}
-            />
-          </div>
+  const fields = (
+    <div className="grid gap-4 sm:grid-cols-2">
+      <div>
+        <label htmlFor="played_on" className={labelClassName}>
+          Match date
+        </label>
+        <input
+          id="played_on"
+          name="played_on"
+          type="date"
+          required
+          defaultValue={match?.played_on ?? todayDateValue()}
+          className={inputClassName}
+        />
+      </div>
 
-          <div>
-            <label htmlFor="format" className={labelClassName}>
-              Format
-            </label>
-            <select
-              id="format"
-              name="format"
-              defaultValue={match?.format ?? ""}
-              className={inputClassName}
-            >
-              <option value="">Select format</option>
-              {matchFormats.map((format) => (
-                <option key={format} value={format}>
-                  {formatMatchFormat(format)}
-                </option>
-              ))}
-            </select>
-          </div>
+      <div>
+        <label htmlFor="format" className={labelClassName}>
+          Format
+        </label>
+        <select
+          id="format"
+          name="format"
+          defaultValue={match?.format ?? ""}
+          className={inputClassName}
+        >
+          <option value="">Select format</option>
+          {matchFormats.map((format) => (
+            <option key={format} value={format}>
+              {formatMatchFormat(format)}
+            </option>
+          ))}
+        </select>
+      </div>
 
-          <div className="sm:col-span-2">
-            <label htmlFor="opposition" className={labelClassName}>
-              Opponent
-            </label>
-            <input
-              id="opposition"
-              name="opposition"
-              type="text"
-              placeholder="Team or club name"
-              defaultValue={match?.opposition ?? ""}
-              className={inputClassName}
-            />
-          </div>
+      <div className="sm:col-span-2">
+        <label htmlFor="opposition" className={labelClassName}>
+          Opponent
+        </label>
+        <input
+          id="opposition"
+          name="opposition"
+          type="text"
+          placeholder="Team or club name"
+          defaultValue={match?.opposition ?? ""}
+          className={inputClassName}
+        />
+      </div>
 
+      {showBatting ? (
+        <>
           <div>
             <label htmlFor="runs" className={labelClassName}>
               Runs scored
@@ -207,27 +227,95 @@ export function MatchForm({ match }: MatchFormProps) {
           <div className="sm:col-span-2">
             <p className={labelClassName}>Auto strike rate</p>
             <div className={highlightValueClassName}>
-              <p className="text-4xl font-bold tracking-tight text-green-deep">
+              <p className="text-3xl font-bold tracking-tight text-green-deep">
                 {strikeRate === null ? "—" : strikeRate.toFixed(2)}
               </p>
             </div>
           </div>
+        </>
+      ) : null}
 
-          <div className="sm:col-span-2">
-            <label htmlFor="notes" className={labelClassName}>
-              Notes
+      {showBowling ? (
+        <>
+          <div>
+            <label htmlFor="wickets" className={labelClassName}>
+              Wickets
             </label>
-            <textarea
-              id="notes"
-              name="notes"
-              rows={3}
-              defaultValue={match?.notes ?? ""}
-              placeholder="Pitch conditions, what went well, what to improve..."
-              className={cn(inputClassName, "resize-y")}
+            <input
+              id="wickets"
+              name="wickets"
+              type="number"
+              min={0}
+              inputMode="numeric"
+              defaultValue={match?.wickets ?? ""}
+              className={inputClassName}
             />
           </div>
-        </div>
-      </Card>
+
+          <div>
+            <label htmlFor="overs_bowled" className={labelClassName}>
+              Overs bowled
+            </label>
+            <input
+              id="overs_bowled"
+              name="overs_bowled"
+              type="number"
+              min={0}
+              step={0.1}
+              inputMode="decimal"
+              defaultValue={match?.overs_bowled ?? ""}
+              className={inputClassName}
+            />
+          </div>
+
+          <div className="sm:col-span-2">
+            <label htmlFor="runs_conceded" className={labelClassName}>
+              Runs conceded
+            </label>
+            <input
+              id="runs_conceded"
+              name="runs_conceded"
+              type="number"
+              min={0}
+              inputMode="numeric"
+              defaultValue={match?.runs_conceded ?? ""}
+              className={inputClassName}
+            />
+          </div>
+        </>
+      ) : null}
+
+      <div className="sm:col-span-2">
+        <label htmlFor="notes" className={labelClassName}>
+          Notes
+        </label>
+        <textarea
+          id="notes"
+          name="notes"
+          rows={3}
+          defaultValue={match?.notes ?? ""}
+          placeholder="Pitch conditions, what went well, what to improve..."
+          className={cn(inputClassName, "resize-y")}
+        />
+      </div>
+    </div>
+  );
+
+  return (
+    <form action={formAction} className="space-y-5">
+      {match ? <input type="hidden" name="match_id" value={match.id} /> : null}
+
+      {variant === "page" ? (
+        <Card
+          badge="Match entry"
+          title={match ? "Edit match" : "Log match performance"}
+          description="Record your match performance with the fields that matter for your role."
+        >
+          {fields}
+        </Card>
+      ) : (
+        fields
+      )}
 
       {state.error ? (
         <p className={alertErrorClassName} role="alert">
@@ -235,15 +323,51 @@ export function MatchForm({ match }: MatchFormProps) {
         </p>
       ) : null}
 
-      {state.message ? (
+      {state.message && variant === "page" ? (
         <p className={alertSuccessClassName} role="status">
           {state.message}
         </p>
       ) : null}
 
-      <Button type="submit" disabled={isPending} fullWidth>
-        {isPending ? "Saving..." : match ? "Update match" : "+ Add match"}
+      <Button type="submit" disabled={isPending} fullWidth={variant === "modal"}>
+        {isPending ? "Saving..." : match ? "Update match" : "Save match"}
       </Button>
     </form>
+  );
+}
+
+type AddMatchButtonProps = {
+  role: PlayerRole | null;
+};
+
+export function AddMatchButton({ role }: AddMatchButtonProps) {
+  const [open, setOpen] = useState(false);
+  const [formKey, setFormKey] = useState(0);
+
+  function handleSuccess() {
+    setOpen(false);
+    setFormKey((current) => current + 1);
+  }
+
+  return (
+    <>
+      <Button type="button" onClick={() => setOpen(true)}>
+        Add Match
+      </Button>
+
+      <Modal
+        open={open}
+        title="Add Match"
+        description="Log a match performance with fields tailored to your role."
+        onClose={() => setOpen(false)}
+      >
+        <MatchForm
+          key={formKey}
+          role={role}
+          variant="modal"
+          onSuccess={handleSuccess}
+        />
+      </Modal>
+    </>
   );
 }

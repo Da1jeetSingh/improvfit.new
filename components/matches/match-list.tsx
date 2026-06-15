@@ -29,8 +29,7 @@ export function MatchList({ matches }: MatchListProps) {
         className={emptyCardClassName}
       >
         <p className="text-sm leading-relaxed text-muted">
-          No match performances yet. Log your first innings above — even a
-          practice knock counts.
+          No match performances yet. Tap Add Match to log your first innings.
         </p>
       </Card>
     );
@@ -102,7 +101,24 @@ function MatchListItem({ match }: { match: Match }) {
 
           {match.dismissal_type ? (
             <p className="text-sm text-muted">
-              Dismissal: <span className="font-medium text-foreground">{formatLabel(match.dismissal_type)}</span>
+              Dismissal:{" "}
+              <span className="font-medium text-foreground">
+                {formatLabel(match.dismissal_type)}
+              </span>
+            </p>
+          ) : null}
+
+          {match.wickets !== null ||
+          match.overs_bowled !== null ||
+          match.runs_conceded !== null ? (
+            <p className="text-sm text-muted">
+              Bowling:{" "}
+              <span className="font-medium text-foreground">
+                {match.wickets ?? 0}/{match.overs_bowled ?? "—"} ov
+                {match.runs_conceded !== null
+                  ? ` · ${match.runs_conceded} runs`
+                  : ""}
+              </span>
             </p>
           ) : null}
 

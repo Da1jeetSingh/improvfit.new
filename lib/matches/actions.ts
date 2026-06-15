@@ -56,6 +56,20 @@ function computeStrikeRate(runs: number | null, ballsFaced: number | null) {
   return Math.round((runs / ballsFaced) * 10000) / 100;
 }
 
+function parseOptionalDecimal(value: FormDataEntryValue | null) {
+  const text = String(value ?? "").trim();
+  if (!text) {
+    return null;
+  }
+
+  const parsed = Number(text);
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    return undefined;
+  }
+
+  return Math.round(parsed * 10) / 10;
+}
+
 function parseMatchForm(formData: FormData) {
   const playedOn = parseOptionalText(formData.get("played_on"));
   if (!playedOn) {
@@ -82,6 +96,21 @@ function parseMatchForm(formData: FormData) {
     return { error: "Sixes must be a whole number of 0 or more." as const };
   }
 
+  const wickets = parseNonNegativeInt(formData.get("wickets"));
+  if (wickets === undefined) {
+    return { error: "Wickets must be a whole number of 0 or more." as const };
+  }
+
+  const oversBowled = parseOptionalDecimal(formData.get("overs_bowled"));
+  if (oversBowled === undefined) {
+    return { error: "Overs bowled must be 0 or more." as const };
+  }
+
+  const runsConceded = parseNonNegativeInt(formData.get("runs_conceded"));
+  if (runsConceded === undefined) {
+    return { error: "Runs conceded must be a whole number of 0 or more." as const };
+  }
+
   return {
     data: {
       played_on: playedOn,
@@ -96,6 +125,9 @@ function parseMatchForm(formData: FormData) {
         formData.get("dismissal_type"),
         dismissalTypes,
       ),
+      wickets,
+      overs_bowled: oversBowled,
+      runs_conceded: runsConceded,
       notes: parseOptionalText(formData.get("notes")),
     },
   };

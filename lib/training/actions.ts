@@ -120,6 +120,24 @@ function parseTrainingForm(formData: FormData) {
     return { error: ballsFaced.error };
   }
 
+  const oversBowledText = String(formData.get("overs_bowled") ?? "").trim();
+  let oversBowled: number | null = null;
+  if (oversBowledText) {
+    const parsed = Number(oversBowledText);
+    if (!Number.isFinite(parsed) || parsed < 0) {
+      return { error: "Overs bowled must be 0 or more." as const };
+    }
+    oversBowled = Math.round(parsed * 10) / 10;
+  }
+
+  const ballsBowled = parseNonNegativeInt(
+    formData.get("balls_bowled"),
+    "Balls bowled",
+  );
+  if ("error" in ballsBowled) {
+    return { error: ballsBowled.error };
+  }
+
   const selfRating = parseSelfRating(formData.get("self_rating"));
   if ("error" in selfRating) {
     return { error: selfRating.error };
@@ -131,6 +149,8 @@ function parseTrainingForm(formData: FormData) {
       focus: focus.value,
       duration_minutes: duration.value,
       balls_faced: ballsFaced.value,
+      overs_bowled: oversBowled,
+      balls_bowled: ballsBowled.value,
       self_rating: selfRating.value,
       notes: parseOptionalText(formData.get("notes")),
     },
