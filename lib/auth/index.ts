@@ -6,6 +6,7 @@ export const protectedRoutes = [
   "/stats",
   "/milestones",
   "/profile",
+  "/settings",
   "/training",
   "/matches",
   "/goals",
