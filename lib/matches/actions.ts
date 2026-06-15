@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
+import { checkAchievementsAfterSave, type AchievementUnlock } from "@/lib/achievements";
 import { getCoachMessageAfterSave } from "@/lib/coach";
 import {
   dismissalTypes,
@@ -18,6 +19,7 @@ export type MatchActionState = {
   error?: string;
   message?: string;
   coachMessage?: string;
+  achievementUnlocks?: AchievementUnlock[];
 };
 
 function parseOptionalText(value: FormDataEntryValue | null) {
@@ -173,12 +175,17 @@ export async function createMatch(
 
   revalidatePath("/matches");
   revalidatePath("/dashboard");
+  revalidatePath("/milestones");
 
-  const coach = await getCoachMessageAfterSave("match_saved", data as Match);
+  const [coach, achievementUnlocks] = await Promise.all([
+    getCoachMessageAfterSave("match_saved", data as Match),
+    checkAchievementsAfterSave(supabase, user.id),
+  ]);
 
   return {
     message: "Match saved.",
     coachMessage: coach?.text,
+    achievementUnlocks,
   };
 }
 
@@ -217,7 +224,9 @@ export async function updateMatch(
 
   revalidatePath("/matches");
   revalidatePath("/dashboard");
+  revalidatePath("/milestones");
   revalidatePath(`/matches/${matchId}/edit`);
+  await checkAchievementsAfterSave(supabase, user.id);
   redirect("/matches");
 }
 

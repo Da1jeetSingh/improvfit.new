@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 
+import { AchievementUnlockToast } from "@/components/achievements/achievement-unlock-toast";
 import { CoachMessageCard } from "@/components/coach/coach-message-card";
 import { useCoachSaveFeedback } from "@/components/coach/use-coach-save-feedback";
 import { Button } from "@/components/ui/button";
@@ -54,6 +55,7 @@ export function GoalForm({
 
   useCoachSaveFeedback({
     coachMessage: state.coachMessage,
+    achievementUnlocks: state.achievementUnlocks,
     fallbackMessage: state.message,
     variant,
     onSuccess,
@@ -219,6 +221,10 @@ export function GoalForm({
         </p>
       ) : null}
 
+      {state.achievementUnlocks?.length ? (
+        <AchievementUnlockToast unlocks={state.achievementUnlocks} compact />
+      ) : null}
+
       {state.coachMessage ? (
         <CoachMessageCard
           message={{ text: state.coachMessage, label: "Coach" }}
@@ -226,7 +232,10 @@ export function GoalForm({
         />
       ) : null}
 
-      {state.message && variant === "page" && !state.coachMessage ? (
+      {state.message &&
+      variant === "page" &&
+      !state.coachMessage &&
+      !state.achievementUnlocks?.length ? (
         <p className={alertSuccessClassName} role="status">
           {state.message}
         </p>
@@ -234,7 +243,13 @@ export function GoalForm({
 
       <Button
         type="submit"
-        disabled={isPending || Boolean(state.coachMessage && variant === "modal")}
+        disabled={
+          isPending ||
+          Boolean(
+            (state.coachMessage || state.achievementUnlocks?.length) &&
+              variant === "modal",
+          )
+        }
         fullWidth={variant === "modal"}
       >
         {isPending ? "Saving..." : goal ? "Update goal" : "Save goal"}
