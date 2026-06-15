@@ -3,11 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { getCoachMessageAfterSave } from "@/lib/coach";
 import { createClient } from "@/lib/supabase/server";
 import {
   goalCategories,
   goalSelect,
   goalStatuses,
+  type Goal,
   type GoalCategory,
   type GoalStatus,
 } from "@/types/goal";
@@ -15,6 +17,7 @@ import {
 export type GoalActionState = {
   error?: string;
   message?: string;
+  coachMessage?: string;
 };
 
 function parseOptionalText(value: FormDataEntryValue | null) {
@@ -171,7 +174,12 @@ export async function createGoal(
   revalidatePath("/goals");
   revalidatePath("/dashboard");
 
-  return { message: "Goal created." };
+  const coach = await getCoachMessageAfterSave("goal_created", data as Goal);
+
+  return {
+    message: "Goal created.",
+    coachMessage: coach?.text,
+  };
 }
 
 export async function updateGoal(

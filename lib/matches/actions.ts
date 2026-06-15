@@ -4,17 +4,20 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
+import { getCoachMessageAfterSave } from "@/lib/coach";
 import {
   dismissalTypes,
   matchFormats,
   matchSelect,
   type DismissalType,
+  type Match,
   type MatchFormat,
 } from "@/types/match";
 
 export type MatchActionState = {
   error?: string;
   message?: string;
+  coachMessage?: string;
 };
 
 function parseOptionalText(value: FormDataEntryValue | null) {
@@ -171,7 +174,12 @@ export async function createMatch(
   revalidatePath("/matches");
   revalidatePath("/dashboard");
 
-  return { message: "Match saved." };
+  const coach = await getCoachMessageAfterSave("match_saved", data as Match);
+
+  return {
+    message: "Match saved.",
+    coachMessage: coach?.text,
+  };
 }
 
 export async function updateMatch(

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { getCoachMessageAfterSave } from "@/lib/coach";
 import { createClient } from "@/lib/supabase/server";
 import {
   focusAreas,
@@ -9,11 +10,13 @@ import {
   trainingSessionSelect,
   type FocusArea,
   type SelfRating,
+  type TrainingSession,
 } from "@/types/training";
 
 export type TrainingActionState = {
   error?: string;
   message?: string;
+  coachMessage?: string;
 };
 
 function parseOptionalText(value: FormDataEntryValue | null) {
@@ -195,5 +198,13 @@ export async function createTrainingSession(
   revalidatePath("/training");
   revalidatePath("/dashboard");
 
-  return { message: "Training session saved." };
+  const coach = await getCoachMessageAfterSave(
+    "training_saved",
+    data as TrainingSession,
+  );
+
+  return {
+    message: "Training session saved.",
+    coachMessage: coach?.text,
+  };
 }
