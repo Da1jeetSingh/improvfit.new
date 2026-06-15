@@ -140,6 +140,7 @@ export async function saveProfile(
   }
 
   revalidatePath("/profile");
+  revalidatePath("/profile/edit");
   revalidatePath("/dashboard");
 
   return { message: "Profile saved." };

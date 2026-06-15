@@ -1,39 +1,26 @@
 import { redirect } from "next/navigation";
 
-import { PageHeader } from "@/components/layout/page-header";
-import { ProfileForm } from "@/components/profile/profile-form";
-import { ProfileSummary } from "@/components/profile/profile-summary";
-import { Card } from "@/components/ui/card";
-import { emptyCardClassName } from "@/components/ui/form-styles";
-import { getProfile } from "@/lib/profile";
-import { hasProfileData } from "@/types/profile";
+import { ProfileAchievementsPreview } from "@/components/profile/profile-achievements-preview";
+import { ProfileHeader } from "@/components/profile/profile-header";
+import { ProfileIdentity } from "@/components/profile/profile-identity";
+import { ProfileStatStrip } from "@/components/profile/profile-stat-strip";
+import { getProfilePageData } from "@/lib/profile/page-data";
 
 export default async function ProfilePage() {
-  const profile = await getProfile();
+  const data = await getProfilePageData();
 
-  if (!profile) {
+  if (!data) {
     redirect("/login");
   }
 
+  const { profile, stats, achievements } = data;
+
   return (
-    <section className="space-y-10">
-      <PageHeader
-        eyebrow="Player"
-        title="Your profile"
-        description="Create and update your cricket player profile. Only you can see this."
-      />
-
-      {hasProfileData(profile) ? (
-        <ProfileSummary profile={profile} />
-      ) : (
-        <Card className={emptyCardClassName}>
-          <p className="text-sm leading-relaxed text-muted">
-            No profile saved yet. Fill in the form below and tap Save profile.
-          </p>
-        </Card>
-      )}
-
-      <ProfileForm profile={profile} />
+    <section className="space-y-8">
+      <ProfileHeader profile={profile} />
+      <ProfileStatStrip stats={stats} />
+      <ProfileIdentity profile={profile} />
+      <ProfileAchievementsPreview summary={achievements} />
     </section>
   );
 }
