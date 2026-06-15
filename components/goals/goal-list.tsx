@@ -35,8 +35,7 @@ export function GoalList({ goals }: GoalListProps) {
         className={emptyCardClassName}
       >
         <p className="text-sm leading-relaxed text-muted">
-          No goals yet. Create your first target above — batting, bowling,
-          fitness, or anything you want to improve.
+          No goals yet. Tap Add Goal to set your first target.
         </p>
       </Card>
     );

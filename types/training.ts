@@ -11,6 +11,8 @@ export type TrainingSession = {
   session_date: string;
   duration_minutes: number | null;
   balls_faced: number | null;
+  overs_bowled: number | null;
+  balls_bowled: number | null;
   focus: FocusArea;
   notes: string | null;
   self_rating: SelfRating | null;
@@ -18,4 +20,4 @@ export type TrainingSession = {
 };
 
 export const trainingSessionSelect =
-  "id, user_id, session_date, duration_minutes, balls_faced, focus, notes, self_rating, created_at";
+  "id, user_id, session_date, duration_minutes, balls_faced, overs_bowled, balls_bowled, focus, notes, self_rating, created_at";

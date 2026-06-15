@@ -1,16 +1,18 @@
 export const playerRoles = ["batsman", "bowler", "all-rounder"] as const;
 
-export const battingStyles = ["right-hand", "left-hand"] as const;
+export const battingHands = ["left", "right"] as const;
 
-export const bowlingStyles = [
-  "none",
-  "right-arm fast",
-  "right-arm medium",
-  "right-arm spin",
-  "left-arm fast",
-  "left-arm medium",
-  "left-arm spin",
+export const battingOrders = [
+  "top order",
+  "middle order",
+  "lower order",
 ] as const;
+
+export const bowlingHands = ["left", "right"] as const;
+
+export const bowlingTypes = ["fast", "medium pace", "spinner"] as const;
+
+export const bowlingStyleDetails = ["leg spin", "off spin"] as const;
 
 export const skillLevels = [
   "beginner",
@@ -20,32 +22,91 @@ export const skillLevels = [
 ] as const;
 
 export type PlayerRole = (typeof playerRoles)[number] | "wicket-keeper";
-export type BattingStyle = (typeof battingStyles)[number];
-export type BowlingStyle = (typeof bowlingStyles)[number];
+export type BattingHand = (typeof battingHands)[number];
+export type BattingOrder = (typeof battingOrders)[number];
+export type BowlingHand = (typeof bowlingHands)[number];
+export type BowlingType = (typeof bowlingTypes)[number];
+export type BowlingStyleDetail = (typeof bowlingStyleDetails)[number];
 export type SkillLevel = (typeof skillLevels)[number];
 
 export type PlayerProfile = {
   id: string;
+  email: string | null;
   full_name: string | null;
   age: number | null;
   role: PlayerRole | null;
-  batting_style: BattingStyle | null;
-  bowling_style: BowlingStyle | null;
+  batting_hand: BattingHand | null;
+  batting_order: BattingOrder | null;
+  bowling_hand: BowlingHand | null;
+  bowling_type: BowlingType | null;
+  bowling_style_details: BowlingStyleDetail | null;
   skill_level: SkillLevel | null;
   personal_goals: string | null;
+  onboarding_completed: boolean;
   created_at: string;
+  updated_at: string;
 };
 
 export const profileSelect =
-  "id, full_name, age, role, batting_style, bowling_style, skill_level, personal_goals, created_at";
+  "id, email, full_name, age, role, batting_hand, batting_order, bowling_hand, bowling_type, bowling_style_details, skill_level, personal_goals, onboarding_completed, created_at, updated_at";
+
+export function hasBattingDetails(
+  profile: Pick<PlayerProfile, "batting_hand" | "batting_order">,
+) {
+  return Boolean(profile.batting_hand && profile.batting_order);
+}
+
+export function hasBowlingDetails(
+  profile: Pick<
+    PlayerProfile,
+    "bowling_hand" | "bowling_type" | "bowling_style_details"
+  >,
+) {
+  if (!profile.bowling_hand || !profile.bowling_type) {
+    return false;
+  }
+
+  if (profile.bowling_type === "spinner") {
+    return Boolean(profile.bowling_style_details);
+  }
+
+  return true;
+}
+
+export function isOnboardingComplete(profile: PlayerProfile) {
+  if (profile.onboarding_completed) {
+    return true;
+  }
+
+  if (!profile.role) {
+    return false;
+  }
+
+  if (profile.role === "batsman") {
+    return hasBattingDetails(profile);
+  }
+
+  if (profile.role === "bowler") {
+    return hasBowlingDetails(profile);
+  }
+
+  if (profile.role === "all-rounder") {
+    return hasBattingDetails(profile) && hasBowlingDetails(profile);
+  }
+
+  return true;
+}
 
 export function hasProfileData(profile: PlayerProfile) {
   return Boolean(
     profile.full_name ||
       profile.age !== null ||
       profile.role ||
-      profile.batting_style ||
-      profile.bowling_style ||
+      profile.batting_hand ||
+      profile.batting_order ||
+      profile.bowling_hand ||
+      profile.bowling_type ||
+      profile.bowling_style_details ||
       profile.skill_level ||
       profile.personal_goals,
   );

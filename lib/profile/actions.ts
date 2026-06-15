@@ -4,13 +4,19 @@ import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
 import {
-  battingStyles,
-  bowlingStyles,
+  battingHands,
+  battingOrders,
+  bowlingHands,
+  bowlingStyleDetails,
+  bowlingTypes,
   playerRoles,
   profileSelect,
   skillLevels,
-  type BattingStyle,
-  type BowlingStyle,
+  type BattingHand,
+  type BattingOrder,
+  type BowlingHand,
+  type BowlingStyleDetail,
+  type BowlingType,
   type PlayerRole,
   type SkillLevel,
 } from "@/types/profile";
@@ -70,13 +76,25 @@ export async function saveProfile(
   }
 
   const role = parseOptionalEnum<PlayerRole>(formData.get("role"), playerRoles);
-  const battingStyle = parseOptionalEnum<BattingStyle>(
-    formData.get("batting_style"),
-    battingStyles,
+  const battingHand = parseOptionalEnum<BattingHand>(
+    formData.get("batting_hand"),
+    battingHands,
   );
-  const bowlingStyle = parseOptionalEnum<BowlingStyle>(
-    formData.get("bowling_style"),
-    bowlingStyles,
+  const battingOrder = parseOptionalEnum<BattingOrder>(
+    formData.get("batting_order"),
+    battingOrders,
+  );
+  const bowlingHand = parseOptionalEnum<BowlingHand>(
+    formData.get("bowling_hand"),
+    bowlingHands,
+  );
+  const bowlingType = parseOptionalEnum<BowlingType>(
+    formData.get("bowling_type"),
+    bowlingTypes,
+  );
+  const bowlingStyleDetail = parseOptionalEnum<BowlingStyleDetail>(
+    formData.get("bowling_style_details"),
+    bowlingStyleDetails,
   );
   const skillLevel = parseOptionalEnum<SkillLevel>(
     formData.get("skill_level"),
@@ -85,16 +103,21 @@ export async function saveProfile(
 
   const profileData = {
     id: user.id,
+    email: user.email,
     full_name: parseOptionalText(formData.get("full_name")),
     age,
     role,
-    batting_style: battingStyle,
-    bowling_style: bowlingStyle,
+    batting_hand: battingHand,
+    batting_order: battingOrder,
+    bowling_hand: bowlingHand,
+    bowling_type: bowlingType,
+    bowling_style_details:
+      bowlingType === "spinner" ? bowlingStyleDetail : null,
     skill_level: skillLevel,
     personal_goals: parseOptionalText(formData.get("personal_goals")),
   };
 
-  const { error } = await supabase.from("users").upsert(profileData, {
+  const { error } = await supabase.from("profiles").upsert(profileData, {
     onConflict: "id",
   });
 
@@ -103,7 +126,7 @@ export async function saveProfile(
   }
 
   const { data, error: verifyError } = await supabase
-    .from("users")
+    .from("profiles")
     .select(profileSelect)
     .eq("id", user.id)
     .maybeSingle();

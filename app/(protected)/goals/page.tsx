@@ -1,25 +1,33 @@
 import { redirect } from "next/navigation";
 
-import { PageHeader } from "@/components/layout/page-header";
-import { GoalForm } from "@/components/goals/goal-form";
+import { AddGoalButton } from "@/components/goals/goal-form";
 import { GoalList } from "@/components/goals/goal-list";
+import { PageHeader } from "@/components/layout/page-header";
 import { alertErrorClassName } from "@/components/ui/form-styles";
 import { getSession } from "@/lib/auth";
 import { getGoals } from "@/lib/goals";
+import { getProfile } from "@/lib/profile";
 
 export default async function GoalsPage() {
   const session = await getSession();
   if (!session) redirect("/login");
 
-  const { goals, error } = await getGoals();
+  const [profile, { goals, error }] = await Promise.all([
+    getProfile(),
+    getGoals(),
+  ]);
 
   return (
     <section className="space-y-10">
-      <PageHeader
-        eyebrow="Goals"
-        title="Convert ambition into visible targets."
-        description="Create, track, and manage your own cricket goals."
-      />
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+        <PageHeader
+          className="mb-0 flex-1"
+          eyebrow="Goals"
+          title="Goals"
+          description="Track targets and manage your cricket ambitions."
+        />
+        <AddGoalButton role={profile?.role ?? null} />
+      </div>
 
       {error ? (
         <p className={alertErrorClassName} role="alert">
@@ -27,7 +35,6 @@ export default async function GoalsPage() {
         </p>
       ) : null}
 
-      <GoalForm />
       <GoalList goals={goals} />
     </section>
   );

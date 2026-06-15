@@ -14,8 +14,11 @@ import {
 import { saveProfile, type ProfileActionState } from "@/lib/profile/actions";
 import { cn } from "@/lib/utils";
 import {
-  battingStyles,
-  bowlingStyles,
+  battingHands,
+  battingOrders,
+  bowlingHands,
+  bowlingStyleDetails,
+  bowlingTypes,
   playerRoles,
   skillLevels,
   type PlayerProfile,
@@ -97,42 +100,101 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       >
         <div className="space-y-4">
           <div>
-            <label htmlFor="batting_style" className={labelClassName}>
-              Batting style
+            <label htmlFor="batting_hand" className={labelClassName}>
+              Batting hand
             </label>
             <select
-              id="batting_style"
-              name="batting_style"
-              defaultValue={profile.batting_style ?? ""}
+              id="batting_hand"
+              name="batting_hand"
+              defaultValue={profile.batting_hand ?? ""}
               className={inputClassName}
             >
-              <option value="">Select batting style</option>
-              {battingStyles.map((style) => (
-                <option key={style} value={style}>
-                  {formatLabel(style)}
+              <option value="">Select batting hand</option>
+              {battingHands.map((hand) => (
+                <option key={hand} value={hand}>
+                  {formatLabel(hand)}
                 </option>
               ))}
             </select>
           </div>
 
           <div>
-            <label htmlFor="bowling_style" className={labelClassName}>
-              Bowling style
+            <label htmlFor="batting_order" className={labelClassName}>
+              Batting order
             </label>
             <select
-              id="bowling_style"
-              name="bowling_style"
-              defaultValue={profile.bowling_style ?? ""}
+              id="batting_order"
+              name="batting_order"
+              defaultValue={profile.batting_order ?? ""}
               className={inputClassName}
             >
-              <option value="">Select bowling style</option>
-              {bowlingStyles.map((style) => (
-                <option key={style} value={style}>
-                  {formatLabel(style)}
+              <option value="">Select batting order</option>
+              {battingOrders.map((order) => (
+                <option key={order} value={order}>
+                  {formatLabel(order)}
                 </option>
               ))}
             </select>
           </div>
+
+          <div>
+            <label htmlFor="bowling_hand" className={labelClassName}>
+              Bowling hand
+            </label>
+            <select
+              id="bowling_hand"
+              name="bowling_hand"
+              defaultValue={profile.bowling_hand ?? ""}
+              className={inputClassName}
+            >
+              <option value="">Select bowling hand</option>
+              {bowlingHands.map((hand) => (
+                <option key={hand} value={hand}>
+                  {formatLabel(hand)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="bowling_type" className={labelClassName}>
+              Bowling type
+            </label>
+            <select
+              id="bowling_type"
+              name="bowling_type"
+              defaultValue={profile.bowling_type ?? ""}
+              className={inputClassName}
+            >
+              <option value="">Select bowling type</option>
+              {bowlingTypes.map((type) => (
+                <option key={type} value={type}>
+                  {formatLabel(type)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {profile.bowling_type === "spinner" ? (
+            <div>
+              <label htmlFor="bowling_style_details" className={labelClassName}>
+                Spin style
+              </label>
+              <select
+                id="bowling_style_details"
+                name="bowling_style_details"
+                defaultValue={profile.bowling_style_details ?? ""}
+                className={inputClassName}
+              >
+                <option value="">Select spin style</option>
+                {bowlingStyleDetails.map((style) => (
+                  <option key={style} value={style}>
+                    {formatLabel(style)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : null}
 
           <div>
             <label htmlFor="skill_level" className={labelClassName}>

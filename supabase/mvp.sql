@@ -5,36 +5,37 @@
 -- Player profiles (linked to Supabase Auth)
 -- ---------------------------------------------------------------------------
 
-create table public.users (
+create table public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
+  email text,
   full_name text,
   age integer check (age is null or (age >= 5 and age <= 100)),
   role text check (
     role is null
     or role in ('batsman', 'bowler', 'all-rounder', 'wicket-keeper')
   ),
-  batting_style text check (
-    batting_style is null
-    or batting_style in ('right-hand', 'left-hand')
+  batting_hand text check (batting_hand is null or batting_hand in ('left', 'right')),
+  batting_order text check (
+    batting_order is null
+    or batting_order in ('top order', 'middle order', 'lower order')
   ),
-  bowling_style text check (
-    bowling_style is null
-    or bowling_style in (
-      'none',
-      'right-arm fast',
-      'right-arm medium',
-      'right-arm spin',
-      'left-arm fast',
-      'left-arm medium',
-      'left-arm spin'
-    )
+  bowling_hand text check (bowling_hand is null or bowling_hand in ('left', 'right')),
+  bowling_type text check (
+    bowling_type is null
+    or bowling_type in ('fast', 'medium pace', 'spinner')
+  ),
+  bowling_style_details text check (
+    bowling_style_details is null
+    or bowling_style_details in ('leg spin', 'off spin')
   ),
   skill_level text check (
     skill_level is null
     or skill_level in ('beginner', 'intermediate', 'advanced', 'elite')
   ),
   personal_goals text,
-  created_at timestamptz not null default now()
+  onboarding_completed boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
 
 -- ---------------------------------------------------------------------------
@@ -119,21 +120,21 @@ create index goals_user_id_idx on public.goals (user_id);
 -- Row Level Security
 -- ---------------------------------------------------------------------------
 
-alter table public.users enable row level security;
+alter table public.profiles enable row level security;
 alter table public.training_sessions enable row level security;
 alter table public.matches enable row level security;
 alter table public.goals enable row level security;
 
 create policy "Users can view own profile"
-  on public.users for select to authenticated
+  on public.profiles for select to authenticated
   using (auth.uid() = id);
 
 create policy "Users can insert own profile"
-  on public.users for insert to authenticated
+  on public.profiles for insert to authenticated
   with check (auth.uid() = id);
 
 create policy "Users can update own profile"
-  on public.users for update to authenticated
+  on public.profiles for update to authenticated
   using (auth.uid() = id)
   with check (auth.uid() = id);
 
@@ -175,6 +176,25 @@ create policy "Users can delete own goals"
   on public.goals for delete to authenticated using (auth.uid() = user_id);
 
 -- ---------------------------------------------------------------------------
+-- Profile updated_at
+-- ---------------------------------------------------------------------------
+
+create or replace function public.set_profiles_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+create trigger profiles_set_updated_at
+  before update on public.profiles
+  for each row
+  execute function public.set_profiles_updated_at();
+
+-- ---------------------------------------------------------------------------
 -- Auto-create profile on sign-up
 -- ---------------------------------------------------------------------------
 
@@ -185,11 +205,13 @@ security definer
 set search_path = ''
 as $$
 begin
-  insert into public.users (id, full_name)
+  insert into public.profiles (id, email, full_name)
   values (
     new.id,
+    new.email,
     nullif(new.raw_user_meta_data ->> 'full_name', '')
-  );
+  )
+  on conflict (id) do nothing;
 
   return new;
 end;

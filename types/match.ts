@@ -26,12 +26,15 @@ export type Match = {
   fours: number | null;
   sixes: number | null;
   dismissal_type: DismissalType | null;
+  wickets: number | null;
+  overs_bowled: number | null;
+  runs_conceded: number | null;
   notes: string | null;
   created_at: string;
 };
 
 export const matchSelect =
-  "id, user_id, played_on, opposition, format, runs, balls_faced, strike_rate, fours, sixes, dismissal_type, notes, created_at";
+  "id, user_id, played_on, opposition, format, runs, balls_faced, strike_rate, fours, sixes, dismissal_type, wickets, overs_bowled, runs_conceded, notes, created_at";
 
 export function formatMatchFormat(format: MatchFormat | null) {
   if (!format) {
