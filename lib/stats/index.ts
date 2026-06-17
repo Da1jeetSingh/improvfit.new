@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { calculateRoleProgressStats } from "@/lib/stats/progress";
+import { calculateStatsTrends } from "@/lib/stats/trends";
 import { getProfile } from "@/lib/profile";
 import { goalSelect, type Goal } from "@/types/goal";
 import { matchSelect, type Match } from "@/types/match";
@@ -78,6 +79,12 @@ export async function getStatsData() {
     goals,
   );
 
+  const trends = calculateStatsTrends(
+    profile?.role ?? null,
+    matches,
+    sessions,
+  );
+
   const statsError =
     matchesResult.error && sessionsResult.error && goalsResult.error
       ? "Could not load your stats data."
@@ -85,6 +92,7 @@ export async function getStatsData() {
 
   return {
     progress,
+    trends,
     statsError,
   };
 }

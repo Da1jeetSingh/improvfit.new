@@ -117,6 +117,50 @@ body {
   animation-delay: 0.18s;
 }
 
+/* Modal enter / exit */
+.modal-overlay {
+  opacity: 0;
+  transition: opacity 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.modal-overlay--visible {
+  opacity: 1;
+}
+
+.modal-overlay--hidden {
+  opacity: 0;
+}
+
+.modal-panel {
+  opacity: 0;
+  transform: translateY(1rem);
+  transition:
+    opacity 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (min-width: 640px) {
+  .modal-panel {
+    transform: translateY(0.5rem) scale(0.98);
+  }
+}
+
+.modal-panel--visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.modal-panel--hidden {
+  opacity: 0;
+  transform: translateY(1rem);
+}
+
+@media (min-width: 640px) {
+  .modal-panel--hidden {
+    transform: translateY(0.5rem) scale(0.98);
+  }
+}
+
 /* White raised cards */
 .premium-surface,
 .ds-surface {

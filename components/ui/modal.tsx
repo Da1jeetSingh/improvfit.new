@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -14,6 +14,8 @@ type ModalProps = {
   className?: string;
 };
 
+const EXIT_MS = 220;
+
 export function Modal({
   open,
   title,
@@ -23,9 +25,32 @@ export function Modal({
   className,
 }: ModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(open);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (!open) {
+    if (open) {
+      let visibleFrame = 0;
+      const mountFrame = requestAnimationFrame(() => {
+        setMounted(true);
+        visibleFrame = requestAnimationFrame(() => setVisible(true));
+      });
+      return () => {
+        cancelAnimationFrame(mountFrame);
+        cancelAnimationFrame(visibleFrame);
+      };
+    }
+
+    const hideFrame = requestAnimationFrame(() => setVisible(false));
+    const timer = window.setTimeout(() => setMounted(false), EXIT_MS);
+    return () => {
+      cancelAnimationFrame(hideFrame);
+      window.clearTimeout(timer);
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!mounted) {
       return;
     }
 
@@ -42,18 +67,26 @@ export function Modal({
       document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "";
     };
-  }, [open, onClose]);
+  }, [mounted, onClose]);
 
-  if (!open) {
+  if (!mounted) {
     return null;
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
+    <div
+      className={cn(
+        "fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4",
+        visible ? "modal-root--visible" : "modal-root--hidden",
+      )}
+    >
       <button
         type="button"
         aria-label="Close dialog"
-        className="absolute inset-0 bg-foreground/20 backdrop-blur-[2px]"
+        className={cn(
+          "modal-overlay absolute inset-0 bg-foreground/20 backdrop-blur-[2px]",
+          visible ? "modal-overlay--visible" : "modal-overlay--hidden",
+        )}
         onClick={onClose}
       />
 
@@ -63,7 +96,8 @@ export function Modal({
         aria-modal="true"
         aria-labelledby="modal-title"
         className={cn(
-          "relative z-10 flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-t-3xl border border-border bg-surface-raised shadow-elevated sm:rounded-3xl",
+          "modal-panel relative z-10 flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-t-3xl border border-border bg-surface-raised shadow-elevated sm:rounded-3xl",
+          visible ? "modal-panel--visible" : "modal-panel--hidden",
           className,
         )}
       >

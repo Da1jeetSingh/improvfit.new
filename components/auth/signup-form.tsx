@@ -7,7 +7,6 @@ import { signup, type AuthActionState } from "@/lib/auth/actions";
 import { Button } from "@/components/ui/button";
 import {
   alertErrorClassName,
-  alertSuccessClassName,
   inputClassName,
   labelClassName,
   sectionLinkClassName,
@@ -22,44 +21,40 @@ export function SignupForm() {
     <>
       <form action={formAction} className="space-y-5">
         <div>
-          <label htmlFor="signup-email" className={labelClassName}>
-            Email
+          <label htmlFor="signup-name" className={labelClassName}>
+            Name
           </label>
           <input
-            id="signup-email"
-            name="email"
-            type="email"
-            autoComplete="email"
+            id="signup-name"
+            name="full_name"
+            type="text"
+            autoComplete="name"
             required
+            placeholder="Your name"
             className={inputClassName}
           />
         </div>
 
         <div>
-          <label htmlFor="signup-password" className={labelClassName}>
-            Password
+          <label htmlFor="signup-age" className={labelClassName}>
+            Age
           </label>
           <input
-            id="signup-password"
-            name="password"
-            type="password"
-            autoComplete="new-password"
-            minLength={8}
+            id="signup-age"
+            name="age"
+            type="number"
+            min={5}
+            max={100}
+            inputMode="numeric"
             required
+            placeholder="Your age"
             className={inputClassName}
           />
-          <p className="mt-2 text-xs text-muted-subtle">At least 8 characters.</p>
         </div>
 
         {state.error ? (
           <p className={alertErrorClassName} role="alert">
             {state.error}
-          </p>
-        ) : null}
-
-        {state.message ? (
-          <p className={alertSuccessClassName} role="status">
-            {state.message}
           </p>
         ) : null}
 

@@ -104,41 +104,38 @@ export function AuthTabs({
       ) : (
         <form action={signupAction} className="space-y-5">
           <div>
-            <label htmlFor="signup-email" className={labelClassName}>
-              Email
+            <label htmlFor="signup-name" className={labelClassName}>
+              Name
             </label>
             <input
-              id="signup-email"
-              name="email"
-              type="email"
-              autoComplete="email"
+              id="signup-name"
+              name="full_name"
+              type="text"
+              autoComplete="name"
               required
+              placeholder="Your name"
               className={inputClassName}
             />
           </div>
           <div>
-            <label htmlFor="signup-password" className={labelClassName}>
-              Password
+            <label htmlFor="signup-age" className={labelClassName}>
+              Age
             </label>
             <input
-              id="signup-password"
-              name="password"
-              type="password"
-              autoComplete="new-password"
-              minLength={8}
+              id="signup-age"
+              name="age"
+              type="number"
+              min={5}
+              max={100}
+              inputMode="numeric"
               required
+              placeholder="Your age"
               className={inputClassName}
             />
-            <p className="mt-2 text-xs text-muted-subtle">At least 8 characters.</p>
           </div>
           {signupState.error ? (
             <p className="rounded-xl border border-red-200/60 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
               {signupState.error}
-            </p>
-          ) : null}
-          {signupState.message ? (
-            <p className="rounded-xl border border-green-muted bg-green-tint px-4 py-3 text-sm font-semibold text-green-deep" role="status">
-              {signupState.message}
             </p>
           ) : null}
           <Button type="submit" fullWidth size="lg" disabled={signupPending}>

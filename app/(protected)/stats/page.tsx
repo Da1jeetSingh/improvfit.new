@@ -11,7 +11,7 @@ export default async function StatsPage() {
 
   if (!data) redirect("/login");
 
-  const { progress, statsError } = data;
+  const { progress, trends, statsError } = data;
 
   return (
     <section className="space-y-10">
@@ -20,12 +20,16 @@ export default async function StatsPage() {
         title="Stats & progress"
         description={
           profile
-            ? `${getDashboardSubtitle(profile)} Track weekly trends and consistency.`
-            : "Track weekly trends and consistency from your logged activity."
+            ? `${getDashboardSubtitle(profile)} Track performance trends over time.`
+            : "Track performance trends over time from your logged activity."
         }
       />
 
-      <StatsProgress progress={progress} error={statsError} />
+      <StatsProgress
+        trends={trends}
+        hasAnyData={progress.hasAnyData}
+        error={statsError}
+      />
     </section>
   );
 }
