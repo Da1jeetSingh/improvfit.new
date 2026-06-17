@@ -56,40 +56,53 @@ export async function signup(
   _prevState: AuthActionState,
   formData: FormData,
 ): Promise<AuthActionState> {
-  const email = String(formData.get("email") ?? "").trim();
-  const password = String(formData.get("password") ?? "");
+  const fullName = String(formData.get("full_name") ?? "").trim();
+  const ageText = String(formData.get("age") ?? "").trim();
 
-  if (!email || !password) {
-    return { error: "Email and password are required." };
+  if (!fullName) {
+    return { error: "Name is required." };
   }
 
-  if (password.length < 8) {
-    return { error: "Password must be at least 8 characters." };
+  if (!ageText) {
+    return { error: "Age is required." };
+  }
+
+  const age = Number(ageText);
+  if (!Number.isInteger(age) || age < 5 || age > 100) {
+    return { error: "Age must be a whole number between 5 and 100." };
   }
 
   try {
     const supabase = await createClient();
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+    const { data, error } = await supabase.auth.signInAnonymously();
 
     if (error) {
       return { error: error.message };
     }
 
-    if (data.session) {
-      redirect(onboardingRoute);
+    if (!data.user) {
+      return { error: "Account creation failed. Please try again." };
+    }
+
+    const { error: profileError } = await supabase.from("profiles").upsert(
+      {
+        id: data.user.id,
+        email: data.user.email,
+        full_name: fullName,
+        age,
+      },
+      { onConflict: "id" },
+    );
+
+    if (profileError) {
+      return { error: profileError.message };
     }
   } catch (error) {
     console.error("[auth] signup failed:", error);
     return { error: authFailureMessage(error, "Account creation failed.") };
   }
 
-  return {
-    message:
-      "Account created. Check your email to confirm your address, then sign in.",
-  };
+  redirect(onboardingRoute);
 }
 
 

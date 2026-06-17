@@ -14,7 +14,7 @@ export default async function SignupPage() {
   return (
     <AuthShell
       title="Create your account"
-      description="Start tracking your cricket performance."
+      description="Tell us a little about yourself to get started."
     >
       <SignupForm />
     </AuthShell>
