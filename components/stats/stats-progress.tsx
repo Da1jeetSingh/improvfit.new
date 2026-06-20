@@ -1,12 +1,5 @@
-import { Card } from "@/components/ui/card";
-import { StatsConsistency } from "@/components/stats/stats-consistency";
-import { StatsGoalsSnapshot } from "@/components/stats/stats-goals-snapshot";
-import { StatsSummary } from "@/components/stats/stats-summary";
-import { StatsWeekComparison } from "@/components/stats/stats-week-comparison";
-import {
-  alertErrorClassName,
-  emptyCardClassName,
-} from "@/components/ui/form-styles";
+import { ChartLine } from "@/components/ui/chart-line";
+import { alertErrorClassName } from "@/components/ui/form-styles";
 import type { RoleProgressStats } from "@/lib/stats/progress";
 
 type StatsProgressProps = {
@@ -17,35 +10,35 @@ type StatsProgressProps = {
 export function StatsProgress({ progress, error }: StatsProgressProps) {
   if (error) {
     return (
-      <Card title="Your progress" description="Performance trends from your logs.">
-        <p className={alertErrorClassName} role="alert">
-          Could not load stats: {error}
-        </p>
-      </Card>
+      <p className={alertErrorClassName} role="alert">
+        Could not load stats: {error}
+      </p>
     );
   }
 
   if (!progress.hasAnyData) {
     return (
-      <Card
-        title="Your progress"
-        description="Performance trends from your logs."
-        className={emptyCardClassName}
-      >
-        <p className="text-sm leading-relaxed text-muted">
-          No data yet. Log a match, training session, or goal to unlock your
-          progress stats.
-        </p>
-      </Card>
+      <ChartLine
+        data={[
+          { label: "3w ago", value: 0 },
+          { label: "2w ago", value: 0 },
+          { label: "1w ago", value: 0 },
+          { label: "This wk", value: 0 },
+        ]}
+        aria-label="No stats data yet"
+      />
     );
   }
 
   return (
-    <div className="space-y-8">
-      <StatsSummary progress={progress} />
-      <StatsWeekComparison progress={progress} />
-      <StatsConsistency progress={progress} />
-      <StatsGoalsSnapshot progress={progress} />
+    <div className="grid gap-6 lg:grid-cols-2">
+      {progress.weeklyCharts.map((chart) => (
+        <ChartLine
+          key={chart.id}
+          data={chart.data}
+          aria-label={`${chart.label} over the last four weeks`}
+        />
+      ))}
     </div>
   );
 }

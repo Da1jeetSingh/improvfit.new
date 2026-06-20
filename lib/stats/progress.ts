@@ -64,6 +64,12 @@ export type WeeklyActivityBar = {
   value: number;
 };
 
+export type WeeklyChartSeries = {
+  id: string;
+  label: string;
+  data: WeeklyActivityBar[];
+};
+
 export type RoleProgressStats = {
   role: PlayerRole | null;
   batting: BattingProgress | null;
@@ -72,6 +78,7 @@ export type RoleProgressStats = {
   goals: GoalsProgress;
   consistency: ConsistencyProgress;
   weeklyActivity: WeeklyActivityBar[];
+  weeklyCharts: WeeklyChartSeries[];
   hasAnyData: boolean;
 };
 
@@ -271,11 +278,7 @@ function calculateGoalsProgress(goals: Goal[]): GoalsProgress {
   };
 }
 
-function getWeeklyActivityBars(
-  sessions: TrainingSession[],
-  matches: Match[],
-  referenceDate = new Date(),
-): WeeklyActivityBar[] {
+function getWeekRanges(referenceDate = new Date()) {
   const today = new Date(referenceDate);
   today.setHours(0, 0, 0, 0);
 
@@ -285,6 +288,20 @@ function getWeeklyActivityBars(
     const weekStart = new Date(weekEnd);
     weekStart.setDate(weekStart.getDate() - 6);
 
+    return {
+      label: weeksAgo === 0 ? "This wk" : `${weeksAgo}w ago`,
+      weekStart,
+      weekEnd,
+    };
+  });
+}
+
+function getWeeklyActivityBars(
+  sessions: TrainingSession[],
+  matches: Match[],
+  referenceDate = new Date(),
+): WeeklyActivityBar[] {
+  return getWeekRanges(referenceDate).map(({ label, weekStart, weekEnd }) => {
     const sessionCount = countInWeek(
       sessions,
       (session) => session.session_date,
@@ -299,10 +316,95 @@ function getWeeklyActivityBars(
     );
 
     return {
-      label: weeksAgo === 0 ? "This wk" : `${weeksAgo}w ago`,
+      label,
       value: sessionCount + matchCount,
     };
   });
+}
+
+function getWeeklyTrainingBars(
+  sessions: TrainingSession[],
+  referenceDate = new Date(),
+): WeeklyActivityBar[] {
+  return getWeekRanges(referenceDate).map(({ label, weekStart, weekEnd }) => ({
+    label,
+    value: countInWeek(
+      sessions,
+      (session) => session.session_date,
+      weekStart,
+      weekEnd,
+    ),
+  }));
+}
+
+function getWeeklyRunsBars(
+  matches: Match[],
+  referenceDate = new Date(),
+): WeeklyActivityBar[] {
+  return getWeekRanges(referenceDate).map(({ label, weekStart, weekEnd }) => ({
+    label,
+    value: sumInWeek(
+      matches,
+      (match) => match.played_on,
+      (match) => match.runs,
+      weekStart,
+      weekEnd,
+    ),
+  }));
+}
+
+function getWeeklyWicketsBars(
+  matches: Match[],
+  referenceDate = new Date(),
+): WeeklyActivityBar[] {
+  return getWeekRanges(referenceDate).map(({ label, weekStart, weekEnd }) => ({
+    label,
+    value: sumInWeek(
+      matches,
+      (match) => match.played_on,
+      (match) => match.wickets,
+      weekStart,
+      weekEnd,
+    ),
+  }));
+}
+
+function buildWeeklyCharts(
+  role: PlayerRole | null,
+  sessions: TrainingSession[],
+  matches: Match[],
+  referenceDate = new Date(),
+): WeeklyChartSeries[] {
+  const charts: WeeklyChartSeries[] = [
+    {
+      id: "activity",
+      label: "Activity",
+      data: getWeeklyActivityBars(sessions, matches, referenceDate),
+    },
+    {
+      id: "training",
+      label: "Training",
+      data: getWeeklyTrainingBars(sessions, referenceDate),
+    },
+  ];
+
+  if (showsBattingLogFields(role)) {
+    charts.push({
+      id: "runs",
+      label: "Runs",
+      data: getWeeklyRunsBars(matches, referenceDate),
+    });
+  }
+
+  if (showsBowlingLogFields(role)) {
+    charts.push({
+      id: "wickets",
+      label: "Wickets",
+      data: getWeeklyWicketsBars(matches, referenceDate),
+    });
+  }
+
+  return charts;
 }
 
 export function calculateRoleProgressStats(
@@ -359,6 +461,7 @@ export function calculateRoleProgressStats(
       lastActiveDate: streak.lastActiveDate,
     },
     weeklyActivity: getWeeklyActivityBars(sessions, matches, referenceDate),
+    weeklyCharts: buildWeeklyCharts(role, sessions, matches, referenceDate),
     hasAnyData,
   };
 }
