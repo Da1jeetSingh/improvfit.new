@@ -24,22 +24,22 @@ export function BrandHeader({
         className,
       )}
     >
+      <span
+        className={cn(
+          "font-horizon tracking-tight",
+          size === "large" ? "text-2xl" : "text-xl",
+        )}
+      >
+        Improv
+      </span>
       {showLogo ? (
         <Logo
           className={cn(
-            "transition-transform duration-300 group-hover:scale-105",
+            "shrink-0 transition-transform duration-300 group-hover:scale-105",
             size === "large" ? "h-9 w-9" : "h-8 w-8",
           )}
         />
       ) : null}
-      <span
-        className={cn(
-          "font-bold uppercase tracking-tight",
-          size === "large" ? "text-2xl" : "text-xl",
-        )}
-      >
-        IMPROV
-      </span>
     </Link>
   );
 }
