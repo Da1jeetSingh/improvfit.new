@@ -66,8 +66,10 @@ export type WeeklyActivityBar = {
 
 export type WeeklyChartSeries = {
   id: string;
-  label: string;
+  title: string;
   data: WeeklyActivityBar[];
+  secondary?: WeeklyActivityBar[];
+  secondaryColor?: string;
 };
 
 export type RoleProgressStats = {
@@ -369,6 +371,38 @@ function getWeeklyWicketsBars(
   }));
 }
 
+function getRecentMatchSeries(
+  matches: Match[],
+  getValue: (match: Match) => number,
+  limit = 5,
+): WeeklyActivityBar[] {
+  return [...matches]
+    .sort((left, right) => left.played_on.localeCompare(right.played_on))
+    .slice(-limit)
+    .map((match, index) => ({
+      label: `M${index + 1}`,
+      value: getValue(match),
+    }));
+}
+
+function getWeeklyTrainingFocusBars(
+  sessions: TrainingSession[],
+  focus: TrainingSession["focus"],
+  referenceDate = new Date(),
+): WeeklyActivityBar[] {
+  const filtered = sessions.filter((session) => session.focus === focus);
+
+  return getWeekRanges(referenceDate).map(({ label, weekStart, weekEnd }) => ({
+    label,
+    value: countInWeek(
+      filtered,
+      (session) => session.session_date,
+      weekStart,
+      weekEnd,
+    ),
+  }));
+}
+
 function buildWeeklyCharts(
   role: PlayerRole | null,
   sessions: TrainingSession[],
@@ -378,29 +412,83 @@ function buildWeeklyCharts(
   const charts: WeeklyChartSeries[] = [
     {
       id: "activity",
-      label: "Activity",
+      title: "Weekly activity",
       data: getWeeklyActivityBars(sessions, matches, referenceDate),
     },
     {
       id: "training",
-      label: "Training",
+      title: "Training load",
       data: getWeeklyTrainingBars(sessions, referenceDate),
     },
   ];
 
   if (showsBattingLogFields(role)) {
-    charts.push({
-      id: "runs",
-      label: "Runs",
-      data: getWeeklyRunsBars(matches, referenceDate),
-    });
+    const battingSeries = getRecentMatchSeries(
+      matches,
+      (match) => match.runs ?? 0,
+    );
+
+    if (battingSeries.length > 0) {
+      charts.unshift({
+        id: "batting-form",
+        title: "Batting form",
+        data: battingSeries,
+      });
+    } else {
+      charts.push({
+        id: "runs",
+        title: "Batting form",
+        data: getWeeklyRunsBars(matches, referenceDate),
+      });
+    }
   }
 
   if (showsBowlingLogFields(role)) {
+    const wicketsSeries = getRecentMatchSeries(
+      matches,
+      (match) => match.wickets ?? 0,
+    );
+    const economySeries = getRecentMatchSeries(matches, (match) =>
+      match.overs_bowled && match.overs_bowled > 0 && match.runs_conceded !== null
+        ? Math.round((match.runs_conceded / match.overs_bowled) * 10) / 10
+        : 0,
+    );
+
+    if (wicketsSeries.length > 0) {
+      charts.unshift({
+        id: "bowling-impact",
+        title: "Bowling impact",
+        data: wicketsSeries,
+        secondary: economySeries,
+        secondaryColor: "var(--green-sage)",
+      });
+    } else {
+      charts.push({
+        id: "wickets",
+        title: "Bowling impact",
+        data: getWeeklyWicketsBars(matches, referenceDate),
+      });
+    }
+  }
+
+  const focusSeries = getWeeklyTrainingFocusBars(
+    sessions,
+    "batting",
+    referenceDate,
+  );
+  const bowlingFocusSeries = getWeeklyTrainingFocusBars(
+    sessions,
+    "bowling",
+    referenceDate,
+  );
+
+  if (focusSeries.some((point) => point.value > 0)) {
     charts.push({
-      id: "wickets",
-      label: "Wickets",
-      data: getWeeklyWicketsBars(matches, referenceDate),
+      id: "training-focus",
+      title: "Training focus",
+      data: focusSeries,
+      secondary: bowlingFocusSeries,
+      secondaryColor: "var(--green-sage)",
     });
   }
 
