@@ -3,27 +3,21 @@ type LogoProps = {
 };
 
 /**
- * Mountain + growth bars mark. Slanted bar tops share the same diagonal
- * as the truncated right leg of the peak.
+ * Right triangle + three growth bars. Bar tops follow the same upward
+ * diagonal as the triangle hypotenuse.
  */
 export function Logo({ className = "h-8 w-8" }: LogoProps) {
   return (
     <svg
-      viewBox="0 0 64 48"
+      viewBox="0 0 58 44"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       aria-hidden
     >
+      <path d="M6 40 L28 40 L28 24 Z" fill="currentColor" />
       <path
-        d="M6 42 L6 14 L24 4 L31 20"
-        stroke="currentColor"
-        strokeWidth="5.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M36 42 L41 42 L41 14.8 L36 17.4 Z M44 42 L49 42 L49 12.2 L44 14.8 Z M52 42 L57 42 L57 9.6 L52 12.2 Z"
+        d="M31 40 L36 40 L36 24 L31 20 Z M38.5 40 L43.5 40 L43.5 18 L38.5 14 Z M46 40 L51 40 L51 12 L46 8 Z"
         fill="currentColor"
       />
     </svg>
