@@ -30,7 +30,7 @@ export function BrandHeader({
           size === "large" ? "text-[1.65rem]" : "text-[1.35rem]",
         )}
       >
-        Improv
+        IMPROV
       </span>
       {showLogo ? (
         <Logo
