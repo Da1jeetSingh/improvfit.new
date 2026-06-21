@@ -80,6 +80,22 @@ export function ProfileNavIcon({ className }: NavIconProps) {
   );
 }
 
+export function SunNavIcon({ className }: NavIconProps) {
+  return (
+    <NavIcon className={className}>
+      <circle cx="12" cy="12" r="3.25" />
+      <path d="M12 2.5v2" />
+      <path d="M12 19.5v2" />
+      <path d="M4.5 12h2" />
+      <path d="M17.5 12h2" />
+      <path d="m6.2 6.2 1.4 1.4" />
+      <path d="m16.4 16.4 1.4 1.4" />
+      <path d="m17.8 6.2-1.4 1.4" />
+      <path d="m7.6 16.4-1.4 1.4" />
+    </NavIcon>
+  );
+}
+
 export function SettingsNavIcon({ className }: NavIconProps) {
   return (
     <NavIcon className={className}>
