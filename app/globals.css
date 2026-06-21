@@ -94,6 +94,39 @@
   }
 }
 
+@keyframes modal-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (min-width: 640px) {
+  @keyframes modal-sheet-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -120,6 +153,14 @@ body {
 
 .animate-delay-3 {
   animation-delay: 0.18s;
+}
+
+.animate-modal-overlay {
+  animation: modal-overlay-in 0.24s ease-out both;
+}
+
+.animate-modal-sheet {
+  animation: modal-sheet-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* White raised cards */
