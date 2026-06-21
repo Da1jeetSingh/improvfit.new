@@ -44,14 +44,14 @@ export function StreakBadge({ count, className }: StreakBadgeProps) {
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border border-orange-200/70 bg-gradient-to-r from-yellow-50 via-orange-50 to-red-50 px-2.5 py-1 shadow-soft",
+        "inline-flex items-center gap-1.5 rounded-full border border-[#f5dcc8] bg-[#fff4ea] px-2.5 py-1",
         className,
       )}
       title={`${label} activity streak`}
       aria-label={`Activity streak: ${label}`}
     >
       <FireIcon gradientId={gradientId} />
-      <span className="text-xs font-bold tracking-tight text-orange-800">
+      <span className="text-xs font-bold tracking-tight text-[#9a4f1a]">
         {label}
       </span>
     </div>
