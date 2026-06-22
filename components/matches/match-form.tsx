@@ -5,6 +5,7 @@ import { useActionState, useMemo, useState } from "react";
 import { AchievementUnlockToast } from "@/components/achievements/achievement-unlock-toast";
 import { CoachMessageCard } from "@/components/coach/coach-message-card";
 import { useCoachSaveFeedback } from "@/components/coach/use-coach-save-feedback";
+import { SaveInsightCard } from "@/components/save/save-insight-card";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Modal } from "@/components/ui/modal";
@@ -89,6 +90,7 @@ export function MatchForm({
   useCoachSaveFeedback({
     coachMessage: state.coachMessage,
     achievementUnlocks: state.achievementUnlocks,
+    saveInsight: state.saveInsight,
     fallbackMessage: state.message,
     variant,
     onSuccess,
@@ -329,6 +331,10 @@ export function MatchForm({
         <AchievementUnlockToast unlocks={state.achievementUnlocks} compact />
       ) : null}
 
+      {state.saveInsight ? (
+        <SaveInsightCard insight={state.saveInsight} compact />
+      ) : null}
+
       {state.coachMessage ? (
         <CoachMessageCard
           message={{ text: state.coachMessage, label: "Coach" }}
@@ -350,7 +356,9 @@ export function MatchForm({
         disabled={
           isPending ||
           Boolean(
-            (state.coachMessage || state.achievementUnlocks?.length) &&
+            (state.coachMessage ||
+              state.achievementUnlocks?.length ||
+              state.saveInsight) &&
               variant === "modal",
           )
         }

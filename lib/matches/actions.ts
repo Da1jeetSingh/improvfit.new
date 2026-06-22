@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { checkAchievementsAfterSave, type AchievementUnlock } from "@/lib/achievements";
 import { getCoachMessageAfterSave } from "@/lib/coach";
+import { getMatchSaveInsight, type SaveInsight } from "@/lib/stats/save-insights";
 import {
   dismissalTypes,
   matchFormats,
@@ -20,6 +21,7 @@ export type MatchActionState = {
   message?: string;
   coachMessage?: string;
   achievementUnlocks?: AchievementUnlock[];
+  saveInsight?: SaveInsight;
 };
 
 function parseOptionalText(value: FormDataEntryValue | null) {
@@ -177,15 +179,24 @@ export async function createMatch(
   revalidatePath("/dashboard");
   revalidatePath("/milestones");
 
-  const [coach, achievementUnlocks] = await Promise.all([
+  const [coach, achievementUnlocks, matchesResult] = await Promise.all([
     getCoachMessageAfterSave("match_saved", data as Match),
     checkAchievementsAfterSave(supabase, user.id),
+    supabase
+      .from("matches")
+      .select(matchSelect)
+      .eq("user_id", user.id)
+      .order("played_on", { ascending: true }),
   ]);
+
+  const allMatches = (matchesResult.data ?? []) as Match[];
+  const saveInsight = getMatchSaveInsight(allMatches);
 
   return {
     message: "Match saved.",
     coachMessage: coach?.text,
     achievementUnlocks,
+    saveInsight: saveInsight ?? undefined,
   };
 }
 

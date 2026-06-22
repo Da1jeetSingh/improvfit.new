@@ -1,7 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { calculateActivityStreak } from "@/lib/dashboard/streak";
-import { matchSelect, type Match } from "@/types/match";
-import { trainingSessionSelect, type TrainingSession } from "@/types/training";
+import type { Match } from "@/types/match";
+import type { TrainingSession } from "@/types/training";
+
+export {
+  getStreakReminderCopy,
+  getStreakReminderPreview,
+  type StreakReminderCopy,
+} from "@/lib/streak/reminder-copy";
 
 export async function getActivityStreak() {
   const supabase = await createClient();

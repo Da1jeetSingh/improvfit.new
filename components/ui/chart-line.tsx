@@ -11,6 +11,10 @@ export type ChartLineSeries = {
   color?: string;
   fill?: string;
   fillOpacity?: number;
+  dashed?: boolean;
+  showDots?: boolean;
+  showFill?: boolean;
+  strokeWidth?: number;
 };
 
 type ChartLineProps = {
@@ -114,16 +118,22 @@ export function ChartLine({
   const baselineY = PADDING.top + plotHeight;
   const yTicks = getYTicks(max);
 
-  const renderedSeries = resolvedSeries.map((entry) => {
+  const renderedSeries = resolvedSeries.map((entry, seriesIndex) => {
     const points = entry.data.map((point, index) => ({
       x: PADDING.left + stepX * index,
       y: PADDING.top + plotHeight - (point.value / max) * plotHeight,
     }));
 
+    const showFill = entry.showFill ?? seriesIndex === 0;
+    const showDots = entry.showDots ?? seriesIndex === 0;
+
     return {
       ...entry,
       points,
       linePath: buildSmoothPath(points),
+      showFill,
+      showDots,
+      strokeWidth: entry.strokeWidth ?? (seriesIndex === 0 ? 2.5 : 2),
     };
   });
 
@@ -165,30 +175,35 @@ export function ChartLine({
         {renderedSeries.map((entry) =>
           entry.linePath ? (
             <g key={entry.id}>
-              <path
-                d={`${entry.linePath} L ${entry.points.at(-1)?.x ?? PADDING.left} ${baselineY} L ${entry.points[0]?.x ?? PADDING.left} ${baselineY} Z`}
-                fill={entry.fill ?? "var(--green-tint)"}
-                opacity={entry.fillOpacity ?? 0.45}
-              />
+              {entry.showFill ? (
+                <path
+                  d={`${entry.linePath} L ${entry.points.at(-1)?.x ?? PADDING.left} ${baselineY} L ${entry.points[0]?.x ?? PADDING.left} ${baselineY} Z`}
+                  fill={entry.fill ?? "var(--green-tint)"}
+                  opacity={entry.fillOpacity ?? 0.45}
+                />
+              ) : null}
               <path
                 d={entry.linePath}
                 fill="none"
                 stroke={entry.color ?? "var(--green-deep)"}
-                strokeWidth="2.5"
+                strokeWidth={entry.strokeWidth}
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                strokeDasharray={entry.dashed ? "6 4" : undefined}
               />
-              {entry.points.map((point, index) => (
-                <circle
-                  key={`${entry.id}-${entry.data[index]?.label ?? index}`}
-                  cx={point.x}
-                  cy={point.y}
-                  r="4"
-                  fill="var(--surface-raised)"
-                  stroke={entry.color ?? "var(--green-deep)"}
-                  strokeWidth="2"
-                />
-              ))}
+              {entry.showDots
+                ? entry.points.map((point, index) => (
+                    <circle
+                      key={`${entry.id}-${entry.data[index]?.label ?? index}`}
+                      cx={point.x}
+                      cy={point.y}
+                      r="4"
+                      fill="var(--surface-raised)"
+                      stroke={entry.color ?? "var(--green-deep)"}
+                      strokeWidth="2"
+                    />
+                  ))
+                : null}
             </g>
           ) : null,
         )}

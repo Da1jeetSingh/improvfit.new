@@ -1,5 +1,10 @@
 import type { ActivityStreak } from "@/lib/dashboard/streak";
 import type { RoleProgressStats } from "@/lib/stats/progress";
+import {
+  getRecentMatchValues,
+  hasConsecutiveDecrease,
+  hasConsecutiveIncrease,
+} from "@/lib/stats/trends";
 import { showsBattingLogFields, showsBowlingLogFields } from "@/lib/logging/role-fields";
 import type { Goal } from "@/types/goal";
 import type { Match } from "@/types/match";
@@ -18,6 +23,7 @@ export type CoachContext = {
   progress: RoleProgressStats;
   streak: ActivityStreak;
   goals: Goal[];
+  matches: Match[];
   latestTraining?: TrainingSession;
   latestMatch?: Match;
   latestGoal?: Goal;
@@ -214,9 +220,78 @@ function goalCreatedMessages(context: CoachContext): ScoredCoachMessage[] {
 }
 
 function dashboardMessages(context: CoachContext): ScoredCoachMessage[] {
-  const { progress, streak, goals } = context;
+  const { progress, streak, goals, matches } = context;
   const messages: ScoredCoachMessage[] = [];
   const inactiveDays = daysSince(progress.consistency.lastActiveDate);
+
+  if (showsBattingLogFields(context.role) && matches.length >= 4) {
+    const recentBalls = getRecentMatchValues(matches, (match) => match.balls_faced);
+    const recentRuns = getRecentMatchValues(matches, (match) => match.runs);
+    const recentStrikeRates = getRecentMatchValues(
+      matches,
+      (match) => match.strike_rate,
+    );
+
+    if (hasConsecutiveDecrease(recentBalls, 3)) {
+      messages.push({
+        score: 98,
+        tone: "insight",
+        label: "Coach",
+        text: withName(
+          context.firstName,
+          "you are getting to the crease, but your time at the crease is dropping. Focus on defensive discipline in your next session.",
+        ),
+      });
+    }
+
+    if (hasConsecutiveDecrease(recentRuns, 3)) {
+      messages.push({
+        score: 88,
+        tone: "insight",
+        label: "Coach",
+        text: withName(
+          context.firstName,
+          "runs have dipped across your last three innings. Tighten shot selection and build a longer stay at the crease.",
+        ),
+      });
+    }
+
+    if (hasConsecutiveIncrease(recentRuns, 3)) {
+      messages.push({
+        score: 86,
+        tone: "insight",
+        label: "Coach",
+        text: withName(
+          context.firstName,
+          "scoring is climbing match by match — form is building. Back your game plan while the rhythm is there.",
+        ),
+      });
+    }
+
+    if (hasConsecutiveIncrease(recentStrikeRates, 3)) {
+      messages.push({
+        score: 84,
+        tone: "insight",
+        label: "Coach",
+        text: withName(
+          context.firstName,
+          "strike rate is trending up — you're scoring faster without losing control. Keep rotating strike early.",
+        ),
+      });
+    }
+
+    if (hasConsecutiveDecrease(recentStrikeRates, 3)) {
+      messages.push({
+        score: 82,
+        tone: "insight",
+        label: "Coach",
+        text: withName(
+          context.firstName,
+          "strike rate has cooled over your last three innings. Look for one scoring option per over to free your hands.",
+        ),
+      });
+    }
+  }
 
   if (inactiveDays !== null && inactiveDays >= 7) {
     messages.push({

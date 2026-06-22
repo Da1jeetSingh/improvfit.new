@@ -3,6 +3,10 @@ import type { Match } from "@/types/match";
 import type { TrainingSession } from "@/types/training";
 
 import {
+  calculateMonthBattingStats,
+} from "@/lib/stats/trends";
+
+import {
   getMonthRange,
   getPreviousMonthRange,
   getWeekBucketsInMonth,
@@ -21,10 +25,25 @@ export type MonthlyHighlight = {
   icon: string;
 };
 
+export type MonthlyBattingRecap = {
+  totalRuns: number;
+  matchesPlayed: number;
+  battingAverage: number | null;
+  strikeRate: number | null;
+  bestMatch: {
+    runs: number;
+    opposition: string | null;
+    playedOn: string;
+  } | null;
+  weakestTrend: string | null;
+  coachingInsight: string;
+};
+
 export type MonthlyRecap = {
   monthLabel: string;
   previousMonthLabel: string;
   hasDataThisMonth: boolean;
+  batting: MonthlyBattingRecap | null;
   totals: {
     sessions: number;
     matches: number;
@@ -237,6 +256,32 @@ function buildHighlights({
   return highlights.slice(0, 4);
 }
 
+function buildBattingCoachingInsight(
+  batting: NonNullable<ReturnType<typeof calculateMonthBattingStats>>,
+): string {
+  if (batting.weakestTrend === "Time at the crease is dipping") {
+    return "Your time at the crease dropped this month. Prioritise defensive discipline in nets.";
+  }
+
+  if (batting.weakestTrend === "Runs trending down") {
+    return "Runs dipped across recent innings. Build a longer stay at the crease next match.";
+  }
+
+  if (batting.weakestTrend === "Strike rate cooling off") {
+    return "Strike rate cooled off recently. Look for one scoring option per over.";
+  }
+
+  if (batting.battingAverage !== null && batting.battingAverage >= 30) {
+    return `${batting.battingAverage} average this month — solid foundation. Keep stacking volume.`;
+  }
+
+  if (batting.totalRuns >= 100) {
+    return `${batting.totalRuns} runs this month — momentum is building. Convert it into longer innings.`;
+  }
+
+  return "Keep logging matches to sharpen your monthly trends.";
+}
+
 export function formatMonthTrend(thisMonth: number, lastMonth: number) {
   const difference = thisMonth - lastMonth;
 
@@ -344,10 +389,29 @@ export function calculateMonthlyRecap(
     mostActiveWeek,
   });
 
+  const battingStats = calculateMonthBattingStats(
+    matches,
+    currentMonth.monthStart,
+    currentMonth.monthEnd,
+  );
+
+  const batting: MonthlyBattingRecap | null = battingStats
+    ? {
+        totalRuns: battingStats.totalRuns,
+        matchesPlayed: battingStats.matchesPlayed,
+        battingAverage: battingStats.battingAverage,
+        strikeRate: battingStats.strikeRate,
+        bestMatch: battingStats.bestMatch,
+        weakestTrend: battingStats.weakestTrend,
+        coachingInsight: buildBattingCoachingInsight(battingStats),
+      }
+    : null;
+
   return {
     monthLabel: currentMonth.monthLabel,
     previousMonthLabel: previousMonth.monthLabel,
     hasDataThisMonth: monthSessions > 0 || monthMatches > 0,
+    batting,
     totals: {
       sessions: monthSessions,
       matches: monthMatches,

@@ -33,6 +33,7 @@ export function buildCoachContext(
     progress,
     streak,
     goals,
+    matches,
     latestTraining: event?.latestTraining,
     latestMatch: event?.latestMatch,
     latestGoal: event?.latestGoal,

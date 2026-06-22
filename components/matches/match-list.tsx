@@ -13,7 +13,12 @@ import {
   sectionHeadingClassName,
 } from "@/components/ui/form-styles";
 import { StatTile } from "@/components/ui/stat-tile";
+import { TrendIndicator } from "@/components/ui/trend-indicator";
 import { deleteMatch } from "@/lib/matches/actions";
+import {
+  getMatchRollingBaselines,
+  getMetricContext,
+} from "@/lib/stats/trends";
 import { formatMatchFormat, type Match } from "@/types/match";
 
 type MatchListProps = {
@@ -46,14 +51,20 @@ export function MatchList({ matches }: MatchListProps) {
 
       <ul className="space-y-4">
         {matches.map((match) => (
-          <MatchListItem key={match.id} match={match} />
+          <MatchListItem key={match.id} match={match} allMatches={matches} />
         ))}
       </ul>
     </section>
   );
 }
 
-function MatchListItem({ match }: { match: Match }) {
+function MatchListItem({
+  match,
+  allMatches,
+}: {
+  match: Match;
+  allMatches: Match[];
+}) {
   const [isPending, startTransition] = useTransition();
 
   function handleDelete() {
@@ -68,6 +79,13 @@ function MatchListItem({ match }: { match: Match }) {
 
   const strikeRateDisplay =
     match.strike_rate !== null ? match.strike_rate.toFixed(2) : "—";
+
+  const baselines = getMatchRollingBaselines(allMatches, match.id);
+  const ballsContext = getMetricContext(match.balls_faced, baselines.ballsFacedBaseline);
+  const strikeRateContext = getMetricContext(
+    match.strike_rate,
+    baselines.strikeRateBaseline,
+  );
 
   return (
     <li>
@@ -90,13 +108,34 @@ function MatchListItem({ match }: { match: Match }) {
               compact
               label="Balls"
               value={match.balls_faced !== null ? String(match.balls_faced) : "—"}
+              hint={
+                ballsContext ? (
+                  <TrendIndicator
+                    direction={ballsContext.direction}
+                    label={ballsContext.label}
+                  />
+                ) : undefined
+              }
             />
             <StatTile
               compact
               label="4s / 6s"
               value={`${match.fours ?? 0}/${match.sixes ?? 0}`}
             />
-            <StatTile compact label="SR" value={strikeRateDisplay} accent />
+            <StatTile
+              compact
+              label="SR"
+              value={strikeRateDisplay}
+              accent
+              hint={
+                strikeRateContext ? (
+                  <TrendIndicator
+                    direction={strikeRateContext.direction}
+                    label={strikeRateContext.label}
+                  />
+                ) : undefined
+              }
+            />
           </div>
 
           {match.dismissal_type ? (
