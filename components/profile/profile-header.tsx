@@ -51,6 +51,15 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
 
         <div className="flex flex-col gap-2 self-start sm:flex-row">
           <Link
+            href="/recap"
+            className={cn(
+              "inline-flex shrink-0 items-center justify-center rounded-2xl border border-border bg-surface px-5 py-2.5 text-sm font-semibold text-muted shadow-soft transition-all duration-200 lg:hidden",
+              "hover:border-green-sage/30 hover:bg-green-tint/40 hover:text-foreground active:scale-[0.98]",
+            )}
+          >
+            Monthly recap
+          </Link>
+          <Link
             href="/profile/edit"
             className={cn(
               "inline-flex shrink-0 items-center justify-center rounded-2xl border border-border bg-surface-raised px-5 py-2.5 text-sm font-semibold text-foreground shadow-soft transition-all duration-200",

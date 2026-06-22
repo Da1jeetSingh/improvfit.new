@@ -1,9 +1,11 @@
+import type { ReactNode } from "react";
+
 import { cn } from "@/lib/utils";
 
 type StatTileProps = {
   label: string;
   value: string;
-  hint?: string;
+  hint?: ReactNode;
   className?: string;
   compact?: boolean;
   accent?: boolean;

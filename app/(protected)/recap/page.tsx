@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { PageHeader } from "@/components/layout/page-header";
 import { RecapActivityChart } from "@/components/recap/recap-activity-chart";
+import { RecapBattingSummary } from "@/components/recap/recap-batting-summary";
 import { RecapComparison } from "@/components/recap/recap-comparison";
 import { RecapHighlights } from "@/components/recap/recap-highlights";
 import { RecapSummary } from "@/components/recap/recap-summary";
@@ -50,6 +51,7 @@ export default async function RecapPage() {
       ) : null}
 
       <RecapSummary recap={recap} />
+      <RecapBattingSummary recap={recap} />
       <RecapComparison recap={recap} />
       <RecapActivityChart recap={recap} />
       <RecapHighlights recap={recap} />

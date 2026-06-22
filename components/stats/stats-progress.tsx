@@ -39,9 +39,26 @@ export function StatsProgress({ progress, error }: StatsProgressProps) {
     <div className="space-y-5">
       {progress.weeklyCharts.map((chart) => (
         <Card key={chart.id} padding="sm">
-          <h2 className="mb-4 text-base font-bold text-green-deep sm:text-lg">
-            {chart.title}
-          </h2>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-base font-bold text-green-deep sm:text-lg">
+              {chart.title}
+            </h2>
+            {chart.secondary && chart.secondaryLabel ? (
+              <div className="flex items-center gap-3 text-[11px] font-semibold text-muted">
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="h-0.5 w-4 rounded-full bg-green-deep" />
+                  Scores
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <span
+                    className="h-0.5 w-4 rounded-full border-t-2 border-dashed"
+                    style={{ borderColor: chart.secondaryColor ?? "var(--green-sage)" }}
+                  />
+                  {chart.secondaryLabel}
+                </span>
+              </div>
+            ) : null}
+          </div>
           <ChartLine
             data={chart.secondary ? undefined : chart.data}
             series={
@@ -53,13 +70,17 @@ export function StatsProgress({ progress, error }: StatsProgressProps) {
                       color: "var(--green-deep)",
                       fill: "var(--green-tint)",
                       fillOpacity: 0.45,
+                      showFill: true,
+                      showDots: true,
                     },
                     {
                       id: "secondary",
                       data: chart.secondary,
                       color: chart.secondaryColor ?? "var(--green-sage)",
-                      fill: "var(--green-muted)",
-                      fillOpacity: 0.25,
+                      dashed: chart.secondaryDashed ?? true,
+                      showFill: false,
+                      showDots: false,
+                      strokeWidth: 2.5,
                     },
                   ]
                 : undefined

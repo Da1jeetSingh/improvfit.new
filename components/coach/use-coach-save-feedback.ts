@@ -4,23 +4,26 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import type { AchievementUnlock } from "@/lib/achievements";
+import type { SaveInsight } from "@/lib/stats/save-insights";
 
 export function useCoachSaveFeedback({
   coachMessage,
   achievementUnlocks,
+  saveInsight,
   fallbackMessage,
   variant,
   onSuccess,
 }: {
   coachMessage?: string;
   achievementUnlocks?: AchievementUnlock[];
+  saveInsight?: SaveInsight;
   fallbackMessage?: string;
   variant: "page" | "modal";
   onSuccess?: () => void;
 }) {
   const router = useRouter();
   const hasAchievementUnlocks = Boolean(achievementUnlocks?.length);
-  const hasFeedback = Boolean(coachMessage || hasAchievementUnlocks);
+  const hasFeedback = Boolean(coachMessage || hasAchievementUnlocks || saveInsight);
 
   useEffect(() => {
     if (variant !== "modal" || !onSuccess) {
@@ -31,7 +34,7 @@ export function useCoachSaveFeedback({
       router.refresh();
       const timeout = setTimeout(() => {
         onSuccess();
-      }, 2800);
+      }, saveInsight ? 3600 : 2800);
 
       return () => clearTimeout(timeout);
     }
@@ -47,6 +50,7 @@ export function useCoachSaveFeedback({
     hasFeedback,
     onSuccess,
     router,
+    saveInsight,
     variant,
   ]);
 }

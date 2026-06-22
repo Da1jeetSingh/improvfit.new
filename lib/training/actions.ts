@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { checkAchievementsAfterSave, type AchievementUnlock } from "@/lib/achievements";
 import { getCoachMessageAfterSave } from "@/lib/coach";
+import { getTrainingSaveInsight, type SaveInsight } from "@/lib/stats/save-insights";
 import { createClient } from "@/lib/supabase/server";
 import {
   focusAreas,
@@ -19,6 +20,7 @@ export type TrainingActionState = {
   message?: string;
   coachMessage?: string;
   achievementUnlocks?: AchievementUnlock[];
+  saveInsight?: SaveInsight;
 };
 
 function parseOptionalText(value: FormDataEntryValue | null) {
@@ -201,14 +203,23 @@ export async function createTrainingSession(
   revalidatePath("/dashboard");
   revalidatePath("/milestones");
 
-  const [coach, achievementUnlocks] = await Promise.all([
+  const [coach, achievementUnlocks, sessionsResult] = await Promise.all([
     getCoachMessageAfterSave("training_saved", data as TrainingSession),
     checkAchievementsAfterSave(supabase, user.id),
+    supabase
+      .from("training_sessions")
+      .select(trainingSessionSelect)
+      .eq("user_id", user.id)
+      .order("session_date", { ascending: false }),
   ]);
+
+  const allSessions = (sessionsResult.data ?? []) as TrainingSession[];
+  const saveInsight = getTrainingSaveInsight(allSessions, data as TrainingSession);
 
   return {
     message: "Training session saved.",
     coachMessage: coach?.text,
     achievementUnlocks,
+    saveInsight: saveInsight ?? undefined,
   };
 }

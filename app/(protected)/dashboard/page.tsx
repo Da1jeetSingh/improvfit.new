@@ -4,13 +4,16 @@ import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { DashboardModuleGrid } from "@/components/dashboard/dashboard-module-grid";
 import { DashboardStats } from "@/components/dashboard/dashboard-stats";
 import { RecentActivity } from "@/components/dashboard/recent-activity";
+import { RecapBattingMobile } from "@/components/recap/recap-batting-mobile";
 import { getDashboardCoachMessage } from "@/lib/coach";
 import { getDashboardData } from "@/lib/dashboard";
+import { getMonthlyRecapData } from "@/lib/recap";
 
 export default async function DashboardPage() {
-  const [data, coachMessage] = await Promise.all([
+  const [data, coachMessage, recapData] = await Promise.all([
     getDashboardData(),
     getDashboardCoachMessage(),
+    getMonthlyRecapData(),
   ]);
   if (!data) redirect("/login");
 
@@ -37,6 +40,8 @@ export default async function DashboardPage() {
         coachMessage={coachMessage}
         progressError={progressError}
       />
+
+      {recapData?.recap ? <RecapBattingMobile recap={recapData.recap} /> : null}
 
       <RecentActivity
         matches={recentMatches}

@@ -12,6 +12,7 @@ import {
   showsBattingLogFields,
   showsBowlingLogFields,
 } from "@/lib/logging/role-fields";
+import { calculateRollingAverage } from "@/lib/stats/trends";
 
 export type WeekMetric = {
   thisWeek: number;
@@ -70,6 +71,8 @@ export type WeeklyChartSeries = {
   data: WeeklyActivityBar[];
   secondary?: WeeklyActivityBar[];
   secondaryColor?: string;
+  secondaryLabel?: string;
+  secondaryDashed?: boolean;
 };
 
 export type RoleProgressStats = {
@@ -429,10 +432,22 @@ function buildWeeklyCharts(
     );
 
     if (battingSeries.length > 0) {
+      const rollingAverage = calculateRollingAverage(
+        battingSeries.map((point) => point.value),
+        5,
+      );
+
       charts.unshift({
         id: "batting-form",
         title: "Batting form",
         data: battingSeries,
+        secondary: battingSeries.map((point, index) => ({
+          label: point.label,
+          value: rollingAverage[index] ?? 0,
+        })),
+        secondaryColor: "var(--green-sage)",
+        secondaryLabel: "5-match avg",
+        secondaryDashed: true,
       });
     } else {
       charts.push({
