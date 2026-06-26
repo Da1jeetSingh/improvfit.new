@@ -41,7 +41,10 @@ Run migrations in order:
 ### App env
 
 1. Copy `.env.example` → `.env.local` and add Supabase keys
-2. Set auth redirect: `https://your-domain/auth/callback`
-3. `npm install && npm run dev`
+2. Set `NEXT_PUBLIC_SITE_URL` to your app URL (e.g. `https://improvfit-new.vercel.app`)
+3. In Supabase → Authentication → URL configuration, add redirect URLs:
+   - `https://your-domain/auth/callback`
+   - `https://your-domain/auth/callback?next=/auth/update-password`
+4. `npm install && npm run dev`
 
 No coaches, academies, parents, payments, or AI features.

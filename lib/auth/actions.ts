@@ -4,9 +4,13 @@ import { redirect } from "next/navigation";
 
 import {
   dashboardRoute,
+  loginRoute,
   onboardingRoute,
   sanitizeNextPath,
-} from "@/lib/auth";
+  updatePasswordRoute,
+} from "@/lib/auth/routes";
+import { mapLoginError, mapSignupError } from "@/lib/auth/errors";
+import { getAuthCallbackUrl } from "@/lib/auth/site-url";
 import { createClient } from "@/lib/supabase/server";
 
 export type AuthActionState = {
@@ -42,7 +46,7 @@ export async function login(
     });
 
     if (error) {
-      return { error: error.message };
+      return { error: mapLoginError(error) };
     }
   } catch (error) {
     console.error("[auth] login failed:", error);
@@ -72,10 +76,20 @@ export async function signup(
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        emailRedirectTo: getAuthCallbackUrl(onboardingRoute),
+      },
     });
 
     if (error) {
-      return { error: error.message };
+      return { error: mapSignupError(error) };
+    }
+
+    if (data.user?.identities?.length === 0) {
+      return {
+        error:
+          "An account with this email already exists. Log in instead, or reset your password.",
+      };
     }
 
     if (data.session) {
@@ -92,6 +106,81 @@ export async function signup(
   };
 }
 
+export async function requestPasswordReset(
+  _prevState: AuthActionState,
+  formData: FormData,
+): Promise<AuthActionState> {
+  const email = String(formData.get("email") ?? "").trim();
+
+  if (!email) {
+    return { error: "Email is required." };
+  }
+
+  try {
+    const supabase = await createClient();
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: getAuthCallbackUrl(updatePasswordRoute),
+    });
+
+    if (error) {
+      return { error: error.message };
+    }
+  } catch (error) {
+    console.error("[auth] password reset request failed:", error);
+    return {
+      error: authFailureMessage(error, "Could not send reset email."),
+    };
+  }
+
+  return {
+    message:
+      "If an account exists for that email, a password reset link is on its way.",
+  };
+}
+
+export async function updatePassword(
+  _prevState: AuthActionState,
+  formData: FormData,
+): Promise<AuthActionState> {
+  const password = String(formData.get("password") ?? "");
+  const confirmPassword = String(formData.get("confirmPassword") ?? "");
+
+  if (!password || !confirmPassword) {
+    return { error: "Both password fields are required." };
+  }
+
+  if (password.length < 8) {
+    return { error: "Password must be at least 8 characters." };
+  }
+
+  if (password !== confirmPassword) {
+    return { error: "Passwords do not match." };
+  }
+
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return {
+        error: "Your reset link has expired. Request a new password reset.",
+      };
+    }
+
+    const { error } = await supabase.auth.updateUser({ password });
+
+    if (error) {
+      return { error: error.message };
+    }
+  } catch (error) {
+    console.error("[auth] password update failed:", error);
+    return { error: authFailureMessage(error, "Could not update password.") };
+  }
+
+  redirect(dashboardRoute);
+}
 
 export async function logout() {
   redirect("/auth/logout");
