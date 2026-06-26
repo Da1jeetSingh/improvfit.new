@@ -20,37 +20,31 @@ const benefits = [
     title: "Track every session",
     description:
       "Log nets, gym, and match prep in seconds. No more guessing what you did last week.",
-    icon: "📋",
   },
   {
     title: "Measure real progress",
     description:
       "See your batting average, strike rate, and training volume trend over time — not just vibes.",
-    icon: "📈",
   },
   {
     title: "Spot your weaknesses",
     description:
       "IMPROV surfaces patterns you'd miss: low-scoring phases, missed training weeks, goal gaps.",
-    icon: "🎯",
   },
   {
     title: "Stay consistent",
     description:
       "Streaks, weekly targets, and consistency scores keep you showing up when motivation dips.",
-    icon: "🔥",
   },
   {
     title: "Improve faster",
     description:
       "Know exactly what's working. Cut the noise and focus on the sessions that move the needle.",
-    icon: "⚡",
   },
   {
     title: "Set and hit goals",
     description:
       "Define targets for runs, wickets, or training volume — then track progress session by session.",
-    icon: "🏆",
   },
 ] as const;
 
@@ -421,10 +415,10 @@ export function LandingPage() {
             description="Every feature exists for one reason: help you train smarter and perform better."
           />
           <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {benefits.map((benefit) => (
+            {benefits.map((benefit, index) => (
               <div key={benefit.title} className="ds-surface p-6 sm:p-7">
-                <span className="text-2xl" aria-hidden>
-                  {benefit.icon}
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-deep text-sm font-bold text-white">
+                  {index + 1}
                 </span>
                 <h3 className="mt-4 text-lg font-bold text-foreground">
                   {benefit.title}
