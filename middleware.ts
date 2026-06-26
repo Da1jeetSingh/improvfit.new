@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 
+import { isAdminRoute, isFounderEmail } from "@/lib/admin/access";
 import {
   dashboardRoute,
   isAuthRoute,
@@ -56,7 +57,11 @@ export async function middleware(request: NextRequest) {
   try {
     sessionResult = await updateSession(request);
   } catch {
-    if (isProtectedRoute(pathname) || isOnboardingRoute(pathname)) {
+    if (
+      isProtectedRoute(pathname) ||
+      isOnboardingRoute(pathname) ||
+      isAdminRoute(pathname)
+    ) {
       const loginUrl = request.nextUrl.clone();
       loginUrl.pathname = "/login";
       loginUrl.searchParams.set("next", pathname);
@@ -70,6 +75,13 @@ export async function middleware(request: NextRequest) {
 
   if (user) {
     const onboardingComplete = await isOnboardingComplete(request, user.id);
+
+    if (isAdminRoute(pathname) && !isFounderEmail(user.email)) {
+      const dashboardUrl = request.nextUrl.clone();
+      dashboardUrl.pathname = dashboardRoute;
+      dashboardUrl.search = "";
+      return redirectWithSession(dashboardUrl, supabaseResponse);
+    }
 
     if (!onboardingComplete && isProtectedRoute(pathname)) {
       const onboardingUrl = request.nextUrl.clone();
@@ -102,7 +114,11 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse;
   }
 
-  if (isProtectedRoute(pathname) || isOnboardingRoute(pathname)) {
+  if (
+    isProtectedRoute(pathname) ||
+    isOnboardingRoute(pathname) ||
+    isAdminRoute(pathname)
+  ) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
     loginUrl.searchParams.set("next", pathname);
