@@ -29,6 +29,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       description="Track your cricket performance, one session at a time."
     >
       <AuthTabs
+        key={params.tab ?? "login"}
         next={params.next ?? "/dashboard"}
         defaultTab={params.tab === "signup" ? "signup" : "login"}
         callbackError={params.error === "auth_callback_failed"}

@@ -1,10 +1,12 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import Link from "next/link";
+import { useActionState, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { inputClassName, labelClassName } from "@/components/ui/form-styles";
+import { inputClassName, labelClassName, sectionLinkClassName } from "@/components/ui/form-styles";
 import { login, signup, type AuthActionState } from "@/lib/auth/actions";
+import { forgotPasswordRoute } from "@/lib/auth/routes";
 import { cn } from "@/lib/utils";
 
 const initialState: AuthActionState = {};
@@ -23,10 +25,6 @@ export function AuthTabs({
   const [tab, setTab] = useState<"login" | "signup">(defaultTab);
   const [loginState, loginAction, loginPending] = useActionState(login, initialState);
   const [signupState, signupAction, signupPending] = useActionState(signup, initialState);
-
-  useEffect(() => {
-    setTab(defaultTab);
-  }, [defaultTab]);
 
   return (
     <div>
@@ -80,9 +78,17 @@ export function AuthTabs({
             />
           </div>
           <div>
-            <label htmlFor="login-password" className={labelClassName}>
-              Password
-            </label>
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <label htmlFor="login-password" className={labelClassName}>
+                Password
+              </label>
+              <Link
+                href={forgotPasswordRoute}
+                className={cn(sectionLinkClassName, "text-xs")}
+              >
+                Forgot password?
+              </Link>
+            </div>
             <input
               id="login-password"
               name="password"
