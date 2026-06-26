@@ -21,8 +21,9 @@ const horizon = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Improv",
-  description: "Cricket performance tracking for players",
+  title: "IMPROV — Cricket Performance Tracking",
+  description:
+    "Track training, match performance, and goals. Know if you're actually getting better with IMPROV — the cricket performance platform for serious players.",
 };
 
 export default function RootLayout({

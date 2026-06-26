@@ -7,32 +7,32 @@
  */
 
 :root {
-  --background: #f5f5f5;
-  --surface: #fafafa;
+  --background: #fbf6f0;
+  --surface: #f5f0ea;
   --surface-raised: #ffffff;
   --surface-input: #ffffff;
-  --foreground: #0a0a0a;
-  --foreground-secondary: #3d3d38;
-  --muted: #6b6b66;
-  --muted-subtle: #94948e;
-  --border: #e0e0da;
-  --border-subtle: #ebebe5;
+  --foreground: #000000;
+  --foreground-secondary: #1a1a1a;
+  --muted: #5c5c56;
+  --muted-subtle: #8a8a82;
+  --border: #ddd8d0;
+  --border-subtle: #ebe6de;
 
-  /* Forest green brand */
-  --green-deep: #003d2b;
-  --green-brand: #0b4f3a;
-  --green-sage: #3d6b5a;
-  --green-light: #5a8572;
-  --green-soft: #a8c4b4;
-  --green-muted: #dce8e2;
-  --green-tint: #f0f5f2;
+  /* IMPROV brand greens */
+  --green-deep: #0d3a35;
+  --green-brand: #276152;
+  --green-sage: #3d7a6a;
+  --green-light: #5a9484;
+  --green-soft: #a8c9be;
+  --green-muted: #d4e8e0;
+  --green-tint: #eef5f2;
 
   /* Chart palette */
-  --chart-primary: #003d2b;
-  --chart-secondary: #0b4f3a;
-  --chart-tertiary: #3d6b5a;
-  --chart-quaternary: #5a8572;
-  --chart-muted: #c5d9ce;
+  --chart-primary: #0d3a35;
+  --chart-secondary: #276152;
+  --chart-tertiary: #3d7a6a;
+  --chart-quaternary: #5a9484;
+  --chart-muted: #c5ddd6;
 
   /* Elevation — soft, premium */
   --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.03);
@@ -252,9 +252,29 @@ body {
   pointer-events: none;
   position: fixed;
   inset: 0;
+  background:
+    radial-gradient(
+      ellipse 80% 50% at 50% -10%,
+      color-mix(in srgb, var(--green-brand) 12%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 50% 40% at 90% 80%,
+      color-mix(in srgb, var(--green-muted) 18%, transparent),
+      transparent 55%
+    );
+}
+
+/* Landing page sections */
+.landing-section-dark {
+  background: var(--green-deep);
+  color: #ffffff;
+}
+
+.landing-hero-glow {
   background: radial-gradient(
-    ellipse 70% 45% at 50% -5%,
-    color-mix(in srgb, var(--green-muted) 25%, transparent),
-    transparent 65%
+    ellipse 60% 50% at 70% 30%,
+    color-mix(in srgb, var(--green-brand) 20%, transparent),
+    transparent 70%
   );
 }
