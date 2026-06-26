@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "video:assets": "node video/scripts/download-assets.mjs",
+    "video:record": "node video/scripts/record.mjs",
+    "video:compose": "node video/scripts/compose.mjs",
+    "video:build": "./video/build.sh"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.0",
@@ -23,6 +27,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
+    "playwright": "^1.61.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
