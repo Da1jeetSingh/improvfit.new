@@ -1,5 +1,6 @@
 import { syncUserAchievements, type AchievementsSummary } from "@/lib/achievements";
 import { fetchUserActivity } from "@/lib/achievements/fetch-activity";
+import { buildCareerOverview, type CareerOverview } from "@/lib/profile/career-stats";
 import { createClient } from "@/lib/supabase/server";
 import type { PlayerProfile } from "@/types/profile";
 
@@ -14,6 +15,7 @@ export type ProfileStats = {
 export type ProfilePageData = {
   profile: PlayerProfile;
   stats: ProfileStats;
+  career: CareerOverview;
   achievements: AchievementsSummary;
 };
 
@@ -45,6 +47,12 @@ export async function getProfilePageData(): Promise<ProfilePageData | null> {
       goalsCompleted: activity.goals.filter((goal) => goal.status === "completed")
         .length,
     },
+    career: buildCareerOverview(
+      profile,
+      activity.matches,
+      activity.sessions,
+      activity.goals,
+    ),
     achievements: achievementsResult.summary,
   };
 }

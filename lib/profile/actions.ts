@@ -24,6 +24,7 @@ import {
 export type ProfileActionState = {
   error?: string;
   message?: string;
+  avatarUrl?: string;
 };
 
 function parseOptionalText(value: FormDataEntryValue | null) {
@@ -144,6 +145,75 @@ export async function saveProfile(
   revalidatePath("/dashboard");
 
   return { message: "Profile saved." };
+}
+
+const AVATAR_BUCKET = "avatars";
+const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
+
+export async function uploadProfileAvatar(
+  formData: FormData,
+): Promise<ProfileActionState> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "You must be signed in to upload a photo." };
+  }
+
+  const file = formData.get("avatar");
+
+  if (!(file instanceof File) || file.size === 0) {
+    return { error: "Please choose an image to upload." };
+  }
+
+  if (!file.type.startsWith("image/")) {
+    return { error: "Please upload a valid image file." };
+  }
+
+  if (file.size > MAX_AVATAR_BYTES) {
+    return { error: "Image must be 5 MB or smaller." };
+  }
+
+  const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
+  const safeExtension = ["jpg", "jpeg", "png", "webp", "gif"].includes(extension)
+    ? extension
+    : "jpg";
+  const filePath = `${user.id}/avatar.${safeExtension}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from(AVATAR_BUCKET)
+    .upload(filePath, file, {
+      upsert: true,
+      contentType: file.type,
+      cacheControl: "3600",
+    });
+
+  if (uploadError) {
+    return { error: uploadError.message };
+  }
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from(AVATAR_BUCKET).getPublicUrl(filePath);
+
+  const avatarUrl = `${publicUrl}?t=${Date.now()}`;
+
+  const { error: profileError } = await supabase
+    .from("profiles")
+    .update({ avatar_url: avatarUrl })
+    .eq("id", user.id);
+
+  if (profileError) {
+    return { error: profileError.message };
+  }
+
+  revalidatePath("/profile");
+  revalidatePath("/profile/edit");
+  revalidatePath("/dashboard");
+
+  return { message: "Profile photo updated.", avatarUrl };
 }
 
 /** @deprecated Use saveProfile */

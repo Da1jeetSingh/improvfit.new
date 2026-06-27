@@ -1,5 +1,6 @@
 export type {
   Achievement,
+  AchievementCategory,
   AchievementId,
   AchievementUnlock,
   AchievementsSummary,

@@ -25,6 +25,7 @@ export async function getMilestonesData() {
         achievements: [],
         unlockedCount: 0,
         totalCount: 0,
+        nextAchievement: null,
       },
       milestonesError: "Could not load your achievements.",
     };

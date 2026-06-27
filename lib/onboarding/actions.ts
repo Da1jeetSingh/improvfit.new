@@ -15,12 +15,16 @@ import {
   hasBowlingDetails,
   isOnboardingComplete,
   playerRoles,
+  playingLevels,
+  skillLevels,
   type BattingHand,
   type BattingOrder,
   type BowlingHand,
   type BowlingStyleDetail,
   type BowlingType,
   type PlayerRole,
+  type PlayingLevel,
+  type SkillLevel,
 } from "@/types/profile";
 
 export type OnboardingActionState = {
@@ -40,6 +44,23 @@ function parseRequiredEnum<T extends string>(
   return text as T;
 }
 
+function parseBooleanField(
+  value: FormDataEntryValue | null,
+  label: string,
+): boolean | { error: string } {
+  const text = String(value ?? "").trim();
+
+  if (text === "yes") {
+    return true;
+  }
+
+  if (text === "no") {
+    return false;
+  }
+
+  return { error: `Please answer whether you ${label}.` };
+}
+
 export async function completeOnboarding(
   _prevState: OnboardingActionState,
   formData: FormData,
@@ -51,6 +72,48 @@ export async function completeOnboarding(
 
   if (!user) {
     return { error: "You must be signed in to continue." };
+  }
+
+  const academyResult = parseBooleanField(
+    formData.get("is_academy_player"),
+    "are an academy player",
+  );
+  if (typeof academyResult === "object" && "error" in academyResult) {
+    return { error: academyResult.error };
+  }
+
+  const professionalResult = parseBooleanField(
+    formData.get("played_professionally"),
+    "have played professionally",
+  );
+  if (typeof professionalResult === "object" && "error" in professionalResult) {
+    return { error: professionalResult.error };
+  }
+
+  const tracksResult = parseBooleanField(
+    formData.get("tracks_performance"),
+    "currently track performance",
+  );
+  if (typeof tracksResult === "object" && "error" in tracksResult) {
+    return { error: tracksResult.error };
+  }
+
+  const playingLevelResult = parseRequiredEnum<PlayingLevel>(
+    formData.get("playing_level"),
+    playingLevels,
+    "playing level",
+  );
+  if (typeof playingLevelResult === "object" && "error" in playingLevelResult) {
+    return { error: playingLevelResult.error };
+  }
+
+  const skillLevelResult = parseRequiredEnum<SkillLevel>(
+    formData.get("skill_level"),
+    skillLevels,
+    "skill level",
+  );
+  if (typeof skillLevelResult === "object" && "error" in skillLevelResult) {
+    return { error: skillLevelResult.error };
   }
 
   const roleResult = parseRequiredEnum<PlayerRole>(
@@ -67,6 +130,11 @@ export async function completeOnboarding(
     id: user.id,
     email: user.email,
     role,
+    is_academy_player: academyResult,
+    played_professionally: professionalResult,
+    tracks_performance: tracksResult,
+    playing_level: playingLevelResult,
+    skill_level: skillLevelResult,
     batting_hand: null,
     batting_order: null,
     bowling_hand: null,
@@ -139,6 +207,12 @@ export async function completeOnboarding(
     email: user.email ?? null,
     full_name: null,
     age: null,
+    mobile_number: null,
+    avatar_url: null,
+    is_academy_player: academyResult,
+    played_professionally: professionalResult,
+    tracks_performance: tracksResult,
+    playing_level: playingLevelResult,
     role,
     batting_hand: profileUpdate.batting_hand as BattingHand | null,
     batting_order: profileUpdate.batting_order as BattingOrder | null,
@@ -147,7 +221,7 @@ export async function completeOnboarding(
     bowling_style_details: profileUpdate.bowling_style_details as
       | BowlingStyleDetail
       | null,
-    skill_level: null,
+    skill_level: skillLevelResult,
     personal_goals: null,
     onboarding_completed: false,
     created_at: new Date().toISOString(),

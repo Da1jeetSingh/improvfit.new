@@ -17,6 +17,12 @@ function profileFromAuthUser(user: User): PlayerProfile {
     email: user.email ?? null,
     full_name: typeof fullName === "string" && fullName.length > 0 ? fullName : null,
     age: null,
+    mobile_number: null,
+    avatar_url: null,
+    is_academy_player: null,
+    played_professionally: null,
+    tracks_performance: null,
+    playing_level: null,
     role: null,
     batting_hand: null,
     batting_order: null,
@@ -40,6 +46,16 @@ function toPlayerProfile(
     email: (row.email as string | null | undefined) ?? null,
     full_name: (row.full_name as string | null | undefined) ?? null,
     age: (row.age as number | null | undefined) ?? null,
+    mobile_number: (row.mobile_number as string | null | undefined) ?? null,
+    avatar_url: (row.avatar_url as string | null | undefined) ?? null,
+    is_academy_player:
+      (row.is_academy_player as boolean | null | undefined) ?? null,
+    played_professionally:
+      (row.played_professionally as boolean | null | undefined) ?? null,
+    tracks_performance:
+      (row.tracks_performance as boolean | null | undefined) ?? null,
+    playing_level:
+      (row.playing_level as PlayerProfile["playing_level"] | undefined) ?? null,
     role: (row.role as PlayerProfile["role"] | undefined) ?? null,
     batting_hand:
       (row.batting_hand as PlayerProfile["batting_hand"] | undefined) ?? null,

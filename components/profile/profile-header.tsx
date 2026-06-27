@@ -4,7 +4,7 @@ import { formatLabel } from "@/components/ui/form-styles";
 import { formatProfileValue, type PlayerProfile } from "@/types/profile";
 import { cn } from "@/lib/utils";
 
-import { ProfileAvatar } from "./profile-avatar";
+import { ProfileAvatarUpload } from "./profile-avatar-upload";
 
 type ProfileHeaderProps = {
   profile: PlayerProfile;
@@ -19,7 +19,11 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
     <header className="ds-surface-subtle overflow-hidden px-5 py-6 sm:px-7 sm:py-8">
       <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex min-w-0 items-start gap-4 sm:gap-5">
-          <ProfileAvatar name={profile.full_name} email={profile.email} />
+          <ProfileAvatarUpload
+            name={profile.full_name}
+            email={profile.email}
+            avatarUrl={profile.avatar_url}
+          />
 
           <div className="min-w-0 space-y-2">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-green-sage">

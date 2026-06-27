@@ -21,12 +21,16 @@ import {
   bowlingStyleDetails,
   bowlingTypes,
   playerRoles,
+  playingLevels,
+  skillLevels,
   type BattingHand,
   type BattingOrder,
   type BowlingHand,
   type BowlingStyleDetail,
   type BowlingType,
   type PlayerRole,
+  type PlayingLevel,
+  type SkillLevel,
 } from "@/types/profile";
 
 const initialState: OnboardingActionState = {};
@@ -35,6 +39,16 @@ const roleDescriptions: Record<(typeof playerRoles)[number], string> = {
   batsman: "Track batting form, strike rates, and scoring patterns.",
   bowler: "Log spells, variations, and bowling workload.",
   "all-rounder": "Balance batting and bowling in one performance hub.",
+};
+
+const playingLevelDescriptions: Record<(typeof playingLevels)[number], string> = {
+  grassroots: "Just getting started or playing socially.",
+  school: "School or college cricket.",
+  club: "Regular club or league cricket.",
+  academy: "Structured academy development.",
+  county: "County or state-level cricket.",
+  "semi-professional": "Paid or semi-pro cricket.",
+  professional: "Full-time or pro cricket.",
 };
 
 type OnboardingFlowProps = {
@@ -47,6 +61,15 @@ export function OnboardingFlow({ email }: OnboardingFlowProps) {
     initialState,
   );
   const [step, setStep] = useState(0);
+  const [isAcademyPlayer, setIsAcademyPlayer] = useState<boolean | null>(null);
+  const [playedProfessionally, setPlayedProfessionally] = useState<
+    boolean | null
+  >(null);
+  const [tracksPerformance, setTracksPerformance] = useState<boolean | null>(
+    null,
+  );
+  const [playingLevel, setPlayingLevel] = useState<PlayingLevel | null>(null);
+  const [skillLevel, setSkillLevel] = useState<SkillLevel | null>(null);
   const [role, setRole] = useState<PlayerRole | null>(null);
   const [battingHand, setBattingHand] = useState<BattingHand | null>(null);
   const [battingOrder, setBattingOrder] = useState<BattingOrder | null>(null);
@@ -58,15 +81,14 @@ export function OnboardingFlow({ email }: OnboardingFlowProps) {
   const needsBatting = role === "batsman" || role === "all-rounder";
   const needsBowling = role === "bowler" || role === "all-rounder";
   const totalSteps =
-    1 +
+    2 +
     (needsBatting ? 1 : 0) +
     (needsBowling ? 1 : 0) +
     (needsBowling && bowlingType === "spinner" ? 1 : 0);
 
-  const currentStepIndex = step;
   const progress = Math.min(
     100,
-    Math.round(((currentStepIndex + 1) / Math.max(totalSteps, 1)) * 100),
+    Math.round(((step + 1) / Math.max(totalSteps, 1)) * 100),
   );
 
   function goNext() {
@@ -84,7 +106,7 @@ export function OnboardingFlow({ email }: OnboardingFlowProps) {
     setBowlingHand(null);
     setBowlingType(null);
     setBowlingStyleDetail(null);
-    setStep(1);
+    setStep(2);
   }
 
   function handleBowlingTypeSelect(nextType: BowlingType) {
@@ -94,14 +116,24 @@ export function OnboardingFlow({ email }: OnboardingFlowProps) {
     }
   }
 
-  const showBattingStep = needsBatting && step === 1;
-  const bowlingStepIndex = needsBatting ? 2 : 1;
+  const showBackgroundStep = step === 0;
+  const showRoleStep = step === 1;
+  const battingStepIndex = 2;
+  const showBattingStep = needsBatting && step === battingStepIndex;
+  const bowlingStepIndex = needsBatting ? 3 : 2;
   const showBowlingStep = needsBowling && step === bowlingStepIndex;
   const spinnerStepIndex = bowlingStepIndex + 1;
   const showSpinnerStep =
     needsBowling && bowlingType === "spinner" && step === spinnerStepIndex;
   const showReviewStep = step === totalSteps;
 
+  const canContinueBackground = Boolean(
+    isAcademyPlayer !== null &&
+      playedProfessionally !== null &&
+      tracksPerformance !== null &&
+      playingLevel &&
+      skillLevel,
+  );
   const canContinueBatting = Boolean(battingHand && battingOrder);
   const canContinueBowling = Boolean(bowlingHand && bowlingType);
   const canContinueSpinner = Boolean(bowlingStyleDetail);
@@ -128,33 +160,104 @@ export function OnboardingFlow({ email }: OnboardingFlowProps) {
             </div>
           </div>
 
-          {step === 0 ? (
+          {showBackgroundStep ? (
             <section className="space-y-6">
               <div>
                 <h1 className="text-2xl font-bold tracking-tight text-green-deep sm:text-3xl">
-                  Personalize IMPROV
+                  Tell us about your cricket
                 </h1>
                 <p className="mt-3 text-sm leading-relaxed text-muted">
                   {email
-                    ? `Welcome. Tell us how you play so we can tailor your experience from day one.`
-                    : "Tell us how you play so we can tailor your experience from day one."}
+                    ? "A few quick questions so IMPROV can tailor your experience."
+                    : "A few quick questions so IMPROV can tailor your experience."}
                 </p>
               </div>
 
+              <BooleanQuestion
+                label="Are you an academy player?"
+                value={isAcademyPlayer}
+                onChange={setIsAcademyPlayer}
+              />
+
+              <BooleanQuestion
+                label="Have you played professionally?"
+                value={playedProfessionally}
+                onChange={setPlayedProfessionally}
+              />
+
+              <BooleanQuestion
+                label="Do you currently track performance?"
+                value={tracksPerformance}
+                onChange={setTracksPerformance}
+              />
+
               <div>
-                <p className={labelClassName}>Your primary role</p>
+                <p className={labelClassName}>What level do you play at?</p>
                 <div className="mt-3 space-y-3">
-                  {playerRoles.map((option) => (
+                  {playingLevels.map((level) => (
                     <OptionCard
-                      key={option}
-                      label={formatLabel(option)}
-                      description={roleDescriptions[option]}
-                      selected={role === option}
-                      onClick={() => handleRoleSelect(option)}
+                      key={level}
+                      label={formatLabel(level)}
+                      description={playingLevelDescriptions[level]}
+                      selected={playingLevel === level}
+                      onClick={() => setPlayingLevel(level)}
                     />
                   ))}
                 </div>
               </div>
+
+              <div>
+                <p className={labelClassName}>How would you rate your skill?</p>
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  {skillLevels.map((level) => (
+                    <OptionCard
+                      key={level}
+                      label={formatLabel(level)}
+                      selected={skillLevel === level}
+                      onClick={() => setSkillLevel(level)}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <Button
+                type="button"
+                className="w-full"
+                size="lg"
+                disabled={!canContinueBackground}
+                onClick={goNext}
+              >
+                Continue
+              </Button>
+            </section>
+          ) : null}
+
+          {showRoleStep ? (
+            <section className="space-y-6">
+              <div>
+                <h2 className="text-2xl font-bold tracking-tight text-green-deep">
+                  Your primary role
+                </h2>
+                <p className="mt-3 text-sm leading-relaxed text-muted">
+                  We will shape your dashboard and insights around this.
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                {playerRoles.map((option) => (
+                  <OptionCard
+                    key={option}
+                    label={formatLabel(option)}
+                    description={roleDescriptions[option]}
+                    selected={role === option}
+                    onClick={() => handleRoleSelect(option)}
+                  />
+                ))}
+              </div>
+
+              <Button type="button" variant="ghost" onClick={goBack}>
+                Back
+              </Button>
             </section>
           ) : null}
 
@@ -184,7 +287,7 @@ export function OnboardingFlow({ email }: OnboardingFlowProps) {
               </div>
 
               <div>
-                <p className={labelClassName}>Batting order</p>
+                <p className={labelClassName}>Batting role</p>
                 <div className="mt-3 space-y-3">
                   {battingOrders.map((order) => (
                     <OptionCard
@@ -205,7 +308,13 @@ export function OnboardingFlow({ email }: OnboardingFlowProps) {
                   type="button"
                   className="flex-1"
                   disabled={!canContinueBatting}
-                  onClick={goNext}
+                  onClick={() => {
+                    if (needsBowling) {
+                      goNext();
+                      return;
+                    }
+                    setStep(totalSteps);
+                  }}
                 >
                   Continue
                 </Button>
@@ -322,12 +431,32 @@ export function OnboardingFlow({ email }: OnboardingFlowProps) {
                   You are all set
                 </h2>
                 <p className="mt-3 text-sm leading-relaxed text-muted">
-                  IMPROV will personalize your dashboard around your role and
-                  playing style.
+                  IMPROV will personalize your dashboard around your cricket
+                  background and playing style.
                 </p>
               </div>
 
               <dl className="space-y-3 rounded-2xl border border-border bg-surface-raised p-5 shadow-soft">
+                <SummaryRow
+                  label="Academy player"
+                  value={formatYesNo(isAcademyPlayer)}
+                />
+                <SummaryRow
+                  label="Played professionally"
+                  value={formatYesNo(playedProfessionally)}
+                />
+                <SummaryRow
+                  label="Tracks performance"
+                  value={formatYesNo(tracksPerformance)}
+                />
+                <SummaryRow
+                  label="Playing level"
+                  value={playingLevel ? formatLabel(playingLevel) : "—"}
+                />
+                <SummaryRow
+                  label="Skill level"
+                  value={skillLevel ? formatLabel(skillLevel) : "—"}
+                />
                 <SummaryRow label="Role" value={role ? formatLabel(role) : "—"} />
                 {needsBatting ? (
                   <>
@@ -336,7 +465,7 @@ export function OnboardingFlow({ email }: OnboardingFlowProps) {
                       value={battingHand ? formatLabel(battingHand) : "—"}
                     />
                     <SummaryRow
-                      label="Batting order"
+                      label="Batting role"
                       value={battingOrder ? formatLabel(battingOrder) : "—"}
                     />
                   </>
@@ -366,6 +495,27 @@ export function OnboardingFlow({ email }: OnboardingFlowProps) {
               </dl>
 
               <form action={formAction} className="space-y-4">
+                <input
+                  type="hidden"
+                  name="is_academy_player"
+                  value={formatYesNoValue(isAcademyPlayer)}
+                />
+                <input
+                  type="hidden"
+                  name="played_professionally"
+                  value={formatYesNoValue(playedProfessionally)}
+                />
+                <input
+                  type="hidden"
+                  name="tracks_performance"
+                  value={formatYesNoValue(tracksPerformance)}
+                />
+                <input
+                  type="hidden"
+                  name="playing_level"
+                  value={playingLevel ?? ""}
+                />
+                <input type="hidden" name="skill_level" value={skillLevel ?? ""} />
                 <input type="hidden" name="role" value={role ?? ""} />
                 {battingHand ? (
                   <input type="hidden" name="batting_hand" value={battingHand} />
@@ -413,6 +563,50 @@ export function OnboardingFlow({ email }: OnboardingFlowProps) {
       </div>
     </div>
   );
+}
+
+function BooleanQuestion({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: boolean | null;
+  onChange: (next: boolean) => void;
+}) {
+  return (
+    <div>
+      <p className={labelClassName}>{label}</p>
+      <div className="mt-3 grid grid-cols-2 gap-3">
+        <OptionCard
+          label="Yes"
+          selected={value === true}
+          onClick={() => onChange(true)}
+        />
+        <OptionCard
+          label="No"
+          selected={value === false}
+          onClick={() => onChange(false)}
+        />
+      </div>
+    </div>
+  );
+}
+
+function formatYesNo(value: boolean | null) {
+  if (value === null) {
+    return "—";
+  }
+
+  return value ? "Yes" : "No";
+}
+
+function formatYesNoValue(value: boolean | null) {
+  if (value === null) {
+    return "";
+  }
+
+  return value ? "yes" : "no";
 }
 
 function SummaryRow({ label, value }: { label: string; value: string }) {

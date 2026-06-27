@@ -32,6 +32,7 @@ function buildAchievement(
     title: definition.title,
     description: definition.description,
     icon: definition.icon,
+    category: definition.category,
     unlocked,
     unlockedAt: persistedAt,
     current,
@@ -59,9 +60,13 @@ export function evaluateAchievements(
     (achievement) => achievement.unlocked,
   ).length;
 
+  const nextAchievement =
+    achievements.find((achievement) => !achievement.unlocked) ?? null;
+
   return {
     achievements,
     unlockedCount,
     totalCount: achievements.length,
+    nextAchievement,
   };
 }
