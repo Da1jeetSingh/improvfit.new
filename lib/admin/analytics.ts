@@ -13,9 +13,16 @@ export type FounderAnalytics = {
   profileCompletions: number;
   trainingSessions: number;
   matchEntries: number;
+  userGrowthTrend: WeeklyTrendPoint[];
+  activeUsersTrend: WeeklyTrendPoint[];
   signupTrend: WeeklyTrendPoint[];
-  activityTrend: WeeklyTrendPoint[];
+  trainingTrend: WeeklyTrendPoint[];
+  matchTrend: WeeklyTrendPoint[];
+  profileCompletionTrend: WeeklyTrendPoint[];
+  trendWeekCount: number;
 };
+
+const TREND_WEEK_COUNT = 8;
 
 function startOfUtcDay(date: Date) {
   return new Date(
@@ -40,13 +47,17 @@ function getWeekLabel(date: Date) {
 }
 
 function buildWeeklyBuckets(weekCount: number, now: Date) {
-  const buckets: { start: Date; label: string }[] = [];
+  const buckets: { start: Date; end: Date; label: string }[] = [];
 
   for (let index = weekCount - 1; index >= 0; index -= 1) {
     const start = startOfUtcWeek(now);
     start.setUTCDate(start.getUTCDate() - index * 7);
+    const end = new Date(start);
+    end.setUTCDate(end.getUTCDate() + 7);
+
     buckets.push({
       start,
+      end,
       label: getWeekLabel(start),
     });
   }
@@ -54,15 +65,13 @@ function buildWeeklyBuckets(weekCount: number, now: Date) {
   return buckets;
 }
 
-function getWeekIndex(dateValue: string, buckets: { start: Date }[]) {
+function getWeekIndex(dateValue: string, buckets: { start: Date; end: Date }[]) {
   const date = startOfUtcDay(new Date(`${dateValue.slice(0, 10)}T00:00:00Z`));
 
   for (let index = buckets.length - 1; index >= 0; index -= 1) {
-    const bucketStart = buckets[index].start;
-    const bucketEnd = new Date(bucketStart);
-    bucketEnd.setUTCDate(bucketEnd.getUTCDate() + 7);
+    const bucket = buckets[index];
 
-    if (date >= bucketStart && date < bucketEnd) {
+    if (date >= bucket.start && date < bucket.end) {
       return index;
     }
   }
@@ -84,6 +93,7 @@ function requireAdminClient() {
 
 async function countProfiles(filter?: {
   createdAfter?: Date;
+  createdBefore?: Date;
   onboardingCompleted?: boolean;
 }) {
   const supabase = requireAdminClient();
@@ -94,6 +104,10 @@ async function countProfiles(filter?: {
 
   if (filter?.createdAfter) {
     query = query.gte("created_at", filter.createdAfter.toISOString());
+  }
+
+  if (filter?.createdBefore) {
+    query = query.lt("created_at", filter.createdBefore.toISOString());
   }
 
   if (filter?.onboardingCompleted !== undefined) {
@@ -109,12 +123,25 @@ async function countProfiles(filter?: {
   return count ?? 0;
 }
 
-async function countTable(table: "training_sessions" | "matches") {
+async function countTable(
+  table: "training_sessions" | "matches",
+  filter?: { createdAfter?: string; createdBefore?: string },
+) {
   const supabase = requireAdminClient();
 
-  const { count, error } = await supabase
-    .from(table)
-    .select("id", { count: "exact", head: true });
+  let query = supabase.from(table).select("id", { count: "exact", head: true });
+
+  const dateColumn = table === "training_sessions" ? "session_date" : "played_on";
+
+  if (filter?.createdAfter) {
+    query = query.gte(dateColumn, filter.createdAfter);
+  }
+
+  if (filter?.createdBefore) {
+    query = query.lt(dateColumn, filter.createdBefore);
+  }
+
+  const { count, error } = await query;
 
   if (error) {
     throw new Error(error.message);
@@ -136,6 +163,45 @@ async function countActiveUsers(activeSince: Date) {
       .from("matches")
       .select("user_id")
       .gte("played_on", activeSinceDate),
+  ]);
+
+  if (trainingResult.error) {
+    throw new Error(trainingResult.error.message);
+  }
+
+  if (matchResult.error) {
+    throw new Error(matchResult.error.message);
+  }
+
+  const activeUserIds = new Set<string>();
+
+  for (const row of trainingResult.data ?? []) {
+    activeUserIds.add(row.user_id);
+  }
+
+  for (const row of matchResult.data ?? []) {
+    activeUserIds.add(row.user_id);
+  }
+
+  return activeUserIds.size;
+}
+
+async function countActiveUsersInRange(start: Date, end: Date) {
+  const supabase = requireAdminClient();
+  const startDate = start.toISOString().slice(0, 10);
+  const endDate = end.toISOString().slice(0, 10);
+
+  const [trainingResult, matchResult] = await Promise.all([
+    supabase
+      .from("training_sessions")
+      .select("user_id")
+      .gte("session_date", startDate)
+      .lt("session_date", endDate),
+    supabase
+      .from("matches")
+      .select("user_id")
+      .gte("played_on", startDate)
+      .lt("played_on", endDate),
   ]);
 
   if (trainingResult.error) {
@@ -189,43 +255,25 @@ async function getSignupTrend(weekCount: number, now: Date) {
   }));
 }
 
-async function getActivityTrend(weekCount: number, now: Date) {
+async function getProfileCompletionTrend(weekCount: number, now: Date) {
   const supabase = requireAdminClient();
   const buckets = buildWeeklyBuckets(weekCount, now);
   const trendStart = buckets[0]?.start ?? startOfUtcWeek(now);
-  const trendStartDate = trendStart.toISOString().slice(0, 10);
 
-  const [trainingResult, matchResult] = await Promise.all([
-    supabase
-      .from("training_sessions")
-      .select("session_date")
-      .gte("session_date", trendStartDate),
-    supabase
-      .from("matches")
-      .select("played_on")
-      .gte("played_on", trendStartDate),
-  ]);
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("updated_at")
+    .eq("onboarding_completed", true)
+    .gte("updated_at", trendStart.toISOString());
 
-  if (trainingResult.error) {
-    throw new Error(trainingResult.error.message);
-  }
-
-  if (matchResult.error) {
-    throw new Error(matchResult.error.message);
+  if (error) {
+    throw new Error(error.message);
   }
 
   const counts = buckets.map(() => 0);
 
-  for (const session of trainingResult.data ?? []) {
-    const weekIndex = getWeekIndex(session.session_date, buckets);
-
-    if (weekIndex >= 0) {
-      counts[weekIndex] += 1;
-    }
-  }
-
-  for (const match of matchResult.data ?? []) {
-    const weekIndex = getWeekIndex(match.played_on, buckets);
+  for (const profile of data ?? []) {
+    const weekIndex = getWeekIndex(profile.updated_at, buckets);
 
     if (weekIndex >= 0) {
       counts[weekIndex] += 1;
@@ -235,6 +283,69 @@ async function getActivityTrend(weekCount: number, now: Date) {
   return buckets.map((bucket, index) => ({
     label: bucket.label,
     value: counts[index],
+  }));
+}
+
+async function getDateKeyedTrend(
+  weekCount: number,
+  now: Date,
+  table: "training_sessions" | "matches",
+  dateColumn: "session_date" | "played_on",
+) {
+  const supabase = requireAdminClient();
+  const buckets = buildWeeklyBuckets(weekCount, now);
+  const trendStart = buckets[0]?.start ?? startOfUtcWeek(now);
+  const trendStartDate = trendStart.toISOString().slice(0, 10);
+
+  const { data, error } = await supabase
+    .from(table)
+    .select(dateColumn)
+    .gte(dateColumn, trendStartDate);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const counts = buckets.map(() => 0);
+
+  for (const row of data ?? []) {
+    const dateValue = String(row[dateColumn as keyof typeof row]);
+    const weekIndex = getWeekIndex(dateValue, buckets);
+
+    if (weekIndex >= 0) {
+      counts[weekIndex] += 1;
+    }
+  }
+
+  return buckets.map((bucket, index) => ({
+    label: bucket.label,
+    value: counts[index],
+  }));
+}
+
+async function getUserGrowthTrend(weekCount: number, now: Date) {
+  const buckets = buildWeeklyBuckets(weekCount, now);
+
+  const values = await Promise.all(
+    buckets.map((bucket) => countProfiles({ createdBefore: bucket.end })),
+  );
+
+  return buckets.map((bucket, index) => ({
+    label: bucket.label,
+    value: values[index],
+  }));
+}
+
+async function getActiveUsersTrend(weekCount: number, now: Date) {
+  const buckets = buildWeeklyBuckets(weekCount, now);
+
+  const values = await Promise.all(
+    buckets.map((bucket) => countActiveUsersInRange(bucket.start, bucket.end)),
+  );
+
+  return buckets.map((bucket, index) => ({
+    label: bucket.label,
+    value: values[index],
   }));
 }
 
@@ -253,8 +364,12 @@ export async function getFounderAnalytics(): Promise<FounderAnalytics> {
     profileCompletions,
     trainingSessions,
     matchEntries,
+    userGrowthTrend,
+    activeUsersTrend,
     signupTrend,
-    activityTrend,
+    trainingTrend,
+    matchTrend,
+    profileCompletionTrend,
   ] = await Promise.all([
     countProfiles(),
     countProfiles({ createdAfter: todayStart }),
@@ -263,8 +378,12 @@ export async function getFounderAnalytics(): Promise<FounderAnalytics> {
     countProfiles({ onboardingCompleted: true }),
     countTable("training_sessions"),
     countTable("matches"),
-    getSignupTrend(4, now),
-    getActivityTrend(4, now),
+    getUserGrowthTrend(TREND_WEEK_COUNT, now),
+    getActiveUsersTrend(TREND_WEEK_COUNT, now),
+    getSignupTrend(TREND_WEEK_COUNT, now),
+    getDateKeyedTrend(TREND_WEEK_COUNT, now, "training_sessions", "session_date"),
+    getDateKeyedTrend(TREND_WEEK_COUNT, now, "matches", "played_on"),
+    getProfileCompletionTrend(TREND_WEEK_COUNT, now),
   ]);
 
   return {
@@ -275,7 +394,12 @@ export async function getFounderAnalytics(): Promise<FounderAnalytics> {
     profileCompletions,
     trainingSessions,
     matchEntries,
+    userGrowthTrend,
+    activeUsersTrend,
     signupTrend,
-    activityTrend,
+    trainingTrend,
+    matchTrend,
+    profileCompletionTrend,
+    trendWeekCount: TREND_WEEK_COUNT,
   };
 }

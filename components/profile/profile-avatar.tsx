@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 type ProfileAvatarProps = {
   name: string | null;
   email: string | null;
+  avatarUrl?: string | null;
   className?: string;
   size?: "md" | "lg";
 };
@@ -31,10 +32,26 @@ export function getProfileInitials(
 export function ProfileAvatar({
   name,
   email,
+  avatarUrl,
   className,
   size = "lg",
 }: ProfileAvatarProps) {
   const initials = getProfileInitials(name, email);
+
+  if (avatarUrl) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={avatarUrl}
+        alt={name ? `${name} profile photo` : "Profile photo"}
+        className={cn(
+          "shrink-0 rounded-2xl border border-green-sage/30 object-cover shadow-soft",
+          size === "lg" ? "h-20 w-20" : "h-14 w-14",
+          className,
+        )}
+      />
+    );
+  }
 
   return (
     <div

@@ -62,9 +62,25 @@ export async function signup(
 ): Promise<AuthActionState> {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
+  const fullName = String(formData.get("full_name") ?? "").trim();
+  const mobileNumber = String(formData.get("mobile_number") ?? "").trim();
+  const ageText = String(formData.get("age") ?? "").trim();
 
   if (!email || !password) {
     return { error: "Email and password are required." };
+  }
+
+  if (!fullName || fullName.length < 2) {
+    return { error: "Please enter your full name." };
+  }
+
+  if (!mobileNumber || mobileNumber.length < 8) {
+    return { error: "Please enter a valid mobile number." };
+  }
+
+  const age = Number(ageText);
+  if (!Number.isInteger(age) || age < 5 || age > 100) {
+    return { error: "Age must be a whole number between 5 and 100." };
   }
 
   if (password.length < 8) {
@@ -78,6 +94,11 @@ export async function signup(
       password,
       options: {
         emailRedirectTo: getAuthCallbackUrl(onboardingRoute),
+        data: {
+          full_name: fullName,
+          age,
+          mobile_number: mobileNumber,
+        },
       },
     });
 
@@ -92,10 +113,27 @@ export async function signup(
       };
     }
 
+    if (data.user) {
+      await supabase.from("profiles").upsert(
+        {
+          id: data.user.id,
+          email,
+          full_name: fullName,
+          age,
+          mobile_number: mobileNumber,
+        },
+        { onConflict: "id" },
+      );
+    }
+
     if (data.session) {
       redirect(onboardingRoute);
     }
   } catch (error) {
+    if (error instanceof Error && error.message === "NEXT_REDIRECT") {
+      throw error;
+    }
+
     console.error("[auth] signup failed:", error);
     return { error: authFailureMessage(error, "Account creation failed.") };
   }

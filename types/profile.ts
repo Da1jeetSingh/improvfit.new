@@ -21,6 +21,16 @@ export const skillLevels = [
   "elite",
 ] as const;
 
+export const playingLevels = [
+  "grassroots",
+  "school",
+  "club",
+  "academy",
+  "county",
+  "semi-professional",
+  "professional",
+] as const;
+
 export type PlayerRole = (typeof playerRoles)[number] | "wicket-keeper";
 export type BattingHand = (typeof battingHands)[number];
 export type BattingOrder = (typeof battingOrders)[number];
@@ -28,12 +38,19 @@ export type BowlingHand = (typeof bowlingHands)[number];
 export type BowlingType = (typeof bowlingTypes)[number];
 export type BowlingStyleDetail = (typeof bowlingStyleDetails)[number];
 export type SkillLevel = (typeof skillLevels)[number];
+export type PlayingLevel = (typeof playingLevels)[number];
 
 export type PlayerProfile = {
   id: string;
   email: string | null;
   full_name: string | null;
   age: number | null;
+  mobile_number: string | null;
+  avatar_url: string | null;
+  is_academy_player: boolean | null;
+  played_professionally: boolean | null;
+  tracks_performance: boolean | null;
+  playing_level: PlayingLevel | null;
   role: PlayerRole | null;
   batting_hand: BattingHand | null;
   batting_order: BattingOrder | null;
@@ -48,7 +65,7 @@ export type PlayerProfile = {
 };
 
 export const profileSelect =
-  "id, email, full_name, age, role, batting_hand, batting_order, bowling_hand, bowling_type, bowling_style_details, skill_level, personal_goals, onboarding_completed, created_at, updated_at";
+  "id, email, full_name, age, mobile_number, avatar_url, is_academy_player, played_professionally, tracks_performance, playing_level, role, batting_hand, batting_order, bowling_hand, bowling_type, bowling_style_details, skill_level, personal_goals, onboarding_completed, created_at, updated_at";
 
 export function hasBattingDetails(
   profile: Pick<PlayerProfile, "batting_hand" | "batting_order">,
