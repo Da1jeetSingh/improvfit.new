@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="300" viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="300" fill="transparent"/>
+  <g fill="#003d2b" transform="translate(280, 80)">
+    <path d="M6 140 L68 140 L68 84 Z"/>
+    <path d="M77 140 L92 140 L92 84 L77 70 Z M98.5 140 L113.5 140 L113.5 63 L98.5 49 Z M116 140 L131 140 L131 42 L116 28 Z"/>
+  </g>
+  <text x="400" y="220" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="96" font-weight="700" fill="#003d2b" letter-spacing="8">IMPROV</text>
+</svg>
